@@ -264,10 +264,10 @@ void SetupServerAddr::GetAppList() {
             return;
         }
     } else {
-//        std::string errMsg = Poco::format("检测服务器版本号请求失败，与服务器版本可能不匹配, 请检查地址是否正确或联系服务器管理员获得帮助。Err: %s",
-//                                          getCoreServerVersionInfo.message());
-//        status_messsage_->SetText(utils::StringToWstring(errMsg), false);
-//        return;
+        std::string errMsg = "检测服务器版本号请求失败，与服务器版本可能不匹配, 请检查地址是否正确或联系服务器管理员获得帮助。Err:"
+                + getCoreServerVersionInfo.message();
+        status_messsage_->SetText(utils::StringToWstring(errMsg), false);
+        return;
     }
 
     status_messsage_->SetText(L"发送请求获取应用列表检测服务器地址", false);

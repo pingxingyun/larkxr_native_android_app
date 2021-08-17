@@ -11,7 +11,7 @@ android {
         minSdkVersion 25
         targetSdkVersion 30
         versionCode 1
-        versionName "3.1.8.6"
+        versionName "3.2.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -106,7 +106,7 @@ android {
 dependencies {
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
-    implementation(name: 'larkxr-kit-3.1.8.1-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.0-build-1', ext: 'aar')
     implementation(name: 'libdevicesuit-release', ext: 'aar')
     implementation(name: 'nibiru_vr_pro_sdk_2_4_8', ext: 'jar')
 }

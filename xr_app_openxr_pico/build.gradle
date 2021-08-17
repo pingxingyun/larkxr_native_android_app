@@ -13,7 +13,7 @@ android {
         minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
-        versionName "3.1.8.0"
+        versionName "3.2.0.6"
 
         shaders {
             glslcArgs.addAll(['-c', '-g'])
@@ -90,5 +90,5 @@ android {
 dependencies {
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
-    implementation(name: 'larkxr-kit-3.1.8.1-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.0-build-1', ext: 'aar')
 }

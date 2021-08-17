@@ -14,9 +14,9 @@ public:
     ClientLogError();
     ~ClientLogError();
     // send sync
-    void Send(const std::string& errorCode, const std::string& errorMsg, const std::string& params);
+    void Send(const std::string& errorCode, const std::string& errorMsg, const std::string& params, const std::string& clientMac);
     // send async
-    void SendAsync(const std::string& errorCode, const std::string& errorMsg, const std::string& params);
+    void SendAsync(const std::string& errorCode, const std::string& errorMsg, const std::string& params, const std::string& clientMac);
 
     int http_code() const;
     int api_result_code() const;

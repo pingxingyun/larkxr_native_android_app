@@ -11,7 +11,7 @@ android {
         minSdkVersion MIN_SDK_VERSION_XR
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
-        versionName "3.1.8.6"
+        versionName "3.2.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -97,5 +97,5 @@ dependencies {
 
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
-    implementation(name: 'larkxr-kit-3.1.8.1-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.0-build-1', ext: 'aar')
 }
