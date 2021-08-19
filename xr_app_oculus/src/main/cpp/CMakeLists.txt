@@ -74,7 +74,7 @@ target_include_directories(lark_xr_oculus PRIVATE
         ${third_party_base_dir}/freetype/include/
         ${third_party_base_dir}/glm/include/
         ${third_party_base_dir}/assimp/include/
-        ${third_party_base_dir}/poco/include/
+#        ${third_party_base_dir}/poco/include/
         )
 
 find_library( # Sets the name of the path variable.
@@ -98,6 +98,7 @@ target_link_libraries( # Specifies the target library.
         OpenMAXAL
 
         # first party
+        lib_lark_common
         lib_lark_pxygl
         lib_lark_xr
         lib_lark_xr_common_ui

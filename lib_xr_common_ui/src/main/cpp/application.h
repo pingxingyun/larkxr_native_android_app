@@ -8,9 +8,13 @@
 #include <android_native_app_glue.h>
 #include "lark_xr/xr_client.h"
 
-#define LARK_SDK_ID "fef4c74872834b359e6c735d3db646a1"
-#ifndef LARK_SDK_ID
-#error "请配置SDK ID. 如果没有请联系商务获取."
+// 使用内部 ID 初始化
+// 注意内部 ID 对外保密。
+#define LARK_SDK_ID "2ad9f9a6aa454a11df274e900613510b"
+#define LARK_SDK_SECRET "52b07a8437d39b6cda59cdf4f994f4aa59ce1aba90d9cf247b09b3568c75d4d7"
+
+#ifdef LARK_SDK_SECRET
+#include "lark_xr/pxy_inner_utils.h"
 #endif
 
 //

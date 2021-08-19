@@ -64,7 +64,6 @@ target_include_directories(lark_xr_htc PRIVATE
         ${third_party_base_dir}/glm/include/
         ${third_party_base_dir}/assimp/include/
         ${third_party_base_dir}/wvr_client/include/
-        ${third_party_base_dir}/poco/include/
         )
 
 find_library( # Sets the name of the path variable.
@@ -85,9 +84,10 @@ target_link_libraries( # Specifies the target library.
         mediandk
         OpenMAXAL
 
+        lib_lark_common
+        lib_lark_xr
         # first party
         lib_lark_pxygl
-        lib_lark_xr
         lib_lark_xr_common_ui
         # wave api
         lib_wave_api

@@ -56,7 +56,6 @@ target_include_directories(lark_xr_xms
 		${third_party_base_dir}/glm/include/
 		${third_party_base_dir}/assimp/include/
 		${third_party_base_dir}/wvr_client/include/
-		${third_party_base_dir}/poco/include/
 		${third_party_base_dir}/ffmpeg/include/
 		${third_party_base_dir}/svr_xms/include/
 )
@@ -85,8 +84,6 @@ target_link_libraries( # Specifies the target library.
 						lib_assimp_android_jniiosystem
 						# ndk glue
 						#        app_glue
-						# poco
-						libPocoFoundation
 						# svr
 						lib_svrapi
 						# xms device

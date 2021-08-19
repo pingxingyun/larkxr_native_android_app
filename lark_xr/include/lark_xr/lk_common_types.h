@@ -7,8 +7,8 @@
 
 // sdk version.
 const int LARK_NATIVE_CLIENT_SDK_VERSION_MARJOR = 3;
-const int LARK_NATIVE_CLIENT_SDK_VERSION_MINOR  = 1;
-const int LARK_NATIVE_CLIENT_SDK_VERSION_REVISE = 8;
+const int LARK_NATIVE_CLIENT_SDK_VERSION_MINOR  = 2;
+const int LARK_NATIVE_CLIENT_SDK_VERSION_REVISE = 0;
 const int LARK_NATIVE_CLIENT_SDK_VERSION_BUILD  = 5;
 
 /// vr setup
@@ -224,7 +224,7 @@ typedef enum larkEventTypes_ {
     //
     LK_APP_PROCESS_NOTIFI_APP_QUIT                    = 900,
     // 无操作超时
-    LK_NO_OPERATION_TIMEOUT                           = 901,
+    LK_NO_OPERATION_TIMEOUT                           = 910,
 
     //
     // XR 相关事件

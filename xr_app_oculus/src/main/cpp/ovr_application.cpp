@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <lark_xr/xr_config.h>
 #include <asset_files.h>
-#include <Poco/Format.h>
 #include "ovr_application.h"
 #include "log.h"
 #include "egl_utils.h"

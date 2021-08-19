@@ -83,7 +83,6 @@ target_include_directories(lark_xr_openxr_pico
 		${third_party_base_dir}/freetype/include/
 		${third_party_base_dir}/glm/include/
 		${third_party_base_dir}/assimp/include/
-		${third_party_base_dir}/poco/include/
 		${third_party_base_dir}/tinyobj/src/
 )
 

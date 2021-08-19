@@ -117,7 +117,6 @@ target_include_directories(${LIBNAME} PRIVATE
     ${third_party_base_dir}/freetype/include/
     ${third_party_base_dir}/glm/include/
     ${third_party_base_dir}/assimp/include/
-    ${third_party_base_dir}/poco/include/
 )
 
 include(${project_base_dir}/cmake/utils.cmake)
@@ -147,5 +146,4 @@ target_link_libraries( # Specifies the target library.
     lib_freetype
     # glm
     lib_glm
-    libPocoFoundation
 )

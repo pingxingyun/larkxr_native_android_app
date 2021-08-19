@@ -8,7 +8,6 @@
 #include <log.h>
 #include <lark_xr/xr_latency_collector.h>
 #include <lark_xr/xr_config.h>
-#include <Poco/Timestamp.h>
 #include <unistd.h>
 #include <utils.h>
 #include "pvr_application.h"
@@ -249,7 +248,8 @@ void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
     } while (true);
 #else
     if (xr_client_->media_ready()) {
-        Poco::Timestamp timestamp;
+        timeval timestamp{};
+        gettimeofday(&timestamp, nullptr);
         do {
             if (!connected_) {
                 break;
@@ -258,8 +258,10 @@ void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
                 has_new_frame_ = xr_client_->Render(&cloud_tracking_);
                 break;
             }
-            Poco::Timestamp::TimeDiff elapsed =  timestamp.elapsed();
-            if (elapsed > 100 * 1000) {
+            timeval now{};
+            gettimeofday(&now, nullptr);
+            uint64_t elapsed = timeval_subtract_millsecond(now, timestamp);
+            if (elapsed > 100) {
                 LOGW("wait for new frame timeout. skip. %ld", elapsed);
                 break;
             }

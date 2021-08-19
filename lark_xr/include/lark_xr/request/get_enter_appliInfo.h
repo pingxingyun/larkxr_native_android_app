@@ -17,15 +17,28 @@ struct EnterAppliInfo
 	int         appPort;
 	std::string appliId;
 	std::string taskId;
-	std::string initWinSize;
+	int         initWinSize;
 	std::string preferPubOutIp;
 	int         noOperationTimeout;
 	int         wsProxy;
-	std::string initCursorMode;
+	int         initCursorMode;
 	std::string logLevel;
-	std::string rttLimit;
-	std::string rttLimitInterval;
+	int         rttLimit;
+	int         rttLimitInterval;
+	int         fullScreenMode;
 	// useGamePad
+	std::string touchOperateMode;
+	std::string groupId;
+	int         mobileForceLandscape;
+	std::string language;
+	std::string serverId;
+	int         network;
+	int         playerListToggle;
+	std::string bgColor;
+	int         mobileVirtualJoystick;
+	int         taskStatus;
+	int         mouseZoomDirection;
+	int         useGamepad;
 };
 
 class GetEnterAppliInfoImp;

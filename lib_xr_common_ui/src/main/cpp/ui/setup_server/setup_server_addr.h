@@ -7,7 +7,6 @@
 
 #include "ui/view.h"
 #include "ui/component/keyboard.h"
-#include "Poco/RunnableAdapter.h"
 
 class SetupServerAddr: public View, public Keyboard::Callback {
 public:
@@ -82,7 +81,7 @@ private:
 
     std::shared_ptr<Text> status_messsage_;
 
-    Poco::RunnableAdapter<SetupServerAddr> get_applist_adapter_;
+    std::function<void()> get_applist_adapter_;
     bool is_detecting_ = false;
 };
 

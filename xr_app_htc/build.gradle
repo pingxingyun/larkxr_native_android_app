@@ -11,7 +11,7 @@ android {
         minSdkVersion 25
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
-        versionName "3.1.8.5"
+        versionName "3.2.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -23,10 +23,10 @@ android {
                 arguments "-DANDROID_STL=c++_shared"
             }
             ndk {
-                abiFilters 'armeabi-v7a','arm64-v8a'
+                abiFilters 'arm64-v8a'
             }
             ndkBuild {
-                abiFilters 'armeabi-v7a','arm64-v8a'
+                abiFilters 'arm64-v8a'
             }
         }
 
@@ -77,7 +77,7 @@ android {
             }
             def type = "htc";
 
-            outputFileName =  "cloudlark-xr-" +
+            outputFileName =  "lark-xr-" +
                     defaultConfig.versionName + "-build-" +
                     build + "-" + type + "-beta-" + abi + ".apk"
         }
@@ -101,5 +101,5 @@ dependencies {
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
 
-    implementation(name: 'larkxr-kit-3.1.8.0-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.0-build-1', ext: 'aar')
 }

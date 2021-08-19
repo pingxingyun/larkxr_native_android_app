@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/lib_pxygl" />
             <option value="$PROJECT_DIR$/lib_xr_common_ui" />
             <option value="$PROJECT_DIR$/xr_app_htc" />
+            <option value="$PROJECT_DIR$/xr_app_nolo" />
             <option value="$PROJECT_DIR$/xr_app_oculus" />
             <option value="$PROJECT_DIR$/xr_app_openxr_pico" />
             <option value="$PROJECT_DIR$/xr_app_pico" />

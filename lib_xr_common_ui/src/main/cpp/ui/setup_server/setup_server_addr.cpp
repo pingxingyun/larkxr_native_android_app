@@ -9,8 +9,6 @@
 #include <application.h>
 #include <ui/home/home.h>
 #include <ui/navigation.h>
-#include <Poco/Format.h>
-#include <Poco/ThreadPool.h>
 #include "setup_server_addr.h"
 #include "lark_xr/xr_client.h"
 #include "lark_xr/request/get_appli_list.h"
@@ -31,7 +29,7 @@ using namespace lark;
 
 SetupServerAddr::SetupServerAddr(Navigation *navigation):
     View(navigation),
-    get_applist_adapter_(*this, &SetupServerAddr::GetAppList)
+    get_applist_adapter_(std::bind(&SetupServerAddr::GetAppList, this))
 {
     SetupServerAddr::Init();
 }
@@ -232,7 +230,9 @@ void SetupServerAddr::setServerAddr() {
         app->SetServerAddr(ip, port);
     }
     if (!is_detecting_) {
-        Poco::ThreadPool::defaultPool().start(get_applist_adapter_);
+        std::thread thread(get_applist_adapter_);
+        thread.detach();
+//        Poco::ThreadPool::defaultPool().start(get_applist_adapter_);
     } else {
         Navigation::ShowToast("正在检测中");
     }
@@ -253,20 +253,21 @@ void SetupServerAddr::GetAppList() {
         if (info.marjor == LARK_NATIVE_CLIENT_SDK_VERSION_MARJOR && info.minor == LARK_NATIVE_CLIENT_SDK_VERSION_MINOR) {
             status_messsage_->SetText(L"检测服务器版本号成功", false);
         } else {
-            std::string errMsg = Poco::format("检测到与服务器版本号不匹配，服务器版本 [%d.%d] 客户端 SDK 版本 [%d.%d]",
+            char buffer[100];
+            sprintf(buffer, "检测到与服务器版本号不匹配，服务器版本 [%d.%d] 客户端 SDK 版本 [%d.%d]",
                                               info.marjor, info.minor,
                                               LARK_NATIVE_CLIENT_SDK_VERSION_MARJOR,
                                               LARK_NATIVE_CLIENT_SDK_VERSION_MINOR);
-            status_messsage_->SetText(utils::StringToWstring(errMsg), false);
+            status_messsage_->SetText(utils::StringToWstring(buffer), false);
             // reset status
             is_detecting_ = false;
             return;
         }
     } else {
-//        std::string errMsg = Poco::format("检测服务器版本号请求失败，与服务器版本可能不匹配, 请检查地址是否正确或联系服务器管理员获得帮助。Err: %s",
-//                                          getCoreServerVersionInfo.message());
-//        status_messsage_->SetText(utils::StringToWstring(errMsg), false);
-//        return;
+        std::string errMsg = "检测服务器版本号请求失败，与服务器版本可能不匹配, 请检查地址是否正确或联系服务器管理员获得帮助。Err:"
+                + getCoreServerVersionInfo.message();
+        status_messsage_->SetText(utils::StringToWstring(errMsg), false);
+        return;
     }
 
     status_messsage_->SetText(L"发送请求获取应用列表检测服务器地址", false);
@@ -276,7 +277,7 @@ void SetupServerAddr::GetAppList() {
     if (getAppliList.is_success()) {
         status_messsage_->SetText(L"当前地址检测成功。点击返回按钮可返回首页。", false);
     } else {
-        std::string errMsg = Poco::format("应用列表请求失败，请检查地址是否正确或联系服务器管理员获得帮助。Err: %s", getAppliList.message());
+        std::string errMsg = "应用列表请求失败，请检查地址是否正确或联系服务器管理员获得帮助。Err:" + getAppliList.message();
         status_messsage_->SetText(utils::StringToWstring(errMsg), false);
     }
     // reset status

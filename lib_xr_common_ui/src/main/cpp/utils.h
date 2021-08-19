@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "application.h"
 
 // Return micro second.  Should always positive because now is bigger.
 #define timeval_subtract(now, last) \
@@ -92,24 +93,19 @@ namespace utils {
         return std::to_string(ms);
     }
 
+#ifdef LARK_SDK_SECRET
     inline static std::string GetSignature(const std::string& appkey, const std::string& secret, const std::string& utc_millseconds)
     {
-        std::vector<std::string> sort_vector;
-        sort_vector.push_back(appkey);
-        sort_vector.push_back(secret);
-        sort_vector.push_back(utc_millseconds);
-
-        std::sort(sort_vector.begin(), sort_vector.end());
-
-        std::string source;
-        for (auto& s: sort_vector)
-        {
-            source.append(s);
-        }
-
         // digestToHex
-        return source;
+        return lark::GetSignature(appkey, secret, utc_millseconds);
     }
+#else
+    inline static std::string GetSignature(const std::string& appkey, const std::string& secret, const std::string& utc_millseconds)
+    {
+        // digestToHex
+        return "";
+    }
+#endif
 }
 
 #endif //MY_APPLICATION_UTILS_H
