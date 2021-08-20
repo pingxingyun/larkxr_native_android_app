@@ -55,6 +55,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
         public void onThreadStart() {
             leftController = cvManager.getMainController();
             rightController = cvManager.getSubController();
+
 //            updateConnectState(leftController.getConnectState() << 1 | leftController.getSerialNum());
 //            updateConnectState(rightController.getConnectState() << 1 | rightController.getSerialNum());
         }

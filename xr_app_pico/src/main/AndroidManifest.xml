@@ -24,11 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data
-            android:name="com.picovr.type"
-            android:value="vr" />
 
-        <activity android:name="com.pxy.cloudlarkxrpico.MainActivity"
+        <activity android:name=".ListActivity"
             android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation|screenSize"
             tools:ignore="LockedOrientationActivity">
@@ -37,6 +34,21 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name="com.pxy.cloudlarkxrpico.MainActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask"
+            tools:ignore="LockedOrientationActivity">
+                    <meta-data
+                        android:name="com.picovr.type"
+                        android:value="vr" />
+<!--            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
         </activity>
     </application>
 
