@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">云雀XR HTC</string>
+    <string name="UserH265">是否使用H265协议</string>
+    <string name="UseFec">开启FEC报告？</string>
+    <string name="ReportFecFailed">是否开启固定注视点渲染？</string>
+    <string name="use_10bit">是否开启10bit编码？</string>
+    <string name="vibrator">是否开启手柄震动</string>
+    <string name="list3D">三维列表</string>
+    <string name="device_2880x1584">分辨率device 2880x1584</string>
+    <string name="QuickConfigLevel">快速配置</string>
+    <string name="centerControl">集中管控模式中，请等待</string>
 </resources>

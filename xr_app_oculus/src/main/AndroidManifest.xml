@@ -24,8 +24,20 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         >
-        <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>
+<!--        <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>-->
+
+        <activity android:name=".ListActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".MainActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
             android:launchMode="singleTask"
@@ -34,12 +46,16 @@
             android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode">
             <!-- Tell NativeActivity the name of our .so -->
             <meta-data android:name="android.app.lib_name" android:value="lark_xr_oculus" />
+            <meta-data android:name="com.oculus.supportedDevices" android:value="quest|quest2"/>
+            <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>
+<!--            <meta-data android:name="android.app.lib_name" android:value="CloudXRClientOVR"/>-->
+
             <!-- This filter lets the apk show up as a launchable icon. -->
-            <intent-filter>
+<!--            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
     </application>
 

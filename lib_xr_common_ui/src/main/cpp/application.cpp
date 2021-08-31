@@ -28,6 +28,10 @@ Application::Application() = default;
 Application::~Application() = default;
 
 void Application::EnterAppli(const std::string &appId) {
+    LOGE("on enter appli","enter");
+    if (xr_client_) {
+        xr_client_->EnterAppli(appId);
+    }
 }
 
 void Application::CloseAppli() {

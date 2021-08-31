@@ -329,11 +329,13 @@ bool WaveApplication::OnUpdate() {
 
 void WaveApplication::EnterAppli(const std::string &appId) {
     LOGI("==========EnterAppli %s", appId.c_str());
-    xr_client_->EnterAppli(appId);
+    if (xr_client_)
+        xr_client_->EnterAppli(appId);
 }
 
 void WaveApplication::CloseAppli() {
-    xr_client_->Close();
+    if (xr_client_)
+        xr_client_->Close();
 }
 
 void WaveApplication::OnConnected() {
@@ -365,22 +367,26 @@ void WaveApplication::OnClose(int code) {
 // andoird lifecycle
 void WaveApplication::OnCreate() {
     LOGV("*************OnCreate");
-    xr_client_->OnCreated();
+    if (xr_client_)
+        xr_client_->OnCreated();
 }
 
 void WaveApplication::OnResume() {
     LOGV("*************OnResume");
-    xr_client_->OnResume();
+    if (xr_client_)
+        xr_client_->OnResume();
 }
 
 void WaveApplication::OnPause() {
     LOGV("*************OnPause");
-    xr_client_->OnPause();
+    if (xr_client_)
+        xr_client_->OnPause();
 }
 
 void WaveApplication::OnDestory() {
     LOGV("*************OnDestory");
-    xr_client_->OnDestory();
+    if (xr_client_)
+        xr_client_->OnDestory();
 }
 
 void WaveApplication::OnMediaReady(int nativeTextrure) {

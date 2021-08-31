@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -19,24 +22,35 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pxy.cloudlarkxrkit.Config;
 import com.pxy.larkcore.ClientLifeManager;
+import com.pxy.larkcore.CloudlarkManager;
+import com.pxy.larkcore.ImSocketChannel;
 import com.pxy.larkcore.SocketChannelObserver;
+import com.pxy.larkcore.Util;
 import com.pxy.larkcore.request.AppListItem;
 import com.pxy.larkcore.request.Base;
+import com.pxy.larkcore.request.Bean.GetRunModeBean;
+import com.pxy.larkcore.request.EnterAppliInfo;
 import com.pxy.larkcore.request.GetAppliList;
-import com.pxy.larkcore.request.ImServerSocket;
+import com.pxy.larkcore.request.GetRunMode;
 import com.pxy.larkcore.request.PageInfo;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
+import okhttp3.HttpUrl;
+
 public class ListActivity extends Activity {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "ListActivity";
 
     private static final String SETTING = "pxy_setting";
     private static final String SETTING_SERVER = "serverAddress";
@@ -51,7 +65,7 @@ public class ListActivity extends Activity {
     private Button settingIP,settingTab,confirmip,closeip,closeSetTab;
     private RecyclerView rec;
 
-    private LinearLayout setIp,advancedList,setTab;
+    private LinearLayout setIp,advancedList,setTab,selfOnline;
     private EditText inputIp,inputPort;
 
     private AppListAdapter appListAdapter;
@@ -61,23 +75,28 @@ public class ListActivity extends Activity {
     private RadioButton QuickConfigLevel_Manual,QuickConfigLevel_Auto,QuickConfigLevel_Fast,QuickConfigLevel_Normal,QuickConfigLevel_Extreme;
 
     private SeekBar resolutionScaleBar,coderateBar;
-    private TextView resolutionScale,coderate;
+    private TextView resolutionScale,coderate,SelfOnlineText;
 
     private RadioGroup StreamType;
     private RadioButton larkStreamType_UDP,larkStreamType_TCP,larkStreamType_THROTTLED_UDP;
 
-    private ImServerSocket imServerSocket;
-
+    private ImSocketChannel imSocketChannel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Init();
         setContentView(R.layout.activity_list);
         FindViewById();
+        Init();
         initview();
     }
+
+    public Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            getMessage(msg);
+        }
+    };
 
     private void Init(){
         SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
@@ -90,7 +109,9 @@ public class ListActivity extends Activity {
         mServerIp = sp.getString(SETTING_SERVER, "");
         useHttps = sp.getBoolean(SETTING_SERVER_USE_HTTPS, false);
 
-        clientLifeManager=new ClientLifeManager(this);
+        CloudlarkManager.init(this,CloudlarkManager.APP_TYPE_VR);
+
+        readconfig();
     }
 
 
@@ -103,6 +124,8 @@ public class ListActivity extends Activity {
         int spancount=screenWidth>screenHeight?4:2;*/
         GridLayoutManager gridLayoutManager=new GridLayoutManager(this,4);
         rec.setLayoutManager(gridLayoutManager);
+
+        selfOnline=findViewById(R.id.SelfOnline);
 
         setTab=findViewById(R.id.setTab);
         setIp =findViewById(R.id.setIP);
@@ -129,6 +152,8 @@ public class ListActivity extends Activity {
         coderateBar=findViewById(R.id.coderateBar);
         coderate=findViewById(R.id.coderate);
 
+        SelfOnlineText=findViewById(R.id.SelfOnlineText);
+
         StreamType=findViewById(R.id.StreamType);
         larkStreamType_UDP=findViewById(R.id.larkStreamType_UDP);
         larkStreamType_TCP=findViewById(R.id.larkStreamType_TCP);
@@ -139,8 +164,25 @@ public class ListActivity extends Activity {
         UseFovRending=findViewById(R.id.UseFovRending);
         Use10Bit=findViewById(R.id.Use10Bit);
     }
+
     private void readconfig() {
         config=Config.readFromCache(this);
+
+        if (mServerIp == null || mServerIp.isEmpty()) {
+            Log.d(TAG, "unset serverAddress");
+            showSetupIP();
+        } else {
+            String outhttp=mServerIp.substring(7);
+            Log.e("outhttp",outhttp);
+            inputIp.setText(outhttp.split(":")[0]);
+            inputPort.setText(outhttp.split(":")[1]);
+            Base.setServerAddr(useHttps, mServerIp);
+            config.serverIp=outhttp.split(":")[0];
+            config.serverPort= Integer.parseInt(outhttp.split(":")[1]);
+            dorequest();
+        }
+
+
         ListActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -177,22 +219,9 @@ public class ListActivity extends Activity {
             }
         });
     }
+
     private void initview() {
         Log.d(TAG, "cached server address use https " + useHttps + " serverIp " + mServerIp);
-
-        if (mServerIp == null || mServerIp.isEmpty()) {
-            Log.d(TAG, "unset serverAddress");
-            showSetupIP();
-        } else {
-            String outhttp=mServerIp.substring(7);
-            Log.e("outhttp",outhttp);
-            inputIp.setText(outhttp.split(":")[0]);
-            inputPort.setText(outhttp.split(":")[1]);
-            Base.setServerAddr(useHttps, mServerIp);
-            dorequest();
-        }
-
-
 
         settingIP.setOnClickListener(v -> showSetupIP());
         closeip.setOnClickListener(v -> setIp.setVisibility(View.GONE));
@@ -357,6 +386,8 @@ public class ListActivity extends Activity {
         editor.apply();
         Base.setServerAddr(false, mServerIp);
         setIp.setVisibility(View.GONE);
+        config.serverIp=inputIp.getText().toString();
+        config.serverPort= Integer.parseInt(inputPort.getText().toString());
         dorequest();
     }
 
@@ -367,8 +398,7 @@ public class ListActivity extends Activity {
             return;
         }
 
-        imServerSocket=new ImServerSocket(socketChannelObserver);
-        imServerSocket.connect();
+        clientLifeManager=new ClientLifeManager(this);
 
         new GetAppliList(new GetAppliList.Callback() {
             @Override
@@ -383,17 +413,54 @@ public class ListActivity extends Activity {
                 toastInner(s);
             }
         }).getAppliList();
+
+        imSocketChannel=new ImSocketChannel(socketChannelObserver,ListActivity.this);
+        //imSocketChannel.connect();
+        getRunMode();
+    }
+
+    private void getRunMode(){
+        new GetRunMode(new GetRunMode.Callback() {
+            @Override
+            public void onSuccess(GetRunModeBean getRunModeBean) {
+                setMessage(2,getRunModeBean,2000);
+            }
+
+            @Override
+            public void onFail(String s) {
+                Log.e("getRunModeFaile", s);
+            }
+        }).dorequest(Util.getLocalMacAddress(ListActivity.this));
     }
 
     private void toastInner(final String msg) {
         runOnUiThread(() -> Toast.makeText(ListActivity.this, msg, Toast.LENGTH_SHORT).show());
     }
 
-    public Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            getMessage(msg);
+    private void toJavaBeanS(String s){
+        try {
+            JSONObject jsonObject=new JSONObject(s);
+            switch (jsonObject.optString("type")){
+                case ImSocketChannel.IM_MESSAGE_TYPE_KEEPALIVE:{
+                    break;
+                }
+                case ImSocketChannel.IM_MESSAGE_TYPE_START:{
+
+                    break;
+                }
+                case ImSocketChannel.IM_MESSAGE_TYPE_STOP:{
+
+                    break;
+                }
+                case ImSocketChannel.IM_MESSAGE_TYPE_CONNECT_SUCCESS:{
+                    toastInner("连接成功");
+                    break;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-    };
+    }
 
     private void setMessage(int what,Object obj){
         Message message = Message.obtain();
@@ -403,58 +470,210 @@ public class ListActivity extends Activity {
         handler.sendMessage(message);
     }
 
-    private void getMessage(Message msg){
-        if (msg.what==1){
-            List<AppListItem> list= (List<AppListItem>) msg.obj;
-            appListAdapter=new AppListAdapter(ListActivity.this,list);
-            rec.setAdapter(appListAdapter);
-        }
+    private void setMessage(int what,Object obj,long time){
+        Message message = Message.obtain();
+        message.what=what;
+        message.obj=obj;
+        //message.obj = ToJavaBean.toJavaBean(value,obj);
+        handler.sendMessageDelayed(message,time);
     }
-
     @Override
     protected void onStart() {
         super.onStart();
-        clientLifeManager.ClientOnline();
+        if(clientLifeManager!=null){
+            clientLifeManager.ClientOnline();
+        }
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        clientLifeManager.ClientOffline();
+        Config.saveToCache(this,config);
+        if(clientLifeManager!=null) {
+            clientLifeManager.ClientOffline();
+        }
+        if (imSocketChannel!=null) {
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        clientLifeManager.ClientOnline();
+        if(clientLifeManager!=null) {
+            clientLifeManager.ClientOnline();
+        }
+        if (imSocketChannel!=null) {
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.sendKeepAlive();
+            } else {
+                imSocketChannel.connect();
+                imSocketChannel.sendKeepAlive();
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        clientLifeManager.ClientOffline();
-        imServerSocket.close();
+        if(clientLifeManager!=null) {
+            clientLifeManager.ClientOffline();
+        }
+        if (imSocketChannel!=null) {
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
+            }
+        }
     }
 
     private SocketChannelObserver socketChannelObserver=new SocketChannelObserver() {
         @Override
         public void onOpen() {
-
+            Log.e(TAG, "onOpen");
         }
 
         @Override
         public void onClose() {
-
+            Log.e(TAG, "onClose");
         }
 
         @Override
         public void onError(String s) {
-
+            Log.e(TAG, "onError:"+s);
         }
 
         @Override
         public void onMessage(byte[] bytes) {
+            Log.e(TAG, "onMessagebyt:"+bytes.toString());
+        }
 
+        @Override
+        public void onMessage(String s) {
+            Log.e(TAG, "onMessagestr:"+s);
+            toJavaBeanS(s);
         }
     };
+
+    private void getMessage(Message msg){
+        if (msg.what==1){
+            List<AppListItem> list= (List<AppListItem>) msg.obj;
+            appListAdapter=new AppListAdapter(ListActivity.this,list);
+            rec.setAdapter(appListAdapter);
+        }else if (msg.what==2){
+            GetRunModeBean getRunModeBean= (GetRunModeBean) msg.obj;
+            Log.e("gerrunmode", getRunModeBean.toString());
+            if (getRunModeBean.getCode()==1000){
+                if (getRunModeBean.getResult().getRunMode().equals("1")){
+                    selfOnline.setVisibility(View.GONE);
+                    SelfOnlineText.setVisibility(View.VISIBLE);
+
+                    Intent intent=new Intent(ListActivity.this, MainActivity.class);
+                    intent.putExtra("appid",getRunModeBean.getResult().getPrimaryClientId());
+                    Intent extraIntent = new Intent("android.intent.action.MAIN");
+                    extraIntent.addCategory("android.intent.category.LAUNCHER");
+                    intent.putExtra("intent", extraIntent);
+                    startActivity(intent);
+                }else {
+                    selfOnline.setVisibility(View.VISIBLE);
+                    SelfOnlineText.setVisibility(View.GONE);
+                }
+                getRunMode();
+            }else {
+                toastInner(getRunModeBean.getMessage());
+            };
+
+        }
+    }
+
+
+    public class AppListAdapter extends  RecyclerView.Adapter<AppListAdapter.ViewHolder> {
+        private Context context;
+        private List<AppListItem> appListItems;
+        private AppListAdapter(Context context, List<AppListItem> appListItems){
+            this.context=context;
+            this.appListItems=appListItems;
+        }
+        @Override
+        public AppListAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.applist_item,viewGroup,false);
+            AppListAdapter.ViewHolder holder =new AppListAdapter.ViewHolder(view);
+            return holder;
+        }
+
+        @Override
+        public void onBindViewHolder(AppListAdapter.ViewHolder viewHolder, int i) {
+            AppListItem data=appListItems.get(i);
+            viewHolder.appname.setText(data.getAppliName());
+
+            viewHolder.item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent=new Intent(context, MainActivity.class);
+                    intent.putExtra("appid",data.getAppliId());
+                    Intent extraIntent = new Intent("android.intent.action.MAIN");
+                    extraIntent.addCategory("android.intent.category.LAUNCHER");
+                    intent.putExtra("intent", extraIntent);
+                    context.startActivity(intent);
+     /*           new EnterAppliInfo(new EnterAppliInfo.Callback() {
+                    @Override
+                    public void onSuccess(EnterAppliInfo.Config config) {
+                        Intent intent=new Intent(context, MainActivity.class);
+                        intent.putExtra(EnterAppliInfo.Config.name,config);
+                        Intent extraIntent = new Intent("android.intent.action.MAIN");
+                        extraIntent.addCategory("android.intent.category.LAUNCHER");
+                        //extraIntent.setComponent(new ComponentName("com.DefaultCompany.UnityTestAndroid", "com.example.bootcomplete.MainActivity"));
+                        intent.putExtra("intent", extraIntent);
+
+                        Log.e("Configappid", config.appilId);
+                        Log.e("Configappid", config.nickname);
+
+                        context.startActivity(intent);
+                    }
+
+                    @Override
+                    public void onFail(String s) {
+                        Log.e("onFail", s);
+                    }
+                },Util.getLocalMacAddress(context)).enterApp(data);*/
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return appListItems.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+        
+        private class ViewHolder extends RecyclerView.ViewHolder{
+            TextView appname;
+            LinearLayout item;
+            public ViewHolder (View view)
+            {
+                super(view);
+                appname=view.findViewById(R.id.appname);
+                item=view.findViewById(R.id.item);
+            }
+        }
+
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent keyEvent) {
+        Log.e("listkeyevent", keyEvent.getAction()+"");
+        return super.dispatchKeyEvent(keyEvent);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.e("listkeyCode", keyCode+"");
+        return super.onKeyDown(keyCode, event);
+    }
 }

@@ -66,6 +66,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <EditText
+            android:textColor="#000000"
             android:focusable="true"
             android:id="@+id/inputIp"
             android:hint="请输入IP地址"
@@ -74,6 +75,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <EditText
+            android:textColor="#000000"
             android:focusable="true"
             android:id="@+id/inputPort"
             android:hint="请输入端口号"

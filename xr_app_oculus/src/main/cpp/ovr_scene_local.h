@@ -28,6 +28,7 @@ public:
     bool Update(ovrMobile * ovr) override;
 
     void HomePage();
+    void LoadingPage();
 protected:
     bool HandleInput(ovrMobile * ovr) override;
     bool Render(ovrMobile * ovr) override;

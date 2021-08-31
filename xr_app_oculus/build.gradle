@@ -82,20 +82,31 @@ android {
     }
 
     packagingOptions {
-        pickFirst "lib/arm64-v8a/libglm.so"
+/*        pickFirst "lib/arm64-v8a/libglm.so"
         pickFirst "lib/armeabi-v7a/libglm.so"
 
         pickFirst "lib/arm64-v8a/libPocoFoundation.so"
+        pickFirst "lib/armeabi-v7a/libPocoFoundation.so"*/
+        pickFirst "lib/arm64-v8a/libglm.so"
+        pickFirst "lib/armeabi-v7a/libglm.so"
+        pickFirst "lib/arm64-v8a/libPocoFoundation.so"
         pickFirst "lib/armeabi-v7a/libPocoFoundation.so"
+        pickFirst "lib/arm64-v8a/libprotobuf.so"
+        pickFirst "lib/armeabi-v7a/libprotobuf.so"
+        pickFirst "lib/arm64-v8a/libc++_shared.so"
+        pickFirst "lib/armeabi-v7a/libc++_shared.so"
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'androidx.annotation:annotation:1.2.0'
-
+    implementation 'com.squareup.okhttp3:okhttp:3.12.+'
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
     implementation(name: 'larkxr-kit-3.2.0.0-build-1', ext: 'aar')
+    implementation(name: 'lark-core-kit-3.2.0.0-build-1', ext: 'aar')
+
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }

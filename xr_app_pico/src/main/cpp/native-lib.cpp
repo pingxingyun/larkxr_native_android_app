@@ -242,7 +242,7 @@ Java_com_pxy_cloudlarkxrpico_MainActivity_nativeUpdateController(JNIEnv *env, jo
     // cv button enum
     jclass cvControllerButton = env->FindClass("com/picovr/cvclient/ButtonNum");
     jfieldID f_home = env->GetStaticFieldID(cvControllerButton, "home",
-                                                 "Lcom/picovr/cvclient/ButtonNum;");
+                                            "Lcom/picovr/cvclient/ButtonNum;");
     jfieldID f_app = env->GetStaticFieldID(cvControllerButton, "app",
                                            "Lcom/picovr/cvclient/ButtonNum;");
     jfieldID f_click = env->GetStaticFieldID(cvControllerButton, "click",
@@ -278,8 +278,8 @@ Java_com_pxy_cloudlarkxrpico_MainActivity_nativeUpdateController(JNIEnv *env, jo
     // pico sdk 里 LG 和 RG 是左边的grip和右边的grip的意思。不是左手的grip和右手的grip的意思
     // 左手只有右边grip，右手只有左边grip。
     jboolean grip = controllerType == PvrConTroller_Left ?
-            env->CallBooleanMethod(controller, mid_buttonState, env->GetStaticObjectField(cvControllerButton, f_buttonRG))
-            : env->CallBooleanMethod(controller, mid_buttonState, env->GetStaticObjectField(cvControllerButton, f_buttonLG));
+                    env->CallBooleanMethod(controller, mid_buttonState, env->GetStaticObjectField(cvControllerButton, f_buttonRG))
+                                                         : env->CallBooleanMethod(controller, mid_buttonState, env->GetStaticObjectField(cvControllerButton, f_buttonLG));
     //
     jfloatArray orientation = static_cast<jfloatArray>(env->CallObjectMethod(controller,
                                                                              mid_orientation));
@@ -384,4 +384,39 @@ JNIEXPORT void JNICALL
 Java_com_pxy_cloudlarkxrpico_MainActivity_nativeSetControlerBatteryLevel(JNIEnv *env, jobject thiz,
                                                                          jint right, jint left) {
     lark::XRClient::SetControlerBatteryLevel(left, right);
+}
+
+/*extern "C"
+JNIEXPORT void JNICALL
+Java_com_pxy_cloudlarkxrpico_MainActivity_intoApp(JNIEnv *env, jobject thiz, jlong ptr, jobject rtc_params) {
+    // TODO: implement intoApp()
+    LogE("intoapp","into");
+
+    jclass cls = (*env).GetObjectClass(rtc_params);
+    jfieldID jfieldId=env->GetFieldID(cls,"appilId", "Ljava/lang/String;");
+    jstring appid= static_cast<jstring>(env->GetObjectField(rtc_params, jfieldId));
+    const char *charappid = env->GetStringUTFChars(appid, 0);
+    LogE("appid","%s", charappid);
+    PvrApplication* application = (PvrApplication*)ptr;
+    if (application == nullptr) {
+        return;
+    }
+
+    application->EnterAppli(charappid);
+    env->ReleaseStringUTFChars(appid, charappid);
+    env->DeleteLocalRef(cls);
+}*/
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_pxy_cloudlarkxrpico_MainActivity_intoApp__JLjava_lang_String_2(JNIEnv *env, jobject thiz,jlong ptr,jstring rtc_params) {
+    // TODO: implement intoApp()
+    PvrApplication* application = (PvrApplication*)ptr;
+    if (application == nullptr) {
+        return;
+    }
+    const char *charappid = env->GetStringUTFChars(rtc_params, 0);
+    LogE("appid","%s", charappid);
+    application->EnterAppli(charappid);
+    env->ReleaseStringUTFChars(rtc_params, charappid);
 }

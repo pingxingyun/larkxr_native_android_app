@@ -112,6 +112,10 @@ void OvrApplication::InitJava() {
 //    scene_cloud_->InitJava(&java_, use_multiview_);
     scene_local_->InitGL(frame_buffer_, num_buffers_);
     scene_cloud_->InitGL(frame_buffer_, num_buffers_);
+
+    if(!pre_appid_.empty()) {
+        scene_local_->LoadingPage();
+    }
 }
 
 void OvrApplication::ShutdownVR() {
@@ -267,6 +271,10 @@ void OvrApplication::HandleVrModeChange() {
                         Navigation::ShowToast(xr_client_->last_error_message());
                     }
 #endif
+                    LOGV("pre appid ========== %s", pre_appid_.c_str());
+                    if (!pre_appid_.empty()) {
+                        EnterAppli(pre_appid_);
+                    }
                 }
                 // setup fov
                 {

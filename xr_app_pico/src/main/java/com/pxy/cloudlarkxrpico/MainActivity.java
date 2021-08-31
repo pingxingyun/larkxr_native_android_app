@@ -1,14 +1,22 @@
 package com.pxy.cloudlarkxrpico;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 
+import com.picovr.client.HbController;
+import com.picovr.client.HbListener;
+import com.picovr.client.HbManager;
+import com.picovr.cvclient.ButtonNum;
 import com.picovr.cvclient.CVController;
 import com.picovr.cvclient.CVControllerListener;
 import com.picovr.cvclient.CVControllerManager;
 import com.picovr.picovrlib.cvcontrollerclient.ControllerClient;
+import com.picovr.picovrlib.hummingbird.HummingBirdControllerService;
 import com.picovr.vractivity.Eye;
 import com.picovr.vractivity.HmdState;
 import com.picovr.vractivity.RenderInterface;
@@ -17,8 +25,11 @@ import com.psmart.vrlib.PicovrSDK;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
+import com.pxy.larkcore.request.Base;
+import com.pxy.larkcore.request.EnterAppliInfo;
 
 import java.io.File;
+import java.util.List;
 
 
 public class MainActivity extends VRActivity implements RenderInterface {
@@ -55,7 +66,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
         public void onThreadStart() {
             leftController = cvManager.getMainController();
             rightController = cvManager.getSubController();
-
 //            updateConnectState(leftController.getConnectState() << 1 | leftController.getSerialNum());
 //            updateConnectState(rightController.getConnectState() << 1 | rightController.getSerialNum());
         }
@@ -72,7 +82,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
         @Override
         public void onChannelChanged(int i, int i1) {        }
     };
-
+    private EnterAppliInfo.Config rtcParams;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setFlags(
@@ -132,7 +142,10 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.d(TAG, "on create nativeApplication " + nativeApplication);
 //        boolean res = PicovrSDK.setTrackingOriginType(1);
 //        Log.d(TAG, "set tracking origin " + res);
+
+
     }
+
 
     @Override
     protected void onResume() {
@@ -186,6 +199,23 @@ public class MainActivity extends VRActivity implements RenderInterface {
             checkBatteryTimestamp = now;
         }
 
+        if (rightController.getButtonState(ButtonNum.home)){
+            Log.e("homeDownkey","true" );
+        }
+
+        if (rightController.getButtonState(ButtonNum.click)){
+            Log.e("clickDownkey","true" );
+        }
+
+        if (rightController.getButtonState(ButtonNum.buttonAX)){
+            Log.e("buttonAXDownkey","true" );
+        }
+
+        if (rightController.getButtonState(ButtonNum.app)){
+            Log.e("appDownkey","true" );
+/*            MainActivity.this.finish();
+            startActivity(new Intent(MainActivity.this, ListActivity.class));*/
+        }
 //        Log.d(TAG, "controller ori " + Arrays.toString(leftController.getOrientation())  + " " + Arrays.toString(leftController.getPosition()));
 
         nativeUpdateController(nativeApplication, 0, leftController);
@@ -243,6 +273,13 @@ public class MainActivity extends VRActivity implements RenderInterface {
     public void initGL(int width, int height) {
         Log.d(TAG, "init gl " + width + " " + height);
         nativeInitGl(nativeApplication, width, height);
+
+/*        rtcParams = getIntent().getParcelableExtra(EnterAppliInfo.Config.name);
+        if (rtcParams!=null){
+            intoApp(nativeApplication,rtcParams);
+        }*/
+        String appid=getIntent().getStringExtra("appid");
+        intoApp(nativeApplication,appid);
     }
 
     @Override
@@ -292,4 +329,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
     private native void nativeOnRenderDestory(long ptr);
     //
     private native void nativeSetControlerBatteryLevel(int left, int right);
+
+//    private native void intoApp(long ptr, EnterAppliInfo.Config rtcParams);
+    private native void intoApp(long ptr, String rtcParams);
 }

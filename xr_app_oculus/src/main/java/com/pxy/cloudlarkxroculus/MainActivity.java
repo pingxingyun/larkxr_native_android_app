@@ -45,6 +45,9 @@ public class MainActivity extends android.app.NativeActivity {
 
         xrSystem = new XrSystem();
         xrSystem.init(this);
+
+        String appid=getIntent().getStringExtra("appid");
+        intoApp(appid);
     }
 
     @Override
@@ -86,4 +89,6 @@ public class MainActivity extends android.app.NativeActivity {
     private native void nativeInit();
     private native void nativeNetworkAvaliable();
     private native void nativeNetworkLost();
+
+    private native void intoApp(String id);
 }

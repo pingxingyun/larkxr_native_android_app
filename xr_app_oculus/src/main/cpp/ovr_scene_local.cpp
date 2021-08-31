@@ -189,3 +189,8 @@ void OvrSceneLocal::OnCloseApp() {
     // TODO 关闭应用
     Application::instance()->CloseAppli();
 }
+
+void OvrSceneLocal::LoadingPage() {
+    LOGV("================LoadingPage");
+    navigation_->SetRouter(Navigation::HOME);
+}

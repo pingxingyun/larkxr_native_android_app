@@ -26,6 +26,8 @@
 #include "assimp/cimport.h"
 #include "assimp/Logger.hpp"
 #include "assimp/DefaultLogger.hpp"
+
+std::string g_appid = "";
 /**
  * Process the next main command.
  */
@@ -77,12 +79,17 @@ void android_main( struct android_app * app )
 
     // init app
     OvrApplication application;
+
+
     if (!application.InitVR(app)) {
         LOGE("init vr failed");
         exit(0);
     }
 
     LOGD("init vr success");
+
+    application.set_pre_appid(g_appid);
+
     if (!application.InitGL()) {
         LOGE("init gl failed");
         application.ShutdownGL();
@@ -95,6 +102,8 @@ void android_main( struct android_app * app )
 
     app->userData = &application;
     app->onAppCmd = app_handle_cmd;
+
+    LogE("ovr_native_application", "g_appid %s", g_appid.c_str());
 
 #if 0
     FILE* file = fopen("/storage/emulated/0/Android/data/com.pxy.cloudlarkxroculus/files/test.txt", "a");
@@ -161,4 +170,22 @@ Java_com_pxy_cloudlarkxroculus_MainActivity_nativeNetworkLost(JNIEnv *env, jobje
     if (application != nullptr) {
         application->OnNetworkLost();
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_pxy_cloudlarkxroculus_MainActivity_intoApp(JNIEnv *env, jobject thiz,jstring id) {
+    // TODO: implement intoApp()
+    LogE("ovr_native_application","-------------------------intoApp");
+    Application* application = Application::instance();
+
+    //ovr_application* application = (ovr_application*)ptr;
+    if (application == nullptr) {
+        return;
+    }
+    const char *charg_appid = env->GetStringUTFChars(id, 0);
+    LogE("ovr_native_application","--------------------%s", charg_appid);
+    g_appid = charg_appid;
+    // application->EnterAppli(charg_appid);
+    env->ReleaseStringUTFChars(id, charg_appid);
 }
