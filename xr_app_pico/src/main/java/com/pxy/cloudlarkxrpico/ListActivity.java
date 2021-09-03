@@ -22,7 +22,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,7 +35,6 @@ import com.pxy.larkcore.Util;
 import com.pxy.larkcore.request.AppListItem;
 import com.pxy.larkcore.request.Base;
 import com.pxy.larkcore.request.Bean.GetRunModeBean;
-import com.pxy.larkcore.request.EnterAppliInfo;
 import com.pxy.larkcore.request.GetAppliList;
 import com.pxy.larkcore.request.GetRunMode;
 import com.pxy.larkcore.request.PageInfo;
@@ -46,8 +44,6 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.List;
-
-import okhttp3.HttpUrl;
 
 public class ListActivity extends Activity {
     private static final String TAG = "ListActivity";
@@ -82,6 +78,7 @@ public class ListActivity extends Activity {
 
     private ImSocketChannel imSocketChannel;
 
+    private Boolean stoprunmode=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -420,6 +417,9 @@ public class ListActivity extends Activity {
     }
 
     private void getRunMode(){
+        if (stoprunmode){
+            return;
+        }
         new GetRunMode(new GetRunMode.Callback() {
             @Override
             public void onSuccess(GetRunModeBean getRunModeBean) {
@@ -527,6 +527,7 @@ public class ListActivity extends Activity {
                 imSocketChannel.close();
             }
         }
+        stoprunmode =true;
     }
 
     private SocketChannelObserver socketChannelObserver=new SocketChannelObserver() {
@@ -607,7 +608,7 @@ public class ListActivity extends Activity {
         public void onBindViewHolder(AppListAdapter.ViewHolder viewHolder, int i) {
             AppListItem data=appListItems.get(i);
             viewHolder.appname.setText(data.getAppliName());
-
+            viewHolder.appid.setText(data.getAppliId());
             viewHolder.item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -653,13 +654,14 @@ public class ListActivity extends Activity {
         }
         
         private class ViewHolder extends RecyclerView.ViewHolder{
-            TextView appname;
+            TextView appname,appid;
             LinearLayout item;
             public ViewHolder (View view)
             {
                 super(view);
                 appname=view.findViewById(R.id.appname);
                 item=view.findViewById(R.id.item);
+                appid=view.findViewById(R.id.appid);
             }
         }
 

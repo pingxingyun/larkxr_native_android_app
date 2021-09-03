@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Process;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -82,7 +83,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
         @Override
         public void onChannelChanged(int i, int i1) {        }
     };
-    private EnterAppliInfo.Config rtcParams;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setFlags(
@@ -142,8 +143,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.d(TAG, "on create nativeApplication " + nativeApplication);
 //        boolean res = PicovrSDK.setTrackingOriginType(1);
 //        Log.d(TAG, "set tracking origin " + res);
-
-
     }
 
 
@@ -172,6 +171,8 @@ public class MainActivity extends VRActivity implements RenderInterface {
             nativeReleaseApplication(nativeApplication);
             nativeApplication = 0;
         }
+        Process.killProcess(Process.myPid());
+        System.exit(0);
     }
 
     @Override
@@ -304,6 +305,12 @@ public class MainActivity extends VRActivity implements RenderInterface {
     public void onHapticsFeedback(boolean isLeft, float amplitude, float duration, float frequency) {
         // 设置手柄震动，参数：strength，震动强度，范围0~1 Time，震动时间，范围0~65535ms ControllerSerialNum，0 左手柄，1 右手柄
         ControllerClient.vibrateCV2ControllerStrength(amplitude, (int)(duration * 1000), isLeft ? 0 : 1);
+    }
+
+    @Override
+        protected void onUserLeaveHint() {
+        Log.e("onUserLeaveHint", "onUserLeaveHint");
+        super.onUserLeaveHint();
     }
 
     // native application
