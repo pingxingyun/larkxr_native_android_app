@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Process;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -45,40 +47,51 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+
 public class ListActivity extends Activity {
     private static final String TAG = "ListActivity";
 
+    //网络设置
     private static final String SETTING = "pxy_setting";
     private static final String SETTING_SERVER = "serverAddress";
     private static final String SETTING_SERVER_USE_HTTPS = "useHttps";
     private static final String SETTING_LIST_3D= "list3D";
+    //生命周期管理
     private ClientLifeManager clientLifeManager;
     private Config config;
-
+    //IP
     private String mServerIp = "";
     private boolean useHttps;
 
+    //设置按钮和列表
     private Button settingIP,settingTab,confirmip,closeip,closeSetTab;
     private RecyclerView rec;
-
+    //设置面板
     private LinearLayout setIp,advancedList,setTab,selfOnline;
     private EditText inputIp,inputPort;
-
+    //列表adapter
     private AppListAdapter appListAdapter;
-
+    //列表组件
     private SwitchCompat advancedSetting,list3D,vibrator,UseH265,reportFecFailed,UseFovRending,Use10Bit;
     private RadioGroup QuickConfigLevel;
     private RadioButton QuickConfigLevel_Manual,QuickConfigLevel_Auto,QuickConfigLevel_Fast,QuickConfigLevel_Normal,QuickConfigLevel_Extreme;
-
     private SeekBar resolutionScaleBar,coderateBar;
     private TextView resolutionScale,coderate,SelfOnlineText;
-
     private RadioGroup StreamType;
     private RadioButton larkStreamType_UDP,larkStreamType_TCP,larkStreamType_THROTTLED_UDP;
-
+    //socket链接
     private ImSocketChannel imSocketChannel;
-
+    //getrunmode接口开关
     private Boolean stoprunmode=false;
+
+    private GetAppliList getAppliList;
+    List<AppListItem> applist;
+    private int mPage;
+    private TextView lastPage,nextPage;
+
+    private ImageView closeApp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,6 +173,11 @@ public class ListActivity extends Activity {
         reportFecFailed=findViewById(R.id.reportFecFailed);
         UseFovRending=findViewById(R.id.UseFovRending);
         Use10Bit=findViewById(R.id.Use10Bit);
+
+        lastPage=findViewById(R.id.lastPage);
+        nextPage=findViewById(R.id.nextPage);
+
+        closeApp=findViewById(R.id.closeApp);
     }
 
     private void readconfig() {
@@ -362,6 +380,29 @@ public class ListActivity extends Activity {
         Use10Bit.setOnCheckedChangeListener((buttonView, isChecked) -> {
             config.use10BitEncoder=isChecked;
         });
+
+        lastPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getAppliList.setPage(--mPage);
+                getAppliList.getAppliList();
+            }
+        });
+
+        nextPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getAppliList.setPage(++mPage);
+                getAppliList.getAppliList();
+            }
+        });
+
+        closeApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StopApp();
+            }
+        });
     }
 
 
@@ -397,19 +438,21 @@ public class ListActivity extends Activity {
 
         clientLifeManager=new ClientLifeManager(this);
 
-        new GetAppliList(new GetAppliList.Callback() {
+        getAppliList= new GetAppliList(new GetAppliList.Callback() {
             @Override
             public void onSuccess(List<AppListItem> list) {
                 setMessage(1,list);
             }
             @Override
             public void onPageInfoChange(PageInfo pageInfo) {
+                mPage=pageInfo.getPageNum();
             }
             @Override
             public void onFail(String s) {
                 toastInner(s);
             }
-        }).getAppliList();
+        });
+        getAppliList.getAppliList();
 
         imSocketChannel=new ImSocketChannel(socketChannelObserver,ListActivity.this);
         //imSocketChannel.connect();
@@ -519,6 +562,12 @@ public class ListActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        StopApp();
+    }
+
+    private void StopApp(){
+        System.exit(0);
+        Process.killProcess(Process.myPid());
         if(clientLifeManager!=null) {
             clientLifeManager.ClientOffline();
         }
@@ -560,9 +609,20 @@ public class ListActivity extends Activity {
 
     private void getMessage(Message msg){
         if (msg.what==1){
-            List<AppListItem> list= (List<AppListItem>) msg.obj;
-            appListAdapter=new AppListAdapter(ListActivity.this,list);
-            rec.setAdapter(appListAdapter);
+            List<AppListItem> locallist= (List<AppListItem>) msg.obj;
+            if (!locallist.equals(applist)){
+                applist=locallist;
+                appListAdapter=new AppListAdapter(ListActivity.this,applist);
+                rec.setAdapter(appListAdapter);
+            }
+            new Thread(()-> {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                getAppliList.getAppliList();
+            }).start();
         }else if (msg.what==2){
             GetRunModeBean getRunModeBean= (GetRunModeBean) msg.obj;
             Log.e("gerrunmode", getRunModeBean.toString());
@@ -570,9 +630,9 @@ public class ListActivity extends Activity {
                 if (getRunModeBean.getResult().getRunMode().equals("1")){
                     selfOnline.setVisibility(View.GONE);
                     SelfOnlineText.setVisibility(View.VISIBLE);
-
                     Intent intent=new Intent(ListActivity.this, MainActivity.class);
                     intent.putExtra("appid",getRunModeBean.getResult().getPrimaryClientId());
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     Intent extraIntent = new Intent("android.intent.action.MAIN");
                     extraIntent.addCategory("android.intent.category.LAUNCHER");
                     intent.putExtra("intent", extraIntent);
@@ -615,7 +675,9 @@ public class ListActivity extends Activity {
                     Intent intent=new Intent(context, MainActivity.class);
                     intent.putExtra("appid",data.getAppliId());
                     Intent extraIntent = new Intent("android.intent.action.MAIN");
+                    //Intent extraIntent = new Intent();
                     extraIntent.addCategory("android.intent.category.LAUNCHER");
+                    extraIntent.setFlags(FLAG_ACTIVITY_CLEAR_TOP|FLAG_ACTIVITY_SINGLE_TOP);
                     intent.putExtra("intent", extraIntent);
                     context.startActivity(intent);
      /*           new EnterAppliInfo(new EnterAppliInfo.Callback() {

@@ -53,6 +53,7 @@ bool OvrSceneLocal::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
     // navigation.
     navigation_ = std::make_shared<Navigation>();
     OvrScene::AddObject(navigation_);
+    navigation_->SetLoadingTips(L"Home键退出");
     return OvrScene::InitGL(frame_buffer, num_buffers);
 }
 
@@ -160,7 +161,7 @@ bool OvrSceneLocal::HandleInput(ovrMobile * ovr) {
 //             call after pressup.
             if ( inputState[rayCastType].backShortPressed)
             {
-                OnCloseApp();
+               // OnCloseApp();
             }
 
             // call ater pressup.

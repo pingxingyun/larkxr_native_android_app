@@ -185,7 +185,7 @@ Java_com_pxy_cloudlarkxroculus_MainActivity_intoApp(JNIEnv *env, jobject thiz,js
     }
     const char *charg_appid = env->GetStringUTFChars(id, 0);
     LogE("ovr_native_application","--------------------%s", charg_appid);
-    //g_appid = charg_appid;
+    g_appid = charg_appid;
     application->EnterAppli(charg_appid);
     env->ReleaseStringUTFChars(id, charg_appid);
 }

@@ -45,7 +45,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
     static {
         System.loadLibrary("lark_xr_pico");
     }
-
+    String appid="";
     // native application
     private long nativeApplication = 0;
     //
@@ -91,6 +91,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         String s1 = getFilesDir().getAbsolutePath();
 
         String s2 = "";
@@ -100,8 +101,9 @@ public class MainActivity extends VRActivity implements RenderInterface {
         }
 
         nativeInit(getResources().getAssets(), s1, s2);
-        super.onCreate(savedInstanceState);
 
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         CrashHandler.getInstance().init(this);
 
         int eyeBufferWidth =  PicovrSDK.GetEyeBufferWidth();
@@ -148,31 +150,53 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "onResume");
         super.onResume();
         cvManager.bindService();
         xrSystem.onResume();
-        Log.d(TAG, "onResume");
+
+        naitveOnRenderResume(nativeApplication);
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.d(TAG, "onRestart");
+        super.onRestart();
+        cvManager.bindService();
+        xrSystem.onResume();
+
     }
 
     @Override
     protected void onPause() {
-        cvManager.unbindService();
         super.onPause();
+        cvManager.unbindService();
         xrSystem.onPause();
         Log.d(TAG, "onPause");
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         Log.d(TAG, "onDestroy");
+        super.onDestroy();
+
         xrSystem.onDestroy();
         if (nativeApplication != 0) {
             nativeReleaseApplication(nativeApplication);
             nativeApplication = 0;
         }
+        Log.d(TAG, "onDestroyFinish1");
         Process.killProcess(Process.myPid());
+        Log.d(TAG, "onDestroyFinish2");
         System.exit(0);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+/*        cvManager.unbindService();
+        xrSystem.onPause();*/
+        Log.d(TAG, "onStop");
     }
 
     @Override
@@ -272,15 +296,21 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
     @Override
     public void initGL(int width, int height) {
-        Log.d(TAG, "init gl " + width + " " + height);
+        Log.d(TAG, "init gl " + width + " " + height+" "+nativeApplication);
         nativeInitGl(nativeApplication, width, height);
 
 /*        rtcParams = getIntent().getParcelableExtra(EnterAppliInfo.Config.name);
         if (rtcParams!=null){
             intoApp(nativeApplication,rtcParams);
         }*/
-        String appid=getIntent().getStringExtra("appid");
-        intoApp(nativeApplication,appid);
+        Log.d(TAG, "appid:"+appid);
+        if (appid.isEmpty()){
+            appid=getIntent().getStringExtra("appid");
+            intoApp(nativeApplication,appid);
+            Log.d(TAG, "intoApp:"+appid);
+        }
+        //intoApp(nativeApplication,appid);
+        Log.d(TAG, "init gl finish");
     }
 
     @Override
@@ -299,6 +329,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
     @Override
     public void surfaceChangedCallBack(int i, int i1) {
         Log.d(TAG, "surfaceChangedCallBack " + i + " " + i1);
+        //nativeInitGl(nativeApplication, i, i1);
     }
 
     //

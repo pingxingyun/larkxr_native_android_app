@@ -32,6 +32,7 @@ void Application::EnterAppli(const std::string &appId) {
     if (xr_client_) {
         xr_client_->EnterAppli(appId);
     }
+    LOGE("on enter appli","enterover");
 }
 
 void Application::CloseAppli() {

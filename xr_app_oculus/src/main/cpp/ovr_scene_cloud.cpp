@@ -143,7 +143,7 @@ void OvrSceneCloud::HandleInput() {
         // call after pressup.
         if ( triggerDownThisFrame[deviceIndex] && backButtonDownLastFrame && !backButtonDownThisFrame[deviceIndex] ) {
             LOGV("close app." );
-            OnCloseApp();
+            //OnCloseApp();
         }
 
         // call ater pressup.

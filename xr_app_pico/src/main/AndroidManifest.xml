@@ -40,15 +40,15 @@
             android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask"
-            tools:ignore="LockedOrientationActivity">
+            android:taskAffinity="com.pxy.cloudlarkxrpico.MainActivity">
                     <meta-data
                         android:name="com.picovr.type"
                         android:value="vr" />
-            <intent-filter>
-<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--            <intent-filter>
+&lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
     </application>
 

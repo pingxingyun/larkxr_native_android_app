@@ -41,13 +41,13 @@ void Loading::Init() {
 
     larkxrSystemInfo systemInfo = lark::XRClient::system_info();
     std::wstring quit = L"";
-    if (systemInfo.platFromType == larkxrPlatFromType::Larkxr_Platform_Oculus_Quest ||
+/*    if (systemInfo.platFromType == larkxrPlatFromType::Larkxr_Platform_Oculus_Quest ||
         systemInfo.platFromType == larkxrPlatFromType::Larkxr_Platform_PICO_NEO_2) {
         quit = L"按住手柄扳机键并短按B或Y键可退出云端应用返回列表。";
     } else {
         quit = L"按住手柄扳机键并短按APP键可退出云端应用返回列表。";
-    }
-
+    }*/
+    quit = L"通过HOME键返回应用列表。";
     tips_ = std::make_shared<Text>(L"");
     tips_->set_color(0xd7e1FF, 0xFF);
     tips_->SetFontSize(24);

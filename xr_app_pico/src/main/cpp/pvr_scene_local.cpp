@@ -156,7 +156,7 @@ void PvrSceneLocal::HandleInput() {
         if ( inputState[rayCastType].backShortPressed)
         {
 //                LOGV( "back button short press %d", rayCastType);
-            OnCloseApp();
+            //OnCloseApp();
         }
 
         // call ater pressup.
