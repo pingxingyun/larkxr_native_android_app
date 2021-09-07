@@ -51,7 +51,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
 public class ListActivity extends Activity {
-    private static final String TAG = "ListActivity";
+    private static final String TAG = "pvr_activity_list";
 
     //网络设置
     private static final String SETTING = "pxy_setting";
@@ -60,7 +60,7 @@ public class ListActivity extends Activity {
     private static final String SETTING_LIST_3D= "list3D";
     //生命周期管理
     private ClientLifeManager clientLifeManager;
-    private Config config;
+    private Config config=null;
     //IP
     private String mServerIp = "";
     private boolean useHttps;
@@ -400,7 +400,7 @@ public class ListActivity extends Activity {
         closeApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                StopApp();
+                StopApp(true);
             }
         });
     }
@@ -526,13 +526,21 @@ public class ListActivity extends Activity {
         if(clientLifeManager!=null){
             clientLifeManager.ClientOnline();
         }
-
+        if (imSocketChannel!=null) {
+            if (!imSocketChannel.isConnected()) {
+                imSocketChannel.connect();
+            }
+            imSocketChannel.sendKeepAlive();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Config.saveToCache(this,config);
+        Log.d(TAG, "onPause");
+        if (config!=null) {
+            Config.saveToCache(this, config);
+        }
         if(clientLifeManager!=null) {
             clientLifeManager.ClientOffline();
         }
@@ -544,30 +552,40 @@ public class ListActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart");
         if(clientLifeManager!=null) {
             clientLifeManager.ClientOnline();
         }
         if (imSocketChannel!=null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.sendKeepAlive();
-            } else {
+            if (!imSocketChannel.isConnected()) {
                 imSocketChannel.connect();
-                imSocketChannel.sendKeepAlive();
             }
+            imSocketChannel.sendKeepAlive();
         }
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        StopApp();
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
     }
 
-    private void StopApp(){
-        System.exit(0);
-        Process.killProcess(Process.myPid());
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        StopApp(false);
+        super.onDestroy();
+    }
+
+    private void StopApp(Boolean close){
         if(clientLifeManager!=null) {
             clientLifeManager.ClientOffline();
         }
@@ -577,6 +595,10 @@ public class ListActivity extends Activity {
             }
         }
         stoprunmode =true;
+        if (close) {
+            System.exit(0);
+            Process.killProcess(Process.myPid());
+        }
     }
 
     private SocketChannelObserver socketChannelObserver=new SocketChannelObserver() {
@@ -633,9 +655,9 @@ public class ListActivity extends Activity {
                     Intent intent=new Intent(ListActivity.this, MainActivity.class);
                     intent.putExtra("appid",getRunModeBean.getResult().getPrimaryClientId());
                     //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    Intent extraIntent = new Intent("android.intent.action.MAIN");
+          /*          Intent extraIntent = new Intent("android.intent.action.MAIN");
                     extraIntent.addCategory("android.intent.category.LAUNCHER");
-                    intent.putExtra("intent", extraIntent);
+                    intent.putExtra("intent", extraIntent);*/
                     startActivity(intent);
                 }else {
                     selfOnline.setVisibility(View.VISIBLE);
@@ -677,30 +699,10 @@ public class ListActivity extends Activity {
                     Intent extraIntent = new Intent("android.intent.action.MAIN");
                     //Intent extraIntent = new Intent();
                     extraIntent.addCategory("android.intent.category.LAUNCHER");
-                    extraIntent.setFlags(FLAG_ACTIVITY_CLEAR_TOP|FLAG_ACTIVITY_SINGLE_TOP);
+                    extraIntent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra("intent", extraIntent);
                     context.startActivity(intent);
-     /*           new EnterAppliInfo(new EnterAppliInfo.Callback() {
-                    @Override
-                    public void onSuccess(EnterAppliInfo.Config config) {
-                        Intent intent=new Intent(context, MainActivity.class);
-                        intent.putExtra(EnterAppliInfo.Config.name,config);
-                        Intent extraIntent = new Intent("android.intent.action.MAIN");
-                        extraIntent.addCategory("android.intent.category.LAUNCHER");
-                        //extraIntent.setComponent(new ComponentName("com.DefaultCompany.UnityTestAndroid", "com.example.bootcomplete.MainActivity"));
-                        intent.putExtra("intent", extraIntent);
-
-                        Log.e("Configappid", config.appilId);
-                        Log.e("Configappid", config.nickname);
-
-                        context.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onFail(String s) {
-                        Log.e("onFail", s);
-                    }
-                },Util.getLocalMacAddress(context)).enterApp(data);*/
+                    ListActivity.this.finish();
                 }
             });
         }

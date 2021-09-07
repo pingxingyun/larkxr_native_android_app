@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.pxy.cloudlarkxrpico">
 
     <!-- Tell the system this app requires OpenGL ES 3.1. -->
-<!--    <uses-feature android:glEsVersion="0x00030001" android:required="true"/>-->
+    <!--    <uses-feature android:glEsVersion="0x00030001" android:required="true"/>-->
 
-<!--    <uses-permission android:name="android.permission.WRITE_SETTINGS"-->
-<!--        tools:ignore="ProtectedPermissions" />-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH" />-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
-<!--    <uses-permission android:name="android.permission.INJECT_EVENTS"-->
-<!--        tools:ignore="ProtectedPermissions" />-->
+    <!--    <uses-permission android:name="android.permission.WRITE_SETTINGS"-->
+    <!--        tools:ignore="ProtectedPermissions" />-->
+    <!--    <uses-permission android:name="android.permission.BLUETOOTH" />-->
+    <!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
+    <!--    <uses-permission android:name="android.permission.INJECT_EVENTS"-->
+    <!--        tools:ignore="ProtectedPermissions" />-->
     <!-- test write -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -24,11 +23,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-
         <activity android:name=".ListActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            tools:ignore="LockedOrientationActivity">
+            android:taskAffinity="com.pxy.cloudlarkxrpico.ListActivity"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,19 +36,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.pxy.cloudlarkxrpico.MainActivity"
+        <activity android:name=".MainActivity"
             android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask"
             android:taskAffinity="com.pxy.cloudlarkxrpico.MainActivity">
-                    <meta-data
-                        android:name="com.picovr.type"
-                        android:value="vr" />
-<!--            <intent-filter>
-&lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            <meta-data
+                android:name="com.picovr.type"
+                android:value="vr" />
+            <meta-data
+                android:name="pvr.display.orientation"
+                android:value="180" />
         </activity>
     </application>
 

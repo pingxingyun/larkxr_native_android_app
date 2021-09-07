@@ -171,9 +171,9 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
     // WARNING
     // call resume on init gl
     // gl not ready on resume call. must call here
-    if (xr_client_) {
+/*    if (xr_client_) {
         xr_client_->OnResume();
-    }
+    }*/
     LOGV("PvrApplication InitGL Finish");
     return true;
 }
@@ -213,7 +213,6 @@ void PvrApplication::deInitGL() {
 }
 
 void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
-    LOGV("FrameBegin");
     if (!xr_client_) {
         return;
     }
@@ -250,9 +249,7 @@ void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
         }
     } while (true);
 #else
-    LOGV("USE_RENDER_QUEUE_false");
     if (xr_client_->media_ready()) {
-        LOGV("FrameBegin_media_ready");
         timeval timestamp{};
         gettimeofday(&timestamp, nullptr);
         do {
@@ -275,14 +272,12 @@ void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
     }
 #endif
     if (has_new_frame_) {
-        LOGV("has_new_frame_true");
         lark::XRLatencyCollector::Instance().Rendered2(cloud_tracking_.frameIndex);
         glm::vec3 renderAng = glm::eulerAngles(cloud_tracking_.tracking.rotation);
         glm::vec3 trackingAng = glm::eulerAngles(hmd_pose_.rotation);
         float degree = glm::degrees(renderAng.y - trackingAng.y);
         lark::XRLatencyCollector::Instance().Submit(cloud_tracking_.frameIndex, degree);
     }
-    LOGV("FrameBegin Finish");
 
 #if 0
     larkxrDevicePair devicePair = {};
@@ -299,13 +294,10 @@ void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
 }
 
 void PvrApplication::FrameEnd() {
-    LOGV("FrameEnd");
     if (xr_client_ && has_new_frame_) {
         xr_client_->ReleaseRenderTexture();
         has_new_frame_ = false;
-        LOGV("FrameEndtrue");
     }
-    LOGV("FrameEndFinish");
 /*#ifdef USE_RENDER_QUEUE
 
 #else

@@ -35,7 +35,7 @@ import java.util.List;
 
 public class MainActivity extends VRActivity implements RenderInterface {
 
-    private static final String TAG = "pvr_mainactivity";
+    private static final String TAG = "pvr_activity_main";
 
     private static int HEAD_SETY_TYPE_OTHER = 0;
     private static int HEAD_SETY_TYPE_NEO_2 = 1;
@@ -86,11 +86,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().setFlags(
+/*        getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);*/
 
         String s1 = getFilesDir().getAbsolutePath();
 
@@ -162,9 +162,8 @@ public class MainActivity extends VRActivity implements RenderInterface {
     protected void onRestart() {
         Log.d(TAG, "onRestart");
         super.onRestart();
-        cvManager.bindService();
-        xrSystem.onResume();
-
+/*        cvManager.bindService();
+        xrSystem.onResume();*/
     }
 
     @Override
@@ -178,8 +177,8 @@ public class MainActivity extends VRActivity implements RenderInterface {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
+        openListActivity();
         super.onDestroy();
-
         xrSystem.onDestroy();
         if (nativeApplication != 0) {
             nativeReleaseApplication(nativeApplication);
@@ -188,7 +187,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.d(TAG, "onDestroyFinish1");
         Process.killProcess(Process.myPid());
         Log.d(TAG, "onDestroyFinish2");
-        System.exit(0);
+        //System.exit(0);
+    }
+
+    private void openListActivity() {
+        startActivity(new Intent(MainActivity.this,ListActivity.class));
     }
 
     @Override
