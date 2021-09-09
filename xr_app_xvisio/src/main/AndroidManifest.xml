@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.pxy.larkxr_app_xvisio">
+
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.XVisioLarkXR">
+
+        <meta-data android:name="NIBIRU_PLUGIN_IDS"
+            android:value="6DOF" />
+        <meta-data android:name="NIBIRU_SIX_DOF_MODE" android:value="1" />
+        <meta-data android:name="NIBIRU_SIX_DOF_TYPE" android:value="1" />
+
+        <meta-data
+            android:name="NibiruVRVersion"
+            android:value="2" />
+        <!--        <meta-data-->
+        <!--            android:name="NIBIRU_PLUGIN_IDS"-->
+        <!--            android:value="" />-->
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.nibiru.intent.category.NVR" />
+            </intent-filter>
+        </activity>
+
+        <!-- 是否指定NDK加载库名称 -->
+        <meta-data
+            android:name="NIBIRU_NDK_SO_V2"
+            android:value="libnvr_v2_NDK.so" />
+        <meta-data
+            android:name="NIBIRU_NDK_SO_PLATFORM"
+            android:value="libNibiruPlatform_NDK.so" />
+        <meta-data
+            android:name="NIBIRU_NDK_SO_ACTION"
+            android:value="libnvr_action_NDK.so" />
+    </application>
+
+</manifest>
