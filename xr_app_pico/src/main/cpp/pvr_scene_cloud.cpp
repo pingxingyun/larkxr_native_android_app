@@ -131,7 +131,7 @@ void PvrSceneCloud::HandleInput() {
         if (inputState[rayCastType].triggerButtonDown && inputState[rayCastType].backShortPressed)
         {
 //                LOGV( "back button short press %d", rayCastType);
-            OnCloseApp();
+            //OnCloseApp();
         }
 
         // call ater pressup.

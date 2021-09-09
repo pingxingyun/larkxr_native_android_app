@@ -1,5 +1,6 @@
 package com.pxy.cloudlarkxrpico;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -51,6 +52,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
 public class ListActivity extends Activity {
+
     private static final String TAG = "pvr_activity_list";
 
     //网络设置
@@ -96,17 +98,12 @@ public class ListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        BaseApplication.getInstance().setmHandler(handler);
         setContentView(R.layout.activity_list);
         FindViewById();
         Init();
         initview();
     }
-
-    public Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            getMessage(msg);
-        }
-    };
 
     private void Init(){
         SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
@@ -510,7 +507,7 @@ public class ListActivity extends Activity {
         message.what=what;
         message.obj=obj;
         //message.obj = ToJavaBean.toJavaBean(value,obj);
-        handler.sendMessage(message);
+        BaseApplication.getInstance().getmHandler().sendMessage(message);
     }
 
     private void setMessage(int what,Object obj,long time){
@@ -518,7 +515,7 @@ public class ListActivity extends Activity {
         message.what=what;
         message.obj=obj;
         //message.obj = ToJavaBean.toJavaBean(value,obj);
-        handler.sendMessageDelayed(message,time);
+        BaseApplication.getInstance().getmHandler().sendMessageDelayed(message,time);
     }
     @Override
     protected void onStart() {
@@ -594,11 +591,24 @@ public class ListActivity extends Activity {
                 imSocketChannel.close();
             }
         }
-        stoprunmode =true;
+        stoprunmode =close;
         if (close) {
             System.exit(0);
             Process.killProcess(Process.myPid());
         }
+    }
+
+    private void GoMainActivity(Context context,String appid){
+        Activity activity= (Activity) context;
+        Intent intent=new Intent(activity, MainActivity.class);
+        intent.putExtra("appid",appid);
+/*        Intent extraIntent = new Intent("android.intent.action.MAIN");
+        //Intent extraIntent = new Intent();
+        extraIntent.addCategory("android.intent.category.LAUNCHER");
+        extraIntent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("intent", extraIntent);*/
+        activity.startActivity(intent);
+        activity.finish();
     }
 
     private SocketChannelObserver socketChannelObserver=new SocketChannelObserver() {
@@ -629,48 +639,49 @@ public class ListActivity extends Activity {
         }
     };
 
-    private void getMessage(Message msg){
-        if (msg.what==1){
-            List<AppListItem> locallist= (List<AppListItem>) msg.obj;
-            if (!locallist.equals(applist)){
-                applist=locallist;
-                appListAdapter=new AppListAdapter(ListActivity.this,applist);
-                rec.setAdapter(appListAdapter);
-            }
-            new Thread(()-> {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what==1){
+                List<AppListItem> locallist= (List<AppListItem>) msg.obj;
+                if (!locallist.equals(applist)){
+                    applist=locallist;
+                    appListAdapter=new AppListAdapter(ListActivity.this,applist);
+                    rec.setAdapter(appListAdapter);
                 }
-                getAppliList.getAppliList();
-            }).start();
-        }else if (msg.what==2){
-            GetRunModeBean getRunModeBean= (GetRunModeBean) msg.obj;
-            Log.e("gerrunmode", getRunModeBean.toString());
-            if (getRunModeBean.getCode()==1000){
-                if (getRunModeBean.getResult().getRunMode().equals("1")){
-                    selfOnline.setVisibility(View.GONE);
-                    SelfOnlineText.setVisibility(View.VISIBLE);
-                    Intent intent=new Intent(ListActivity.this, MainActivity.class);
-                    intent.putExtra("appid",getRunModeBean.getResult().getPrimaryClientId());
-                    //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-          /*          Intent extraIntent = new Intent("android.intent.action.MAIN");
-                    extraIntent.addCategory("android.intent.category.LAUNCHER");
-                    intent.putExtra("intent", extraIntent);*/
-                    startActivity(intent);
+                new Thread(()-> {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    getAppliList.getAppliList();
+                }).start();
+            }else if (msg.what==2){
+                GetRunModeBean getRunModeBean= (GetRunModeBean) msg.obj;
+                Log.e("gerrunmode", getRunModeBean.toString());
+                if (getRunModeBean.getCode()==1000){
+                    if (getRunModeBean.getResult().getRunMode().equals("1")){
+                        selfOnline.setVisibility(View.GONE);
+                        SelfOnlineText.setVisibility(View.VISIBLE);
+                        GoMainActivity(ListActivity.this, getRunModeBean.getResult().getPrimaryClientId());
+                    }else {
+                        selfOnline.setVisibility(View.VISIBLE);
+                        SelfOnlineText.setVisibility(View.GONE);
+                    }
+                    getRunMode();
                 }else {
-                    selfOnline.setVisibility(View.VISIBLE);
-                    SelfOnlineText.setVisibility(View.GONE);
-                }
-                getRunMode();
-            }else {
-                toastInner(getRunModeBean.getMessage());
-            };
+                    toastInner(getRunModeBean.getMessage());
+                };
+            }else if (msg.what==3){
+                ListActivity.this.onPause();
+                ListActivity.this.onStop();
+            }
 
         }
-    }
-
+    };
 
     public class AppListAdapter extends  RecyclerView.Adapter<AppListAdapter.ViewHolder> {
         private Context context;
@@ -694,15 +705,7 @@ public class ListActivity extends Activity {
             viewHolder.item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent=new Intent(context, MainActivity.class);
-                    intent.putExtra("appid",data.getAppliId());
-                    Intent extraIntent = new Intent("android.intent.action.MAIN");
-                    //Intent extraIntent = new Intent();
-                    extraIntent.addCategory("android.intent.category.LAUNCHER");
-                    extraIntent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("intent", extraIntent);
-                    context.startActivity(intent);
-                    ListActivity.this.finish();
+                    GoMainActivity(context,data.getAppliId());
                 }
             });
         }
@@ -716,7 +719,7 @@ public class ListActivity extends Activity {
         public long getItemId(int position) {
             return position;
         }
-        
+
         private class ViewHolder extends RecyclerView.ViewHolder{
             TextView appname,appid;
             LinearLayout item;

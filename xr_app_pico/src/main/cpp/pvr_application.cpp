@@ -138,7 +138,7 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
         // pico may recreate gl context mutitimes.
         // must release old resource and recreate.
         // load assets.
-        scene_local_.reset();
+        //scene_local_.reset();
         scene_cloud_.reset();
         lark::AssetLoader::Release();
     }
@@ -152,8 +152,8 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
     lark::AssetLoader::instance()->Load(&context, Assetlist);
 
     // reset first to make sure release old point.
-    scene_local_ = std::make_shared<PvrSceneLocal>();
-    scene_local_->InitGl(eyeWidth, eyeHeight);
+    //scene_local_ = std::make_shared<PvrSceneLocal>();
+    //scene_local_->InitGl(eyeWidth, eyeHeight);
 
     scene_cloud_ = std::make_shared<PvrSceneCloud>();
     scene_cloud_->InitGl(eyeWidth, eyeHeight);
@@ -171,9 +171,9 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
     // WARNING
     // call resume on init gl
     // gl not ready on resume call. must call here
-/*    if (xr_client_) {
+    if (xr_client_) {
         xr_client_->OnResume();
-    }*/
+    }
     LOGV("PvrApplication InitGL Finish");
     return true;
 }
@@ -189,7 +189,7 @@ void PvrApplication::ShutdownGL() {
     Input::ResetInput();
     Navigation::ClearToast();
 
-    scene_local_.reset();
+    //scene_local_.reset();
     scene_cloud_.reset();
     lark::AssetLoader::Release();
     LOGD("ShutdownGL finished");
@@ -206,7 +206,7 @@ void PvrApplication::deInitGL() {
     // pico may recreate gl context mutitimes.
     // must release old resource and recreate.
     // load assets.
-    scene_local_.reset();
+    //scene_local_.reset();
     scene_cloud_.reset();
     lark::AssetLoader::Release();
     LOGD("deInitGL finished");
@@ -220,7 +220,7 @@ void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
     if (connected_) {
         scene_cloud_->UpdateHMDPose(pose.rotation, pose.position);
     } else {
-        scene_local_->UpdateHMDPose(pose.rotation, pose.position);
+        //scene_local_->UpdateHMDPose(pose.rotation, pose.position);
     }
     hmd_pose_ = pose;
 #ifdef USE_RENDER_QUEUE
@@ -311,7 +311,7 @@ void PvrApplication::Draw(int eye) {
     if (connected_) {
         scene_cloud_->Draw(eye);
     } else {
-        scene_local_->Draw(eye);
+        //scene_local_->Draw(eye);
     }
 }
 
@@ -367,7 +367,7 @@ void PvrApplication::OnClose(int code) {
     has_new_frame_ = false;
     cloud_tracking_ = {};
     scene_cloud_->OnClose();
-    scene_local_->HomePage();
+    //scene_local_->HomePage();
     switch(code) {
         case LK_XR_MEDIA_TRANSPORT_CHANNEL_CLOSED:
             Navigation::ShowToast("与服务器媒体连接关闭");
@@ -386,10 +386,10 @@ void PvrApplication::OnError(int errCode, const std::string &msg) {
     LOGE("on xr client error %d; msg %s;", errCode, msg.c_str());
     if (errCode == 1) {
         // enter applifailed.
-        scene_local_->HomePage();
+        //scene_local_->HomePage();
     } else {
         connected_ = false;
-        scene_local_->HomePage();
+        //scene_local_->HomePage();
     }
     Navigation::ShowToast(msg);
     ResetTracking(pvr::PvrTrackingOrigin_EyeLevel);

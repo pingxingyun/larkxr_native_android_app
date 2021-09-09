@@ -4,10 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Process;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
 
 import com.picovr.client.HbController;
 import com.picovr.client.HbListener;
@@ -84,13 +88,16 @@ public class MainActivity extends VRActivity implements RenderInterface {
         public void onChannelChanged(int i, int i1) {        }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-/*        getWindow().setFlags(
+        Log.d(TAG, "onCreate");
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);*/
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         String s1 = getFilesDir().getAbsolutePath();
 
@@ -102,8 +109,8 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
         nativeInit(getResources().getAssets(), s1, s2);
 
-        super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
+        BaseApplication.getInstance().setmHandler(handler);
+
         CrashHandler.getInstance().init(this);
 
         int eyeBufferWidth =  PicovrSDK.GetEyeBufferWidth();
@@ -155,13 +162,14 @@ public class MainActivity extends VRActivity implements RenderInterface {
         cvManager.bindService();
         xrSystem.onResume();
 
-        naitveOnRenderResume(nativeApplication);
+        //naitveOnRenderResume(nativeApplication);
     }
 
     @Override
     protected void onRestart() {
         Log.d(TAG, "onRestart");
         super.onRestart();
+        //setMessage(3,"");
 /*        cvManager.bindService();
         xrSystem.onResume();*/
     }
@@ -179,11 +187,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.d(TAG, "onDestroy");
         openListActivity();
         super.onDestroy();
-        xrSystem.onDestroy();
         if (nativeApplication != 0) {
             nativeReleaseApplication(nativeApplication);
             nativeApplication = 0;
         }
+        xrSystem.onDestroy();
         Log.d(TAG, "onDestroyFinish1");
         Process.killProcess(Process.myPid());
         Log.d(TAG, "onDestroyFinish2");
@@ -228,19 +236,19 @@ public class MainActivity extends VRActivity implements RenderInterface {
         }
 
         if (rightController.getButtonState(ButtonNum.home)){
-            Log.e("homeDownkey","true" );
+            Log.e(TAG,"homeDownkey" );
         }
 
         if (rightController.getButtonState(ButtonNum.click)){
-            Log.e("clickDownkey","true" );
+            Log.e(TAG,"clickDownkey" );
         }
 
         if (rightController.getButtonState(ButtonNum.buttonAX)){
-            Log.e("buttonAXDownkey","true" );
+            Log.e(TAG,"buttonAXDownkey" );
         }
 
         if (rightController.getButtonState(ButtonNum.app)){
-            Log.e("appDownkey","true" );
+            Log.e(TAG,"appDownkey" );
 /*            MainActivity.this.finish();
             startActivity(new Intent(MainActivity.this, ListActivity.class));*/
         }
@@ -346,6 +354,22 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.e("onUserLeaveHint", "onUserLeaveHint");
         super.onUserLeaveHint();
     }
+
+    private void setMessage(int what,Object obj){
+        Message message = Message.obtain();
+        message.what=what;
+        message.obj=obj;
+        //message.obj = ToJavaBean.toJavaBean(value,obj);
+        BaseApplication.getInstance().getmHandler().sendMessage(message);
+    }
+
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "msg:"+msg.what);
+        }
+    };
 
     // native application
     private native void nativeInit(AssetManager am, String internalDataPath, String externalDataPath);
