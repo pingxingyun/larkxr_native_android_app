@@ -54,7 +54,7 @@ void LarkxrClient::InitJava(JavaVM *vm) {
     }
 #endif
     // 测试的服务器地址
-     xr_client_->SetServerAddr("192.168.31.10", 8181);
+//     xr_client_->SetServerAddr("192.168.31.120", 8585);
 }
 
 bool LarkxrClient::InitGL() {
