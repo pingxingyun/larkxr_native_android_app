@@ -18,6 +18,7 @@
             <option value="$PROJECT_DIR$/xr_app_openxr_pico" />
             <option value="$PROJECT_DIR$/xr_app_pico" />
             <option value="$PROJECT_DIR$/xr_app_xms" />
+            <option value="$PROJECT_DIR$/xr_app_xvisio" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

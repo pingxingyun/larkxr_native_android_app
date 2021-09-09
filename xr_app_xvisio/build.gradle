@@ -1,0 +1,90 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "com.pxy.larkxr_app_xvisio"
+        minSdkVersion 25
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-frtti -fexceptions -std=c++1y -DANDROID_NDK_BUILD=1"
+                arguments '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_shared'
+            }
+
+            ndk {
+                abiFilters 'arm64-v8a'
+            }
+            ndkBuild {
+                abiFilters 'arm64-v8a'
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.10.2'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs', '../lark_xr'
+        }
+    }
+
+    packagingOptions {
+        pickFirst "lib/arm64-v8a/libglm.so"
+        pickFirst "lib/armeabi-v7a/libglm.so"
+
+        pickFirst "lib/arm64-v8a/libc++_shared.so"
+        pickFirst "lib/armeabi-v7a/libc++_shared.so"
+
+        pickFirst "lib/armeabi-v7a/liblark_xr.so"
+        pickFirst "lib/arm64-v8a/liblark_xr.so"
+
+        pickFirst "lib/armeabi-v7a/liblark_pxygl.so"
+        pickFirst "lib/arm64-v8a/liblark_pxygl.so"
+
+        pickFirst "lib/arm64-v8a/libPocoFoundation.so"
+        pickFirst "lib/armeabi-v7a/libPocoFoundation.so"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar","*.aar"])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation(name: 'larkxr-kit-3.1.8.1-build-1', ext: 'aar')
+
+    implementation project(':lib_pxygl')
+    implementation project(':lib_xr_common_ui')
+}
