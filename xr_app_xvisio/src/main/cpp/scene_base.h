@@ -25,11 +25,9 @@ protected:
     void RemoveObject(std::shared_ptr<lark::Object> object);
     void ClearObject();
 
-    float fov_0_ = 30.0f * 2;
-    float fov_1_ = 30.0f * 2;
     float near_z_ = 0.080600f;
-    float far_z_ = 1000.0f;
-    float ipd_ = 0.064f;
+    float far_z_ = 100.0f;
+    float ipd_ = 0.060883f;
 
     int eye_buffer_width_ = 1920;
     int eye_buffer_height_ = 1920;
