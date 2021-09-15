@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Process;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -41,6 +43,7 @@ import com.pxy.larkcore.request.Bean.GetRunModeBean;
 import com.pxy.larkcore.request.GetAppliList;
 import com.pxy.larkcore.request.GetRunMode;
 import com.pxy.larkcore.request.PageInfo;
+import com.pxy.larkcore.request.ScheduleTaskManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,43 +52,53 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class ListActivity extends Activity {
-    private static final String TAG = "ListActivity";
+    private static final String TAG = "pvr_activity_list";
 
+    //网络设置
     private static final String SETTING = "pxy_setting";
     private static final String SETTING_SERVER = "serverAddress";
     private static final String SETTING_SERVER_USE_HTTPS = "useHttps";
     private static final String SETTING_LIST_3D= "list3D";
+    //生命周期管理
     private ClientLifeManager clientLifeManager;
-    private Config config;
-
+    private Config config=null;
+    //IP
     private String mServerIp = "";
     private boolean useHttps;
 
+    //设置按钮和列表
     private Button settingIP,settingTab,confirmip,closeip,closeSetTab;
     private RecyclerView rec;
-
+    //设置面板
     private LinearLayout setIp,advancedList,setTab,selfOnline;
     private EditText inputIp,inputPort;
-
+    //列表adapter
     private AppListAdapter appListAdapter;
-
+    //列表组件
     private SwitchCompat advancedSetting,list3D,vibrator,UseH265,reportFecFailed,UseFovRending,Use10Bit;
     private RadioGroup QuickConfigLevel;
     private RadioButton QuickConfigLevel_Manual,QuickConfigLevel_Auto,QuickConfigLevel_Fast,QuickConfigLevel_Normal,QuickConfigLevel_Extreme;
-
     private SeekBar resolutionScaleBar,coderateBar;
     private TextView resolutionScale,coderate,SelfOnlineText;
-
     private RadioGroup StreamType;
     private RadioButton larkStreamType_UDP,larkStreamType_TCP,larkStreamType_THROTTLED_UDP;
-
+    //socket链接
     private ImSocketChannel imSocketChannel;
-
+    //getrunmode接口开关
     private Boolean stoprunmode=false;
-
+    //翻页请求
     private GetAppliList getAppliList;
-    private int mPage;
-    private TextView lastPage,nextPage;
+    List<AppListItem> applist;
+    private int mPage=1;
+    private ImageView lastPage,nextPage;
+
+    //关闭app按钮
+    private ImageView closeApp;
+
+    // 定时任务循环
+    private ScheduleTaskManager mScheduleTaskManager;
+    //getrunmode
+    private GetRunMode getRunMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +131,6 @@ public class ListActivity extends Activity {
 
         readconfig();
     }
-
 
     private void FindViewById() {
         settingIP=findViewById(R.id.settingIP);
@@ -171,6 +183,8 @@ public class ListActivity extends Activity {
 
         lastPage=findViewById(R.id.lastPage);
         nextPage=findViewById(R.id.nextPage);
+
+        closeApp=findViewById(R.id.closeApp);
     }
 
     private void readconfig() {
@@ -189,7 +203,6 @@ public class ListActivity extends Activity {
             config.serverPort= Integer.parseInt(outhttp.split(":")[1]);
             dorequest();
         }
-
 
         ListActivity.this.runOnUiThread(new Runnable() {
             @Override
@@ -217,13 +230,20 @@ public class ListActivity extends Activity {
                     }
                 }
                 vibrator.setChecked(config.vibrator);
-                resolutionScale.setText(config.resulutionScale+"");
+
+                Log.e("resulutionScale", config.resulutionScale+"");
+
+                int resulutionScaleint= (int) (config.resulutionScale*100);
+                resolutionScale.setText(resulutionScaleint+"");
                 coderate.setText(config.biteRate+"");
 
                 UseH265.setChecked(config.useH265);
                 reportFecFailed.setChecked(config.reportFecFailed);
                 UseFovRending.setChecked(config.useFovRendering);
                 Use10Bit.setChecked(config.use10BitEncoder);
+
+                resolutionScaleBar.setProgress(resulutionScaleint);
+                coderateBar.setProgress(config.biteRate/10000);
             }
         });
     }
@@ -238,10 +258,7 @@ public class ListActivity extends Activity {
             readconfig();
             setTab.setVisibility(View.VISIBLE);});
 
-        confirmip.setOnClickListener(v -> {
-            closeSetupIP();
-            hideSoftInputFromWindow(ListActivity.this);
-        });
+        confirmip.setOnClickListener(v -> closeSetupIP());
 
         advancedSetting.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked){
@@ -301,8 +318,9 @@ public class ListActivity extends Activity {
                 ListActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        DecimalFormat df=new DecimalFormat("0.00");
-                        resolutionScale.setText(df.format((float)progress/100));
+                        /*DecimalFormat df=new DecimalFormat("0.00");
+                        resolutionScale.setText(df.format((float)progress/100));*/
+                        resolutionScale.setText(progress+"");
                         config.resulutionScale=(float)progress/100;
                     }
                 });
@@ -318,6 +336,7 @@ public class ListActivity extends Activity {
 
             }
         });
+
         coderateBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -393,8 +412,29 @@ public class ListActivity extends Activity {
             }
         });
 
+        closeApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StopApp(true);
+            }
+        });
     }
 
+    private void StopApp(Boolean close){
+        if(clientLifeManager!=null) {
+            clientLifeManager.ClientOffline();
+        }
+        if (imSocketChannel!=null) {
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
+            }
+        }
+        stoprunmode =close;
+        if (close) {
+            System.exit(0);
+            Process.killProcess(Process.myPid());
+        }
+    }
 
     private void showSetupIP() {
         setIp.setVisibility(View.VISIBLE);
@@ -427,43 +467,70 @@ public class ListActivity extends Activity {
         }
 
         clientLifeManager=new ClientLifeManager(this);
+        imSocketChannel=new ImSocketChannel(socketChannelObserver,ListActivity.this);
 
-        getAppliList= new GetAppliList(new GetAppliList.Callback() {
-            @Override
-            public void onSuccess(List<AppListItem> list) {
-                setMessage(1,list);
-            }
-            @Override
-            public void onPageInfoChange(PageInfo pageInfo) {
-                mPage=pageInfo.getPageNum();
-            }
-            @Override
-            public void onFail(String s) {
-                toastInner(s);
-            }
-        });
+        if (getAppliList==null) {
+            getAppliList = new GetAppliList(new GetAppliList.Callback() {
+                @Override
+                public void onSuccess(List<AppListItem> list) {
+                    setMessage(1, list);
+                }
+
+                @Override
+                public void onPageInfoChange(PageInfo pageInfo) {
+                    mPage = pageInfo.getPageNum();
+                    ListActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (pageInfo.hasPreviousPage()) {
+                                lastPage.setImageResource(R.mipmap.lastpage);
+                                lastPage.setEnabled(true);
+                            } else {
+                                lastPage.setImageResource(R.mipmap.lastpagefalse);
+                                lastPage.setEnabled(false);
+                            }
+
+                            if (pageInfo.hasNextPage()) {
+                                nextPage.setImageResource(R.mipmap.nextpage);
+                                nextPage.setEnabled(true);
+                            } else {
+
+                                nextPage.setImageResource(R.mipmap.nextpagefalse);
+                                nextPage.setEnabled(false);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onFail(String s) {
+                    toastInner(s);
+                }
+            });
+        }
         getAppliList.getAppliList();
 
-        imSocketChannel=new ImSocketChannel(socketChannelObserver,ListActivity.this);
         //imSocketChannel.connect();
-        getRunMode();
+        if (getRunMode==null) {
+            getRunMode = new GetRunMode(new GetRunMode.Callback() {
+                @Override
+                public void onSuccess(GetRunModeBean getRunModeBean) {
+                    setMessage(2, getRunModeBean, 2000);
+                }
+                @Override
+                public void onFail(String s) {
+                    Log.e("getRunModeFaile", s);
+                }
+            });
+        }
+        getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
     }
 
     private void getRunMode(){
         if (stoprunmode){
             return;
         }
-        new GetRunMode(new GetRunMode.Callback() {
-            @Override
-            public void onSuccess(GetRunModeBean getRunModeBean) {
-                setMessage(2,getRunModeBean,2000);
-            }
-
-            @Override
-            public void onFail(String s) {
-                Log.e("getRunModeFaile", s);
-            }
-        }).dorequest(Util.getLocalMacAddress(ListActivity.this));
+        getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
     }
 
     private void toastInner(final String msg) {
@@ -510,19 +577,28 @@ public class ListActivity extends Activity {
         //message.obj = ToJavaBean.toJavaBean(value,obj);
         handler.sendMessageDelayed(message,time);
     }
+
     @Override
     protected void onStart() {
         super.onStart();
         if(clientLifeManager!=null){
             clientLifeManager.ClientOnline();
         }
-
+        if (imSocketChannel!=null) {
+            if (!imSocketChannel.isConnected()) {
+                imSocketChannel.connect();
+            }
+            imSocketChannel.sendKeepAlive();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Config.saveToCache(this,config);
+        Log.d(TAG, "onPause");
+        if (config!=null) {
+            Config.saveToCache(this, config);
+        }
         if(clientLifeManager!=null) {
             clientLifeManager.ClientOffline();
         }
@@ -530,37 +606,40 @@ public class ListActivity extends Activity {
             if (imSocketChannel.isConnected()) {
                 imSocketChannel.close();
             }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart");
+        if(clientLifeManager!=null) {
+            clientLifeManager.ClientOnline();
+        }
+        if (imSocketChannel!=null) {
+            if (!imSocketChannel.isConnected()) {
+                imSocketChannel.connect();
+            }
+            imSocketChannel.sendKeepAlive();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(clientLifeManager!=null) {
-            clientLifeManager.ClientOnline();
-        }
-        if (imSocketChannel!=null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.sendKeepAlive();
-            } else {
-                imSocketChannel.connect();
-                imSocketChannel.sendKeepAlive();
-            }
-        }
+        Log.d(TAG, "onResume");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(clientLifeManager!=null) {
-            clientLifeManager.ClientOffline();
-        }
-        if (imSocketChannel!=null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.close();
-            }
-        }
-        stoprunmode =true;
+        StopApp(false);
     }
 
     /**
@@ -607,7 +686,18 @@ public class ListActivity extends Activity {
         }
     };
 
-
+    private void GoMainActivity(Context context,String appid){
+        Activity activity= (Activity) context;
+        Intent intent=new Intent(activity, MainActivity.class);
+        intent.putExtra("appid",appid);
+/*        Intent extraIntent = new Intent("android.intent.action.MAIN");
+        //Intent extraIntent = new Intent();
+        extraIntent.addCategory("android.intent.category.LAUNCHER");
+        extraIntent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("intent", extraIntent);*/
+        activity.startActivity(intent);
+        activity.finish();
+    }
 
     private void getMessage(Message msg){
         if (msg.what==1){
@@ -630,13 +720,7 @@ public class ListActivity extends Activity {
                 if (getRunModeBean.getResult().getRunMode().equals("1")){
                     selfOnline.setVisibility(View.GONE);
                     SelfOnlineText.setVisibility(View.VISIBLE);
-
-                    Intent intent=new Intent(ListActivity.this, MainActivity.class);
-                    intent.putExtra("appid",getRunModeBean.getResult().getPrimaryClientId());
-                    Intent extraIntent = new Intent("android.intent.action.MAIN");
-                    extraIntent.addCategory("android.intent.category.LAUNCHER");
-                    intent.putExtra("intent", extraIntent);
-                    startActivity(intent);
+                    GoMainActivity(ListActivity.this, getRunModeBean.getResult().getPrimaryClientId());
                 }else {
                     selfOnline.setVisibility(View.VISIBLE);
                     SelfOnlineText.setVisibility(View.GONE);
@@ -672,33 +756,7 @@ public class ListActivity extends Activity {
             viewHolder.item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent=new Intent(context, MainActivity.class);
-                    intent.putExtra("appid",data.getAppliId());
-                    Intent extraIntent = new Intent("android.intent.action.MAIN");
-                    extraIntent.addCategory("android.intent.category.LAUNCHER");
-                    intent.putExtra("intent", extraIntent);
-                    context.startActivity(intent);
-     /*           new EnterAppliInfo(new EnterAppliInfo.Callback() {
-                    @Override
-                    public void onSuccess(EnterAppliInfo.Config config) {
-                        Intent intent=new Intent(context, MainActivity.class);
-                        intent.putExtra(EnterAppliInfo.Config.name,config);
-                        Intent extraIntent = new Intent("android.intent.action.MAIN");
-                        extraIntent.addCategory("android.intent.category.LAUNCHER");
-                        //extraIntent.setComponent(new ComponentName("com.DefaultCompany.UnityTestAndroid", "com.example.bootcomplete.MainActivity"));
-                        intent.putExtra("intent", extraIntent);
-
-                        Log.e("Configappid", config.appilId);
-                        Log.e("Configappid", config.nickname);
-
-                        context.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onFail(String s) {
-                        Log.e("onFail", s);
-                    }
-                },Util.getLocalMacAddress(context)).enterApp(data);*/
+                    GoMainActivity(context,data.getAppliId());
                 }
             });
         }

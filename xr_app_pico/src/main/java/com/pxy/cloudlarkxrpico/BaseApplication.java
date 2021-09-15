@@ -12,7 +12,6 @@ public class BaseApplication extends Application {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             mListener.heandleMessage(msg);
-            System.out.println("mListener 地址值==== " + mListener);
         }
     };
 
