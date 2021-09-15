@@ -23,7 +23,7 @@
         android:layout_height="match_parent">
         <LinearLayout
             android:paddingRight="50dp"
-            android:gravity="right"
+            android:gravity="right|center_vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
@@ -43,36 +43,27 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
         <LinearLayout
-
+            android:gravity="center"
             android:layout_weight="1"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <TextView
-                android:layout_weight="0.2"
-                android:textColor="#ffffff"
-                android:textSize="30dp"
-                android:text="@string/lastPage"
-                android:gravity="center"
+            <ImageView
                 android:id="@+id/lastPage"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:src="@mipmap/lastpage"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_weight="0.6"
                 android:id="@+id/rec"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
-            <TextView
-                android:layout_weight="0.2"
-                android:textColor="#ffffff"
-                android:textSize="30dp"
-                android:text="@string/nextPage"
-                android:gravity="center"
+            <ImageView
                 android:id="@+id/nextPage"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:src="@mipmap/nextpage"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
         </LinearLayout>
-
     </LinearLayout>
     <LinearLayout
         android:layout_gravity="bottom"
@@ -83,253 +74,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
-    <LinearLayout
-        android:visibility="gone"
-        android:background="@drawable/blue_shape_with_back"
-        android:id="@+id/setIP"
-        android:padding="5dp"
-        android:orientation="vertical"
-        android:layout_gravity="center"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-<!--        android:digits="0123456789."-->
-        <EditText
-            android:focusable="true"
-            android:id="@+id/inputIp"
-            android:hint="请输入IP地址"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <EditText
-            android:focusable="true"
-            android:id="@+id/inputPort"
-            android:hint="请输入端口号"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <LinearLayout
-            android:gravity="right"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:focusable="true"
-                android:id="@+id/confirmip"
-                android:text="确定"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:focusable="true"
-                android:id="@+id/closeip"
-                android:text="关闭"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
 
-    </LinearLayout>
-    <LinearLayout
-        android:background="@drawable/blue_shape_with_back"
-        android:visibility="gone"
-        android:id="@+id/setTab"
-        android:padding="5dp"
-        android:orientation="vertical"
-        android:layout_gravity="center"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:gravity="right"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/advancedSetting"
-                android:text="高级设置"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/simpleSet"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:gravity="center"
-                    android:text="@string/QuickConfigLevel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
-                <RadioGroup
-                    android:id="@+id/QuickConfigLevel"
-                    android:orientation="horizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
-                    <RadioButton
-                        android:id="@+id/QuickConfigLevel_Manual"
-                        android:text="手动"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                    <RadioButton
-                        android:id="@+id/QuickConfigLevel_Auto"
-                        android:text="自动"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                    <RadioButton
-                        android:id="@+id/QuickConfigLevel_Fast"
-                        android:checked="true"
-                        android:text="流畅"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                    <RadioButton
-                        android:id="@+id/QuickConfigLevel_Normal"
-                        android:text="标准"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                    <RadioButton
-                        android:id="@+id/QuickConfigLevel_Extreme"
-                        android:text="超清"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                </RadioGroup>
-            </LinearLayout>
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/list3D"
-                android:text="@string/list3D"
-                android:checked="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <androidx.appcompat.widget.SwitchCompat
-                android:text="@string/vibrator"
-                android:id="@+id/vibrator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:text="@string/device_2880x1584"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
-                <SeekBar
-                    android:id="@+id/resolutionScaleBar"
-                    android:min="0"
-                    android:max="100"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:id="@+id/resolutionScale"
-                    android:text="0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:text="码率设置"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
-                <SeekBar
-                    android:id="@+id/coderateBar"
-                    android:min="1"
-                    android:max="4"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:id="@+id/coderate"
-                    android:text="10000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
-            </LinearLayout>
-        </LinearLayout>
-        <View
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:background="#000000"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"/>
-        <LinearLayout
-            android:visibility="gone"
-            android:id="@+id/advancedList"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:gravity="center"
-                    android:text="传输类型"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
-                <RadioGroup
-                    android:id="@+id/StreamType"
-                    android:orientation="horizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
-                    <RadioButton
-                        android:id="@+id/larkStreamType_UDP"
-                        android:checked="true"
-                        android:text="UDP"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                    <RadioButton
-                        android:id="@+id/larkStreamType_TCP"
-                        android:text="TCP"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                    <RadioButton
-                        android:id="@+id/larkStreamType_THROTTLED_UDP"
-                        android:text="增强UDP"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"/>
-                </RadioGroup>
-            </LinearLayout>
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/UseH265"
-                android:text="@string/UserH265"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/reportFecFailed"
-                android:text="@string/UseFec"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/UseFovRending"
-                android:text="@string/ReportFecFailed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/Use10Bit"
-                android:text="@string/use_10bit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-        <LinearLayout
-            android:gravity="right"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:focusable="true"
-                android:id="@+id/closeSetTab"
-                android:text="关闭"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-    </LinearLayout>
     <ImageView
         android:id="@+id/closeApp"
         android:src="@mipmap/out2"
         android:layout_gravity="right|top"
         android:layout_width="50dp"
         android:layout_height="50dp"/>
+
+    <include layout="@layout/setting_ip_item"
+        android:visibility="gone"
+        android:clickable="true"
+        android:id="@+id/setIP"/>
+    <include
+        layout="@layout/setting_list_item"
+        android:visibility="gone"
+        android:clickable="true"
+        android:id="@+id/setTab"/>
 </FrameLayout>

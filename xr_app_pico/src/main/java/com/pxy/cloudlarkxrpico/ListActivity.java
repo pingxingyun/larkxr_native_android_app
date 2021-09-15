@@ -41,6 +41,7 @@ import com.pxy.larkcore.request.Bean.GetRunModeBean;
 import com.pxy.larkcore.request.GetAppliList;
 import com.pxy.larkcore.request.GetRunMode;
 import com.pxy.larkcore.request.PageInfo;
+import com.pxy.larkcore.request.ScheduleTaskManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,13 +88,20 @@ public class ListActivity extends Activity {
     private ImSocketChannel imSocketChannel;
     //getrunmode接口开关
     private Boolean stoprunmode=false;
-
+    //翻页请求
     private GetAppliList getAppliList;
     List<AppListItem> applist;
-    private int mPage;
-    private TextView lastPage,nextPage;
+    private int mPage=1;
+    private ImageView lastPage,nextPage;
 
+    //关闭app按钮
     private ImageView closeApp;
+
+    // 定时任务循环
+    private ScheduleTaskManager mScheduleTaskManager;
+    //getrunmode
+    private GetRunMode getRunMode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +128,6 @@ public class ListActivity extends Activity {
 
         readconfig();
     }
-
 
     private void FindViewById() {
         settingIP=findViewById(R.id.settingIP);
@@ -194,7 +201,6 @@ public class ListActivity extends Activity {
             dorequest();
         }
 
-
         ListActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -221,13 +227,20 @@ public class ListActivity extends Activity {
                     }
                 }
                 vibrator.setChecked(config.vibrator);
-                resolutionScale.setText(config.resulutionScale+"");
+
+                Log.e("resulutionScale", config.resulutionScale+"");
+
+                int resulutionScaleint= (int) (config.resulutionScale*100);
+                resolutionScale.setText(resulutionScaleint+"");
                 coderate.setText(config.biteRate+"");
 
                 UseH265.setChecked(config.useH265);
                 reportFecFailed.setChecked(config.reportFecFailed);
                 UseFovRending.setChecked(config.useFovRendering);
                 Use10Bit.setChecked(config.use10BitEncoder);
+
+                resolutionScaleBar.setProgress(resulutionScaleint);
+                coderateBar.setProgress(config.biteRate/10000);
             }
         });
     }
@@ -302,8 +315,9 @@ public class ListActivity extends Activity {
                 ListActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        DecimalFormat df=new DecimalFormat("0.00");
-                        resolutionScale.setText(df.format((float)progress/100));
+                        /*DecimalFormat df=new DecimalFormat("0.00");
+                        resolutionScale.setText(df.format((float)progress/100));*/
+                        resolutionScale.setText(progress+"");
                         config.resulutionScale=(float)progress/100;
                     }
                 });
@@ -319,6 +333,7 @@ public class ListActivity extends Activity {
 
             }
         });
+
         coderateBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -434,43 +449,70 @@ public class ListActivity extends Activity {
         }
 
         clientLifeManager=new ClientLifeManager(this);
+        imSocketChannel=new ImSocketChannel(socketChannelObserver,ListActivity.this);
 
-        getAppliList= new GetAppliList(new GetAppliList.Callback() {
-            @Override
-            public void onSuccess(List<AppListItem> list) {
-                setMessage(1,list);
-            }
-            @Override
-            public void onPageInfoChange(PageInfo pageInfo) {
-                mPage=pageInfo.getPageNum();
-            }
-            @Override
-            public void onFail(String s) {
-                toastInner(s);
-            }
-        });
+        if (getAppliList==null) {
+            getAppliList = new GetAppliList(new GetAppliList.Callback() {
+                @Override
+                public void onSuccess(List<AppListItem> list) {
+                    setMessage(1, list);
+                }
+
+                @Override
+                public void onPageInfoChange(PageInfo pageInfo) {
+                    mPage = pageInfo.getPageNum();
+                    ListActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (pageInfo.hasPreviousPage()) {
+                                lastPage.setImageResource(R.mipmap.lastpage);
+                                lastPage.setEnabled(true);
+                            } else {
+                                lastPage.setImageResource(R.mipmap.lastpagefalse);
+                                lastPage.setEnabled(false);
+                            }
+
+                            if (pageInfo.hasNextPage()) {
+                                nextPage.setImageResource(R.mipmap.nextpage);
+                                nextPage.setEnabled(true);
+                            } else {
+
+                                nextPage.setImageResource(R.mipmap.nextpagefalse);
+                                nextPage.setEnabled(false);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onFail(String s) {
+                    toastInner(s);
+                }
+            });
+        }
         getAppliList.getAppliList();
 
-        imSocketChannel=new ImSocketChannel(socketChannelObserver,ListActivity.this);
         //imSocketChannel.connect();
-        getRunMode();
+        if (getRunMode==null) {
+            getRunMode = new GetRunMode(new GetRunMode.Callback() {
+                @Override
+                public void onSuccess(GetRunModeBean getRunModeBean) {
+                    setMessage(2, getRunModeBean, 2000);
+                }
+                @Override
+                public void onFail(String s) {
+                    Log.e("getRunModeFaile", s);
+                }
+            });
+        }
+        getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
     }
 
     private void getRunMode(){
         if (stoprunmode){
             return;
         }
-        new GetRunMode(new GetRunMode.Callback() {
-            @Override
-            public void onSuccess(GetRunModeBean getRunModeBean) {
-                setMessage(2,getRunModeBean,2000);
-            }
-
-            @Override
-            public void onFail(String s) {
-                Log.e("getRunModeFaile", s);
-            }
-        }).dorequest(Util.getLocalMacAddress(ListActivity.this));
+        getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
     }
 
     private void toastInner(final String msg) {
