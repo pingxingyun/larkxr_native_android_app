@@ -19,7 +19,7 @@
         android:theme="@style/Theme.XVisioLarkXR">
 
         <meta-data android:name="NIBIRU_PLUGIN_IDS"
-            android:value="6DOF" />
+            android:value="6DOF, MARKER" />
         <meta-data android:name="NIBIRU_SIX_DOF_MODE" android:value="1" />
         <meta-data android:name="NIBIRU_SIX_DOF_TYPE" android:value="1" />
 

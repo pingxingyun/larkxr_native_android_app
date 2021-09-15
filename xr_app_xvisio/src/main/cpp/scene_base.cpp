@@ -4,6 +4,7 @@
 
 #include <log.h>
 #include "scene_base.h"
+#include "lark_xr/xr_config.h"
 
 SceneBase::SceneBase() {
 
@@ -17,11 +18,26 @@ void SceneBase::InitGl(int eyeBufferWidth, int eyeBufferHeight) {
     eye_buffer_width_ = eyeBufferWidth;
     eye_buffer_height_ = eyeBufferHeight;
 
-    float halfW = near_z_ * tanf( fov_0_ * 0.5F * 3.14159260F /180.0F );
-    float halfH = near_z_ * tanf( fov_1_ * 0.5F * 3.14159260F /180.0F );
-    LOGI("FOV is %f , halfW is %f", fov_0_, halfW);
-    projection_[0] = glm::frustum(-halfW,halfW,-halfH,halfH, near_z_, far_z_);
-    projection_[1] = glm::frustum(-halfW,halfW,-halfH,halfH, near_z_, far_z_);
+    float rr = M_PI / 180.0F;
+
+    for (int eye = 0; eye < 2; eye++) {
+        larkxrRenderFov fov = lark::XRConfig::fov[eye];
+        float l = near_z_ * tanf( fov.left * rr );
+        float r = near_z_ * tanf( fov.right * rr );
+        float t = near_z_ * tanf( fov.top * rr );
+        float b = near_z_ * tanf( fov.bottom * rr );
+        projection_[eye] = glm::frustum(-l,r,-t,b, near_z_, far_z_);
+    }
+
+    ipd_ = lark::XRConfig::ipd;
+
+    LOGV("local ui use eye distance %f", ipd_);
+//    float halfW = near_z_ * tanf( fov_0_ * 0.5F * 3.14159260F /180.0F );
+//    float halfH = near_z_ * tanf( fov_1_ * 0.5F * 3.14159260F /180.0F );
+
+//    LOGI("FOV is %f , halfW is %f", fov_0_, halfW);
+//    projection_[0] = glm::frustum(-halfW,halfW,-halfH,halfH, near_z_, far_z_);
+//    projection_[1] = glm::frustum(-halfW,halfW,-halfH,halfH, near_z_, far_z_);
 }
 
 void SceneBase::UpdateHMDPose(glm::quat rotation, glm::vec3 position) {
@@ -68,14 +84,14 @@ void SceneBase::Draw(int eye) {
     //配置混合方程式，默认为 GL_FUNC_ADD 方程
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable( GL_SCISSOR_TEST );
-    glDepthMask( GL_TRUE );
-    glEnable( GL_DEPTH_TEST );
-    glDepthFunc( GL_LEQUAL );
-    glEnable( GL_CULL_FACE );
-    glCullFace( GL_BACK );
-    glViewport( 0, 0, eye_buffer_width_, eye_buffer_height_);
-    glScissor( 0, 0, eye_buffer_width_, eye_buffer_height_);
+//    glEnable( GL_SCISSOR_TEST );
+//    glDepthMask( GL_TRUE );
+//    glEnable( GL_DEPTH_TEST );
+//    glDepthFunc( GL_LEQUAL );
+//    glEnable( GL_CULL_FACE );
+//    glCullFace( GL_BACK );
+//    glViewport( 0, 0, eye_buffer_width_, eye_buffer_height_);
+//    glScissor( 0, 0, eye_buffer_width_, eye_buffer_height_);
     glClearColor( 0.125F, 0.0F, 0.125F, 1.0F );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     for(auto it = objects_.begin(); it != objects_.end(); it ++) {

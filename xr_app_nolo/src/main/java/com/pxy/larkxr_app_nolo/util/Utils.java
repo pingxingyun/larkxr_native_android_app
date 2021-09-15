@@ -1,5 +1,6 @@
 package com.pxy.larkxr_app_nolo.util;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES30;
@@ -51,6 +52,7 @@ public class Utils {
         }
 
         //通过输入流加载图片===============begin===================
+        @SuppressLint("ResourceType")
         InputStream is = gsv.getResources().openRawResource(R.drawable.robot);
         Bitmap bitmapTmp;
         try

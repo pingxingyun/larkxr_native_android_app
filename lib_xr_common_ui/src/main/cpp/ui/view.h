@@ -19,11 +19,11 @@
 class Navigation;
 class View: public  lark::Object {
 public:
-    static constexpr float VIEW_POSITION_X = 0.0F;
-    static constexpr float VIEW_POSITION_Y = 0.0F;
-    static constexpr float VIEW_POSITION_Z = -4.0F;
-    static constexpr float VIEW_WIDTH      = 6.0F;
-    static constexpr float VIEW_HEIGHT     = 4.0F;
+    static float VIEW_POSITION_X;
+    static float VIEW_POSITION_Y;
+    static float VIEW_POSITION_Z;
+    static float VIEW_WIDTH;
+    static float VIEW_HEIGHT;
 
     View(Navigation *navigation);
     ~View();
