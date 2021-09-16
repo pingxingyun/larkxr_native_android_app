@@ -85,10 +85,12 @@
     <include layout="@layout/setting_ip_item"
         android:visibility="gone"
         android:clickable="true"
+        android:focusable="true"
         android:id="@+id/setIP"/>
     <include
         layout="@layout/setting_list_item"
         android:visibility="gone"
         android:clickable="true"
+        android:focusable="true"
         android:id="@+id/setTab"/>
 </FrameLayout>

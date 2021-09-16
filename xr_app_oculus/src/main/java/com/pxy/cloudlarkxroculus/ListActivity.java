@@ -696,7 +696,7 @@ public class ListActivity extends Activity {
         extraIntent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("intent", extraIntent);*/
         activity.startActivity(intent);
-        activity.finish();
+        //activity.finish();
     }
 
     private void getMessage(Message msg){
