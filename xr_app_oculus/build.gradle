@@ -109,4 +109,6 @@ dependencies {
     implementation(name: 'lark-core-kit-3.2.0.0-build-1', ext: 'aar')
 
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+
 }
