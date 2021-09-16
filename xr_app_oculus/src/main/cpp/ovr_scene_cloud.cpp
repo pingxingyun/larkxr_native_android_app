@@ -20,7 +20,7 @@
 
 using namespace lark;
 
-static bool EXIT_UI = true;
+static bool EXIT_UI = false;
 
 OvrSceneCloud::OvrSceneCloud(): OvrScene()
 {
