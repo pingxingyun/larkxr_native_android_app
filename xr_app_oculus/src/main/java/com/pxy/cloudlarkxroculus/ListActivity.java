@@ -701,10 +701,15 @@ public class ListActivity extends Activity {
 
     private void getMessage(Message msg){
         if (msg.what==1){
-            List<AppListItem> list= (List<AppListItem>) msg.obj;
+/*            List<AppListItem> list= (List<AppListItem>) msg.obj;
             appListAdapter=new AppListAdapter(ListActivity.this,list);
-            rec.setAdapter(appListAdapter);
-
+            rec.setAdapter(appListAdapter);*/
+            List<AppListItem> locallist= (List<AppListItem>) msg.obj;
+            if (!locallist.equals(applist)){
+                applist=locallist;
+                appListAdapter=new AppListAdapter(ListActivity.this,applist);
+                rec.setAdapter(appListAdapter);
+            }
             new Thread(()-> {
                 try {
                     Thread.sleep(1000);
