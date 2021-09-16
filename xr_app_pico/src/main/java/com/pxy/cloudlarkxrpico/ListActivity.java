@@ -752,7 +752,7 @@ public class ListActivity extends Activity {
                 }
             });
             Glide.with(context)
-                    .load(data.getPicUrl())
+                    .load(Base.getServerUrl().getUrl()+data.getPicUrl())
                     .error(R.mipmap.cover_11)
                     .into(viewHolder.pic);
         }
