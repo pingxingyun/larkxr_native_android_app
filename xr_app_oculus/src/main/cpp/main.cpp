@@ -27,7 +27,6 @@
 #include "assimp/Logger.hpp"
 #include "assimp/DefaultLogger.hpp"
 
-std::string g_appid = "";
 /**
  * Process the next main command.
  */
@@ -71,24 +70,53 @@ static void app_handle_cmd( struct android_app * app, int32_t cmd )
 //    application->handleAndroidCmd(app, cmd);
 }
 
-void android_main( struct android_app * app )
-{
+void android_main( struct android_app * app ) {
     // inint logger
     lark::Logger::InitLogger();
-    ANativeActivity_setWindowFlags( app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0 );
+    ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 
     // init app
     OvrApplication application;
-
 
     if (!application.InitVR(app)) {
         LOGE("init vr failed");
         exit(0);
     }
 
+    std::string appid;
+    {
+        EnvWrapper env_wraper = Context::instance()->GetEnv();
+        JNIEnv* env = env_wraper.get();
+
+        jobject native_activity = app->activity->clazz;
+        jclass clazz = env->GetObjectClass(native_activity);
+        jmethodID giid = env->GetMethodID(clazz, "getIntent", "()Landroid/content/Intent;");
+        jobject intent = env->CallObjectMethod(native_activity, giid);
+
+        jclass icl = env->GetObjectClass(intent);
+        jmethodID gseid = env->GetMethodID(icl, "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
+
+        auto j_appid = (jstring)env->CallObjectMethod(intent, gseid, env->NewStringUTF("appid"));
+
+        if (j_appid != nullptr) {
+            const char *c_appid = env->GetStringUTFChars(j_appid, 0);
+            appid = c_appid;
+            env->ReleaseStringUTFChars(j_appid, c_appid);
+        }
+
+        env->DeleteLocalRef(j_appid);
+        env->DeleteLocalRef(clazz);
+        env->DeleteLocalRef(icl);
+        env->DeleteLocalRef(intent);
+    }
+
+    LOGV("enter appli param %s", appid.c_str());
+
     LOGD("init vr success");
 
-    application.set_pre_appid(g_appid);
+    if (!appid.empty()) {
+        application.Set2DUIEnterAppliMode(appid);
+    }
 
     if (!application.InitGL()) {
         LOGE("init gl failed");
@@ -102,8 +130,6 @@ void android_main( struct android_app * app )
 
     app->userData = &application;
     app->onAppCmd = app_handle_cmd;
-
-    LogE("ovr_native_application", "g_appid %s", g_appid.c_str());
 
 #if 0
     FILE* file = fopen("/storage/emulated/0/Android/data/com.pxy.cloudlarkxroculus/files/test.txt", "a");
@@ -170,22 +196,4 @@ Java_com_pxy_cloudlarkxroculus_MainActivity_nativeNetworkLost(JNIEnv *env, jobje
     if (application != nullptr) {
         application->OnNetworkLost();
     }
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_pxy_cloudlarkxroculus_MainActivity_intoApp(JNIEnv *env, jobject thiz,jstring id) {
-    // TODO: implement intoApp()
-    LogE("ovr_native_application","-------------------------intoApp");
-    Application* application = Application::instance();
-
-    //ovr_application* application = (ovr_application*)ptr;
-    if (application == nullptr) {
-        return;
-    }
-    const char *charg_appid = env->GetStringUTFChars(id, 0);
-    LogE("ovr_native_application","--------------------%s", charg_appid);
-    g_appid = charg_appid;
-    application->EnterAppli(charg_appid);
-    env->ReleaseStringUTFChars(id, charg_appid);
 }

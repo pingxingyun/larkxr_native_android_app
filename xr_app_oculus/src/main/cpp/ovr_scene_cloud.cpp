@@ -20,7 +20,7 @@
 
 using namespace lark;
 
-static bool EXIT_UI = false;
+static bool EXIT_UI = true;
 
 OvrSceneCloud::OvrSceneCloud(): OvrScene()
 {
@@ -143,7 +143,9 @@ void OvrSceneCloud::HandleInput() {
         // call after pressup.
         if ( triggerDownThisFrame[deviceIndex] && backButtonDownLastFrame && !backButtonDownThisFrame[deviceIndex] ) {
             LOGV("close app." );
-            //OnCloseApp();
+            if (Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D) {
+                OnCloseApp();
+            }
         }
 
         // call ater pressup.

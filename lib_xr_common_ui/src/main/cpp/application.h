@@ -22,6 +22,11 @@
 //
 class Application: public lark::XRClientObserver {
 public:
+    enum ApplicationUIMode {
+        ApplicationUIMode_Android_2D  = 0,
+        ApplicationUIMode_Opengles_3D = 1,
+    };
+
     // warning should init in child class
     static Application* instance();
     virtual ~Application();
@@ -66,6 +71,17 @@ public:
     // handle network change
     virtual void OnNetworkAvailable() {};
     virtual void OnNetworkLost() {};
+
+    inline void set_ui_mode(ApplicationUIMode ui_mode) { ui_mode_ = ui_mode; }
+    inline ApplicationUIMode ui_mode() { return ui_mode_; }
+
+    inline void set_appli_id_from_2d_ui(const std::string& appid) { appli_id_from_2d_ui_ = appid; }
+    inline std::string  appli_id_from_2d_ui() { return appli_id_from_2d_ui_; }
+
+    inline void Set2DUIEnterAppliMode(const std::string& appid) {
+        appli_id_from_2d_ui_ = appid;
+        ui_mode_ = ApplicationUIMode_Android_2D;
+    }
 protected:
     static void RegiseredInstance(Application* instance);
     static void UnRegiseredInstance();
@@ -84,6 +100,9 @@ protected:
     std::shared_ptr<lark::XRClient> xr_client_ = nullptr;
     //
     bool connected_ = false;
+
+    ApplicationUIMode ui_mode_ = ApplicationUIMode_Opengles_3D;
+    std::string appli_id_from_2d_ui_ = "";
 
 private:
     // static instance

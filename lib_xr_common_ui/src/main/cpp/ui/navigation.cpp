@@ -35,10 +35,11 @@ Navigation::Navigation() :
       setup_server_addr_(new SetupServerAddr(this)),
       toast_(new Text(L""))
 {
-    current_ = ROUTERS::HOME;
+    bool ui_3d_mode = Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D;
+    current_ = ui_3d_mode ? ROUTERS::HOME : ROUTERS::LOADING;
 
     // add chiledren.
-    home_page_->set_active(true);
+    home_page_->set_active(ui_3d_mode);
     home_page_->Move(View::VIEW_POSITION_X, component::CAMERA_ORI_POSITION.y, View::VIEW_POSITION_Z);
     AddChild(home_page_);
 
@@ -46,7 +47,7 @@ Navigation::Navigation() :
     setup_->Move(View::VIEW_POSITION_X, component::CAMERA_ORI_POSITION.y, View::VIEW_POSITION_Z);
     AddChild(setup_);
 
-    loading_->set_active(false);
+    loading_->set_active(!ui_3d_mode);
     loading_->Move(View::VIEW_POSITION_X, component::CAMERA_ORI_POSITION.y, View::VIEW_POSITION_Z);
     AddChild(loading_);
 
@@ -63,7 +64,11 @@ Navigation::Navigation() :
         SetRouter(Navigation::ROUTERS::SETUP_SERVERADDR);
         ShowToast("请设置服务器地址");
     } else {
-        home_page_->Enter();
+        if (ui_3d_mode) {
+            home_page_->Enter();
+        } else {
+            loading_->Enter();
+        }
     }
 }
 

@@ -59,8 +59,6 @@ public:
     // handle network change
     virtual void OnNetworkAvailable() override;
     virtual void OnNetworkLost() override;
-
-    inline void set_pre_appid(const std::string& appid) { pre_appid_ = appid; }
 private:
     void CreateFrameBuffer(const ovrJava *java, const bool useMultiview);
     void DestoryFrameBuffer();
@@ -90,8 +88,6 @@ private:
     // frame buffer
     OvrFrameBuffer frame_buffer_[VRAPI_FRAME_LAYER_EYE_MAX];
     int			   num_buffers_;
-
-    std::string pre_appid_ = "";
 };
 
 

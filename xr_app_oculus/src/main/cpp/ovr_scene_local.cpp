@@ -53,7 +53,7 @@ bool OvrSceneLocal::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
     // navigation.
     navigation_ = std::make_shared<Navigation>();
     OvrScene::AddObject(navigation_);
-    navigation_->SetLoadingTips(L"Home键退出");
+    navigation_->SetLoadingTips(L"按手柄 Home 键选择退出返回应用列表");
     return OvrScene::InitGL(frame_buffer, num_buffers);
 }
 
