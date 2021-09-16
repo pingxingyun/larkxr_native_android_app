@@ -644,11 +644,11 @@ public class ListActivity extends Activity {
         Activity activity= (Activity) context;
         Intent intent=new Intent(activity, MainActivity.class);
         intent.putExtra("appid",appid);
-/*        Intent extraIntent = new Intent("android.intent.action.MAIN");
-        //Intent extraIntent = new Intent();
+//        Intent extraIntent = new Intent("android.intent.action.MAIN");
+        Intent extraIntent = new Intent();
         extraIntent.addCategory("android.intent.category.LAUNCHER");
         extraIntent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("intent", extraIntent);*/
+        intent.putExtra("intent", extraIntent);
         activity.startActivity(intent);
         activity.finish();
     }
