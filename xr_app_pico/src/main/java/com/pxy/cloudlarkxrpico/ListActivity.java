@@ -29,6 +29,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.pxy.cloudlarkxrkit.Config;
 import com.pxy.larkcore.ClientLifeManager;
 import com.pxy.larkcore.CloudlarkManager;
@@ -750,6 +751,10 @@ public class ListActivity extends Activity {
                     GoMainActivity(context,data.getAppliId());
                 }
             });
+            Glide.with(context)
+                    .load(data.getPicUrl())
+                    .error(R.mipmap.cover_11)
+                    .into(viewHolder.pic);
         }
 
         @Override
@@ -765,12 +770,14 @@ public class ListActivity extends Activity {
         private class ViewHolder extends RecyclerView.ViewHolder{
             TextView appname,appid;
             LinearLayout item;
+            ImageView pic;
             public ViewHolder (View view)
             {
                 super(view);
                 appname=view.findViewById(R.id.appname);
                 item=view.findViewById(R.id.item);
                 appid=view.findViewById(R.id.appid);
+                pic=view.findViewById(R.id.pic);
             }
         }
 

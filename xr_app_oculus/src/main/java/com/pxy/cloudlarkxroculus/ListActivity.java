@@ -29,6 +29,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.pxy.cloudlarkxrkit.Config;
 import com.pxy.cloudlarkxroculus.MainActivity;
 import com.pxy.cloudlarkxroculus.R;
@@ -756,6 +757,8 @@ public class ListActivity extends Activity {
         @Override
         public void onBindViewHolder(AppListAdapter.ViewHolder viewHolder, int i) {
             AppListItem data=appListItems.get(i);
+            Log.e("viewholder", data.getAppliName());
+            Log.e("viewholderpic", data.getPicUrl());
             viewHolder.appname.setText(data.getAppliName());
             viewHolder.appid.setText(data.getAppliId());
             viewHolder.item.setOnClickListener(new View.OnClickListener() {
@@ -764,6 +767,10 @@ public class ListActivity extends Activity {
                     GoMainActivity(context,data.getAppliId());
                 }
             });
+            Glide.with(context)
+                    .load(data.getPicUrl())
+                    .error(R.mipmap.cover_11)
+                    .into(viewHolder.pic);
         }
 
         @Override
@@ -779,12 +786,14 @@ public class ListActivity extends Activity {
         private class ViewHolder extends RecyclerView.ViewHolder{
             TextView appname,appid;
             LinearLayout item;
+            ImageView pic;
             public ViewHolder (View view)
             {
                 super(view);
                 appname=view.findViewById(R.id.appname);
                 item=view.findViewById(R.id.item);
                 appid=view.findViewById(R.id.appid);
+                pic=view.findViewById(R.id.pic);
             }
         }
 
