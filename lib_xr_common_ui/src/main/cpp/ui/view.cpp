@@ -24,7 +24,6 @@ float View::VIEW_HEIGHT     = 4.0F;
 
 View::View(Navigation *navigation):
     navigation_(navigation),
-    plane_(),
     aabb_list_(),
     ray_point_(),
     back_btn_(new BackButton),
@@ -34,11 +33,6 @@ View::View(Navigation *navigation):
     bg_->set_size(component::size(VIEW_WIDTH, VIEW_HEIGHT));
     bg_->Move(-VIEW_WIDTH / 2, -VIEW_HEIGHT / 2 - 0.5F, - 0.1F);
 //    AddChild(bg_);
-
-    plane_ = {
-            glm::vec3(0, 0, 1), // normal
-            glm::vec3(VIEW_POSITION_X, VIEW_POSITION_Y, VIEW_POSITION_Z + 0.2F), // dot
-    };
 }
 
 View::~View() {
@@ -63,15 +57,6 @@ void View::Init() {
         rayDot->Move(100, 100, 100);
         AddChild(rayDot);
     }
-
-    // reset plane by transform
-    Transform world_trans(GetTransforms());
-    plane_.normal = world_trans.Forward();
-//    plane_.dot = world_trans.GetPosition();
-//    plane_.dot.z += 0.2;
-    LOGV("view word position %f %f %f; forward %f %f %f",
-         world_trans.GetPosition()[0], world_trans.GetPosition()[1], world_trans.GetPosition()[2],
-         world_trans.Forward()[0], world_trans.Forward()[1], world_trans.Forward()[2]);
 }
 
 void View::HandleInput(Ray * rays, int rayCount) {
@@ -87,12 +72,23 @@ void View::HandleInput(Ray * rays, int rayCount) {
         }
     }
 
+    // use curretn transforms.
+    Transform world_trans(GetTransforms());
+
+    Plane plane;
+    plane.normal = world_trans.Forward();
+    plane.dot = world_trans.GetPosition();
+    plane.dot.z += 0.2;
+
+//    LOGV("view word position %f %f %f; forward %f %f %f",
+//         world_trans.GetPosition()[0], world_trans.GetPosition()[1], world_trans.GetPosition()[2],
+//         world_trans.Forward()[0], world_trans.Forward()[1], world_trans.Forward()[2]);
+
     //    float t;
     //    float dot = utils::Dot(foward, normal);
     //    glm::vec3 f = planeDot - ray.p;
     //    float t =  utils::Dot(f, normal) / dot;
     //    0 -> left 1 -> right 2 -> hmd for now.
-    Plane plane = plane_;
     for (int i = 0; i < rayCount; i ++) {
         Ray ray = rays[i];
 
@@ -105,14 +101,21 @@ void View::HandleInput(Ray * rays, int rayCount) {
         glm::vec3 parentPosition = parentTransforms.GetPosition();
 
         glm::vec3 p;
-        p.x = ray.ori.x + t * ray.dir.x - parentPosition.x;
-        p.y = ray.ori.y + t * ray.dir.y - parentPosition.y;
-        p.z = ray.ori.z + t * ray.dir.z - parentPosition.z;
-        Transform transform;
-        transform.Translate(p);
+        p.x = ray.ori.x + t * ray.dir.x;
+        p.y = ray.ori.y + t * ray.dir.y;
+        p.z = ray.ori.z + t * ray.dir.z;
+//        p.x = ray.ori.x + t * ray.dir.x - parentPosition.x;
+//        p.y = ray.ori.y + t * ray.dir.y - parentPosition.y;
+//        p.z = ray.ori.z + t * ray.dir.z - parentPosition.z;
 
+        glm::quat rotation = parentTransforms.GetRotation();
+        glm::mat4 wold = glm::translate(glm::mat4(1.0f), p);
+        wold = wold * glm::mat4_cast(rotation);
+        glm::mat4 local = glm::inverse(parentTransforms.GetTrans()) * wold;
+        Transform transform(local);
+
+//        transform.Translate(p);
         ray_dots_[i]->set_transform(transform);
-
 
         //
         ray_point_[i].x = p.x;

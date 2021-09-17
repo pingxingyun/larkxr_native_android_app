@@ -54,6 +54,15 @@ bool OvrSceneLocal::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
     navigation_ = std::make_shared<Navigation>();
     OvrScene::AddObject(navigation_);
 
+    fake_hmd_ = std::make_shared<lark::Object>();
+    OvrScene::AddObject(fake_hmd_);
+
+    menu_view_ = std::make_shared<MenuView>(nullptr);
+    menu_view_->Move(-0.75, -0.75, -1.5);
+    fake_hmd_->AddChild(menu_view_);
+
+//    OvrScene::AddObject(menu_view_);
+
     return OvrScene::InitGL(frame_buffer, num_buffers);
 }
 
@@ -161,7 +170,9 @@ bool OvrSceneLocal::HandleInput(ovrMobile * ovr) {
 //             call after pressup.
             if ( inputState[rayCastType].backShortPressed)
             {
-               // OnCloseApp();
+                if (Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D) {
+                    OnCloseApp();
+                }
             }
 
             // call ater pressup.
@@ -170,8 +181,15 @@ bool OvrSceneLocal::HandleInput(ovrMobile * ovr) {
             }
         }
     }
+
+    // update hmd pose.
+    const ovrTracking2 tracking = vrapi_GetPredictedTracking2(ovr, display_time_);
+    // send event.
+    hmd_ = ovr::toLarkHMDTrakedPose(tracking);
+    fake_hmd_->set_transform(Transform(hmd_.rotation, hmd_.position));
     // update ui ray.
-    navigation_->HandelInput(rays, 2);
+//    navigation_->HandelInput(rays, 2);
+    menu_view_->HandleInput(rays, 2);
 
     return OvrScene::HandleInput(ovr);
 }
@@ -194,4 +212,7 @@ void OvrSceneLocal::OnCloseApp() {
 void OvrSceneLocal::LoadingPage() {
     LOGV("================LoadingPage");
     navigation_->SetRouter(Navigation::HOME);
+}
+
+void OvrSceneLocal::TestShowMenu() {
 }

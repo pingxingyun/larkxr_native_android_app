@@ -107,6 +107,11 @@ public:
     // draw
     virtual void Draw(Eye eye, const glm::mat4& projection, const glm::mat4& view);
     virtual void DrawMultiview(const glm::mat4& projection, const glm::mat4& view);
+
+    // manange child.
+    void AddChild(std::shared_ptr<Object>&& child);
+    void RemoveChild(std::shared_ptr<Object>&& child);
+    void ClearChild();
 protected:
     virtual void InitVao(const void* vertices, int verticesSize, const void* indices, int indicesSize);
 #ifdef __ANDROID__
@@ -119,9 +124,6 @@ protected:
 
     void LoadShader(const char* vfile, const char* ffile, const char* vstr, const char* fstr);
     void LoadMultviewShader(const char* vfile, const char* ffile, const char* vstr, const char* fstr);
-    void AddChild(std::shared_ptr<Object>&& child);
-    void RemoveChild(std::shared_ptr<Object>&& child);
-    void ClearChild();
 
     bool active_;
 

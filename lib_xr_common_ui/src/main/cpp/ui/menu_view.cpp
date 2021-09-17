@@ -68,10 +68,10 @@ void MenuView::Init() {
     View::back_btn_->set_active(false);
     View::Init();
 
-    plane_ = {
-            glm::vec3(0, 0, 1), // normal
-            glm::vec3(-0.75, -0.75, -1.5 + 0.2), // dot
-    };
+//    plane_ = {
+//            glm::vec3(0, 0, 1), // normal
+//            glm::vec3(-0.75, -0.75, -1.5 + 0.2), // dot
+//    };
 }
 
 void MenuView::Enter() {
