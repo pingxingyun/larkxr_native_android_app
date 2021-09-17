@@ -2,6 +2,7 @@
 // Created by fcx@pingixngyun.com on 2019/11/15.
 //
 
+#include <log.h>
 #include "view.h"
 #include "ui/aa_bb.h"
 #include "navigation.h"
@@ -62,6 +63,15 @@ void View::Init() {
         rayDot->Move(100, 100, 100);
         AddChild(rayDot);
     }
+
+    // reset plane by transform
+    Transform world_trans(GetTransforms());
+    plane_.normal = world_trans.Forward();
+//    plane_.dot = world_trans.GetPosition();
+//    plane_.dot.z += 0.2;
+    LOGV("view word position %f %f %f; forward %f %f %f",
+         world_trans.GetPosition()[0], world_trans.GetPosition()[1], world_trans.GetPosition()[2],
+         world_trans.Forward()[0], world_trans.Forward()[1], world_trans.Forward()[2]);
 }
 
 void View::HandleInput(Ray * rays, int rayCount) {
@@ -81,11 +91,12 @@ void View::HandleInput(Ray * rays, int rayCount) {
     //    float dot = utils::Dot(foward, normal);
     //    glm::vec3 f = planeDot - ray.p;
     //    float t =  utils::Dot(f, normal) / dot;
-    //    0 -> left 1 -> right for now.
+    //    0 -> left 1 -> right 2 -> hmd for now.
     Plane plane = plane_;
     for (int i = 0; i < rayCount; i ++) {
         Ray ray = rays[i];
-        float t = (plane.dot.z - ray.ori.z) / ray.dir.z;
+
+        float t = (glm::dot(plane.normal, plane.dot) - glm::dot(plane.normal, ray.ori)) / (glm::dot(plane.normal, ray.dir));
         if (t > 0) {
             continue;
         }

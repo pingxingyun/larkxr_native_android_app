@@ -28,14 +28,17 @@
         >
 <!--        <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>-->
 
-        <activity android:name=".ListActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+        <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".ListActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
 
         <activity android:name=".MainActivity"
