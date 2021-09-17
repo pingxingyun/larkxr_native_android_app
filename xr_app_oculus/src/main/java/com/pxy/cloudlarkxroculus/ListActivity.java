@@ -143,7 +143,7 @@ public class ListActivity extends Activity {
         GridLayoutManager gridLayoutManager=new GridLayoutManager(this,4);
         rec.setLayoutManager(gridLayoutManager);
 
-        selfOnline=findViewById(R.id.SelfOnline);
+        selfOnline=findViewById(R.id.SelfOnline);    
 
         setTab=findViewById(R.id.setTab);
         setIp =findViewById(R.id.setIP);
