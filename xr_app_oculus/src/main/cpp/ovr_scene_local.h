@@ -36,7 +36,6 @@ protected:
 
 private:
     void OnCloseApp();
-    void TestShowMenu();
 
     bool back_button_down_last_frame_[Input::RayCast_Count]{};
     bool trigger_button_down_last_frame_[Input::RayCast_Count]{};
@@ -47,11 +46,6 @@ private:
     std::shared_ptr<lark::Controller> controller_right_;
 
     std::shared_ptr<Navigation> navigation_;
-
-    std::shared_ptr<lark::Object> fake_hmd_;
-    std::shared_ptr<MenuView> menu_view_;
-
-    larkxrTrackedPose hmd_ = {};
 };
 
 

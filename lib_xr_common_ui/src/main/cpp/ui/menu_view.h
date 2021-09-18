@@ -11,10 +11,16 @@
 
 class MenuView: public View {
 public:
-    MenuView(Navigation* navigation);
+    class Callback {
+    public:
+        virtual void OnMenuViewSelect(bool submit) = 0;
+    };
+
+    MenuView(Callback* callback);
     ~MenuView();
     // update evey frame called by render thread.
     virtual void Update() override;
+
 protected:
     virtual void Init() override;
     // switch to current page.
@@ -27,6 +33,7 @@ private:
     std::shared_ptr<TextButton> btn_cancle_;
     std::shared_ptr<TextButton> btn_submit_;
     std::shared_ptr<ColorBox> bg_;
+    Callback* callback_;
 };
 
 

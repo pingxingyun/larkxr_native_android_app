@@ -60,8 +60,6 @@ void View::Init() {
 }
 
 void View::HandleInput(Ray * rays, int rayCount) {
-    // TODO setup ray.
-
     if (Input::GetCurrentRayCastType() != main_ray_cast_) {
         main_ray_cast_ = Input::GetCurrentRayCastType();
         ray_dots_[main_ray_cast_]->SetPath(ACTIVIVE, true);
@@ -78,7 +76,6 @@ void View::HandleInput(Ray * rays, int rayCount) {
     Plane plane;
     plane.normal = world_trans.Forward();
     plane.dot = world_trans.GetPosition();
-    plane.dot.z += 0.2;
 
 //    LOGV("view word position %f %f %f; forward %f %f %f",
 //         world_trans.GetPosition()[0], world_trans.GetPosition()[1], world_trans.GetPosition()[2],
@@ -104,22 +101,21 @@ void View::HandleInput(Ray * rays, int rayCount) {
         p.x = ray.ori.x + t * ray.dir.x;
         p.y = ray.ori.y + t * ray.dir.y;
         p.z = ray.ori.z + t * ray.dir.z;
-//        p.x = ray.ori.x + t * ray.dir.x - parentPosition.x;
-//        p.y = ray.ori.y + t * ray.dir.y - parentPosition.y;
-//        p.z = ray.ori.z + t * ray.dir.z - parentPosition.z;
 
         glm::quat rotation = parentTransforms.GetRotation();
         glm::mat4 wold = glm::translate(glm::mat4(1.0f), p);
         wold = wold * glm::mat4_cast(rotation);
         glm::mat4 local = glm::inverse(parentTransforms.GetTrans()) * wold;
+        local = glm::translate(local, glm::vec3(0,0,0.2));
         Transform transform(local);
+        glm::vec3 local_position = transform.GetPosition();
 
 //        transform.Translate(p);
         ray_dots_[i]->set_transform(transform);
 
         //
-        ray_point_[i].x = p.x;
-        ray_point_[i].y = p.y;
+        ray_point_[i].x = local_position.x;
+        ray_point_[i].y = local_position.y;
     }
     for(auto& aabb : aabb_list_) {
         if (aabb->aabb_active()) {
