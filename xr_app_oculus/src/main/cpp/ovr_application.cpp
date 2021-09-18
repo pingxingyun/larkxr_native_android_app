@@ -112,10 +112,6 @@ void OvrApplication::InitJava() {
 //    scene_cloud_->InitJava(&java_, use_multiview_);
     scene_local_->InitGL(frame_buffer_, num_buffers_);
     scene_cloud_->InitGL(frame_buffer_, num_buffers_);
-
-    if(!pre_appid_.empty()) {
-        scene_local_->LoadingPage();
-    }
 }
 
 void OvrApplication::ShutdownVR() {
@@ -271,9 +267,9 @@ void OvrApplication::HandleVrModeChange() {
                         Navigation::ShowToast(xr_client_->last_error_message());
                     }
 #endif
-                    LOGV("pre appid ========== %s", pre_appid_.c_str());
-                    if (!pre_appid_.empty()) {
-                        EnterAppli(pre_appid_);
+                    LOGV("pre appid ========== %s", appli_id_from_2d_ui_.c_str());
+                    if (!appli_id_from_2d_ui_.empty()) {
+                        EnterAppli(appli_id_from_2d_ui_);
                     }
                 }
                 // setup fov
@@ -463,7 +459,11 @@ void OvrApplication::OnClose(int code) {
     LOGV("=========on close %d", code);
     connected_ = false;
     scene_cloud_->OnClose();
-    scene_local_->HomePage();
+    if (ui_mode() == ApplicationUIMode_Opengles_3D) {
+        scene_local_->HomePage();
+    } else {
+        scene_local_->LoadingPage();
+    }
     switch(code) {
         case LK_XR_MEDIA_TRANSPORT_CHANNEL_CLOSED:
             Navigation::ShowToast("与服务器媒体传输通道连接关闭");
@@ -485,11 +485,19 @@ void OvrApplication::OnError(int errCode, const std::string &msg) {
     LOGE("on xr client error %d; msg %s;", errCode, msg.c_str());
     if (errCode == LK_API_ENTERAPPLI_FAILED) {
         // enter applifailed.
-        scene_local_->HomePage();
+        if (ui_mode() == ApplicationUIMode_Opengles_3D) {
+            scene_local_->HomePage();
+        } else {
+            scene_local_->LoadingPage();
+        }
     } else {
         connected_ = false;
         scene_cloud_->OnClose();
-        scene_local_->HomePage();
+        if (ui_mode() == ApplicationUIMode_Opengles_3D) {
+            scene_local_->HomePage();
+        } else {
+            scene_local_->LoadingPage();
+        }
     }
     Navigation::ShowToast(msg);
     if (ovr_ != nullptr && tracking_space_ != VRAPI_TRACKING_SPACE_LOCAL) {

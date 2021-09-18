@@ -65,6 +65,8 @@ SceneLocal::InitGl(LarkxrClient *client, int eyeBufferWidth, int eyeBufferHeight
 //    // add to pvr_xr_scene;
 //    SceneBase::AddObject(controller_right_);
 
+    // setup view position
+    View::VIEW_POSITION_Z = -8.0f;
     // navigation.
     navigation_ = std::make_shared<Navigation>();
     SceneBase::AddObject(navigation_);

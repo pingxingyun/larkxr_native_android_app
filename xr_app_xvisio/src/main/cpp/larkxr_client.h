@@ -13,6 +13,7 @@
 #include "scene_local.h"
 #include "application.h"
 #include "rect_texture.h"
+#include "INxrSensorClient/INxrSensorClient.h"
 
 #define USE_RENDER_QUEUE = 1;
 
@@ -79,6 +80,9 @@ public:
     void setAssets(JNIEnv *env, jobject &assets);
 
     void setNibiruVRApi(nvr::NibiruVRApi* vrApi);
+    //
+    inline void set_nxr_sensor_client(android::INxrSensorClient *nxr_sensor_client) { nxr_sensor_client_ = nxr_sensor_client; }
+
     int testTexutreId = 0;
     larkxrTrackingFrame cloud_tracking_ = {};
 
@@ -109,6 +113,7 @@ private:
     bool enter_button_down_last_frame_[Input::RayCast_Count]{};
 
     larkxrDevicePair device_pair_ = {};
+    android::INxrSensorClient *nxr_sensor_client_ = nullptr;
 };
 
 

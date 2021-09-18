@@ -9,12 +9,14 @@
 #include "INxrSensorClient/INxrSensorClient.h"
 #include "INxrSensorClient/NxrMoudle.h"
 
+#define USE_NXR_SENSOR_CLIENT 1
+//#define USE_PREDIT_POSE 1
 
 using namespace nvr;
 
-
 //Nibiru VR Service, provide VR Apis
 static NibiruVRApi sNVRApi;
+// INxrSensorClient ? sNVRApi ? which ?
 static android::INxrSensorClient *nxr_sensor_client = NULL;
 static LarkxrClient larkxrClient;
 static NxrMoudle moudle;
@@ -79,31 +81,43 @@ void onDrawFrame() {
         larkxrClient.Close();
     }
 
-    glm::quat rotation;
-    glm::vec3 positoin;
+    glm::quat rotation = {};
+    glm::vec3 positoin = {};
 
-    if (nxr_sensor_client != nullptr) {
-        NxrSharedData tracking = {};
-        nxr_sensor_client->getTrackingData(&tracking);
-        rotation.x = tracking.rotation[0];
-        rotation.y = tracking.rotation[1];
-        rotation.z = -tracking.rotation[2];
-        rotation.w = tracking.rotation[3];
+#ifdef USE_NXR_SENSOR_CLIENT
+#ifdef USE_PREDIT_POSE
+    if (!larkxrClient.media_ready()) {
+#endif
+    NxrSharedData tracking = {};
+    nxr_sensor_client->getTrackingData(&tracking);
+    rotation.x = tracking.rotation[0];
+    rotation.y = tracking.rotation[1];
+    rotation.z = -tracking.rotation[2];
+    rotation.w = tracking.rotation[3];
 
-        positoin.x = tracking.translation[0];
-        positoin.y = tracking.translation[1];
-        positoin.z = tracking.translation[2];
+    positoin.x = tracking.translation[0];
+    positoin.y = tracking.translation[1];
+    positoin.z = tracking.translation[2];
 
-        glm::mat4x4 flipz = glm::scale(glm::mat4x4(1), glm::vec3(1,1,-1));
-        glm::mat4 rotateMat = glm::mat4_cast(rotation);
-        rotateMat = flipz * rotateMat * flipz;
-        rotation = glm::quat_cast(rotateMat);
+    glm::mat4x4 flipz = glm::scale(glm::mat4x4(1), glm::vec3(1,1,-1));
+    glm::mat4 rotateMat = glm::mat4_cast(rotation);
+    rotateMat = flipz * rotateMat * flipz;
+    rotation = glm::quat_cast(rotateMat);
 
 //        LOGI("nxr sensor %f %f %f %f; %f %f %f",
 //             rotation.x, rotation.y, rotation.z, rotation.w,
 //             positoin.x, positoin.y, positoin.z);
+#ifdef USE_PREDIT_POSE
     } else {
-        glm::mat4x4 flipz = glm::scale(glm::mat4x4(1), glm::vec3(1,1,-1));
+        // test use predit pose
+        mat4 preDictivePose = {};
+        sNVRApi.nvr_getPredictiveHeadPose(&preDictivePose, 50);
+        glm::mat4 poseMat = xvisio::toGlm(preDictivePose);
+        rotation = glm::quat_cast(poseMat);
+    }
+#endif
+#else
+    glm::mat4x4 flipz = glm::scale(glm::mat4x4(1), glm::vec3(1,1,-1));
         // mat4 headpose2;
         // sNVRApi.nvr_GetHeadPose(&headpose2);
         glm::mat4 poseMat = xvisio::toGlm(headpose);
@@ -116,13 +130,13 @@ void onDrawFrame() {
         positoin = glm::vec3(position[0], position[1], position[2]);
 
         LOGI("rotation %f %f %f %f; %f %f %f", rotation.x, rotation.y, rotation.z, rotation.w, positoin.x, positoin.y, positoin.z);
-    }
+#endif
 
     larkxrClient.Update(rotation, positoin);
     if (larkxrClient.media_ready()) {
         // 有新的帧再渲染
         if (!larkxrClient.has_new_frame()) {
-            NLOGD("no new frame");
+            // NLOGD("no new frame");
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glClearColor(0.0, 0.5, 0.5, 1);
             return;
@@ -210,12 +224,22 @@ JNIEXPORT void JNICALL Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_initiali
     int renderMode = sNVRApi.nvr_GetRenderMode();
     NLOGD("render mode %d;", renderMode);
 
+    // Warning Game Mode latency 70
+//    sNVRApi.nvr_setGameMode(true);
+//    NLOGD("set game mode");
+
+    // Test HIGH QUALITY
+    sNVRApi.nvr_setDisplayQuality(NVR_DISPLAY_QUALITY_HIGH);
+
+    sNVRApi.nvr_SetEnableFPS(true);
+
     // sNVRApi.nvr_StopVideoMode();
     bool isVideoMode = sNVRApi.nvr_IsVideoMode();
     NLOGD("is video mode %d", isVideoMode);
 
     NLOGD("init nvr service res: %d", res);
 
+#ifdef USE_NXR_SENSOR_CLIENT
     NLOGD("start init nxr client");
     moudle.open("libnxrsensor_client.so");
     nxr_sensor_client = (android::INxrSensorClient *)moudle.getNxrClient();
@@ -223,11 +247,38 @@ JNIEXPORT void JNICALL Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_initiali
     bool sensor_res = nxr_sensor_client->init();
     NLOGD("int nxr sensor res %d", sensor_res);
     bool is_6dof = nxr_sensor_client->is6Dof();
+
+    NxrDisplayCalibration displayCalibration {};
+    nxr_sensor_client->readDisplayCalibration(&displayCalibration);
+
+    NLOGD("nxr display calibration; translation left %f %f %f; right %f %f %f;",
+          displayCalibration.translation[0][0], displayCalibration.translation[0][1], displayCalibration.translation[0][2],
+          displayCalibration.translation[1][0], displayCalibration.translation[1][1], displayCalibration.translation[1][2]);
+
+    glm::vec3 vec_eye = {
+            displayCalibration.translation[1][0] - displayCalibration.translation[0][0],
+            displayCalibration.translation[1][1] - displayCalibration.translation[0][1],
+            displayCalibration.translation[1][2] - displayCalibration.translation[0][2]
+    };
+
+    float eye_distance = glm::distance(glm::vec3(displayCalibration.translation[0][0], displayCalibration.translation[0][1], displayCalibration.translation[0][2]),
+                                       glm::vec3(displayCalibration.translation[1][0], displayCalibration.translation[1][1], displayCalibration.translation[1][2]));
+
+    NLOGD("eye distance 1 %f; 2 %f", eye_distance);
+
+    NLOGD("nxr display calibration; rotation left all %f %f %f; %f %f %f; %f %f %f",
+          displayCalibration.rotation[0][0], displayCalibration.rotation[0][1], displayCalibration.rotation[0][2], displayCalibration.rotation[0][3],
+          displayCalibration.rotation[0][4], displayCalibration.rotation[0][5], displayCalibration.rotation[0][6], displayCalibration.rotation[0][7],
+          displayCalibration.rotation[0][8]);
     NLOGD("nxr sensor is 6dof %d", is_6dof);
+#endif
 
     NLOGD("start init larkxr");
     larkxrClient.setAssets(env, assets);
     larkxrClient.setNibiruVRApi(&sNVRApi);
+#ifdef USE_NXR_SENSOR_CLIENT
+    larkxrClient.set_nxr_sensor_client(nxr_sensor_client);
+#endif
 
     // 初始化 java 环境
     JavaVM *vm = NULL;
@@ -268,7 +319,7 @@ JNIEXPORT void JNICALL Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_onSurfac
 JNIEXPORT void JNICALL Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_onSurfaceChangedNative(
         JNIEnv *env, jobject obj, jint width, jint height) {
 
-    NLOGD("on surface changed");
+    NLOGD("on surface changed width %d height %d;", width, height);
     //Notify NVR Api surface changed
     sNVRApi.nvr_OnSurfaceChanged(width, height);
 
@@ -362,7 +413,7 @@ JNIEXPORT jint JNICALL Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_onKeyDow
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_setTestTextureId(JNIEnv *env, jobject thiz,
-                                                          jint textureid) {
+                                                           jint textureid) {
     larkxrClient.testTexutreId = textureid;
 }
 
@@ -370,8 +421,8 @@ Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_setTestTextureId(JNIEnv *env, j
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_pxy_larkxr_1app_1xvisio_MainActivity_nativeInit(JNIEnv *env, jobject thiz, jobject am,
-                                                 jstring internal_data_path_,
-                                                 jstring external_data_path_) {
+                                                  jstring internal_data_path_,
+                                                  jstring external_data_path_) {
     const char *internalDataPath = env->GetStringUTFChars(internal_data_path_, 0);
     const char *externalDataPath = env->GetStringUTFChars(external_data_path_, 0);
 
@@ -392,8 +443,10 @@ JNIEXPORT void JNICALL
 Java_com_pxy_larkxr_1app_1xvisio_MyGLSurfaceView_nativeOnDestroy(JNIEnv *env, jobject thiz) {
     larkxrClient.OnDestory();
 
+#ifdef USE_NXR_SENSOR_CLIENT
     if (nxr_sensor_client != nullptr) {
         nxr_sensor_client->destroy();
         nxr_sensor_client = nullptr;
     }
+#endif
 }

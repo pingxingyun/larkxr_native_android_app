@@ -9,6 +9,9 @@
 #include "xvisio_vr_utils.h"
 #include "larkxr_client.h"
 
+// extra room height add to position.y.
+#define ROOM_HEIGHT 1.5f
+
 LarkxrClient::LarkxrClient() {
     LOGV("");
     Application::RegiseredInstance(this);
@@ -37,8 +40,11 @@ void LarkxrClient::InitJava(JavaVM *vm) {
 
     //
     // 诠视二次开发授权码,注意保留
-    // e6501123e1204ece99fe28cd5938407e
     //
+//    if (!xr_client_->InitSdkAuthorization("e6501123e1204ece99fe28cd5938407e")) {
+//        LOGE("init sdk auth faild %d %s", xr_client_->last_error_code(),
+//             xr_client_->last_error_message().c_str());
+//    }
 #ifdef LARK_SDK_SECRET
     // 初始化 cloudlark sdk
     std::string timestamp = utils::GetTimestampMillStr();
@@ -54,7 +60,7 @@ void LarkxrClient::InitJava(JavaVM *vm) {
     }
 #endif
     // 测试的服务器地址
-//     xr_client_->SetServerAddr("192.168.31.120", 8585);
+//     xr_client_->SetServerAddr("192.168.0.50", 8181);
 }
 
 bool LarkxrClient::InitGL() {
@@ -65,21 +71,48 @@ bool LarkxrClient::InitGL() {
     // gl 环境可能随着休眠和启动重复创建。
     // gl 环境释放时调用 ReleaseGLShareContext 释放环境。
     xr_client_->InitGLShareContext();
-
     lark::XRConfig::flip_draw = false;
     lark::XRConfig::use_multiview = true;
-    lark::XRConfig::render_width = 1920;
-    lark::XRConfig::render_height = 1080;
-    lark::XRConfig::fov[0] = {30,30,30,30};
-    lark::XRConfig::fov[1] = {30,30,30,30};
-    lark::XRConfig::fps = 60;
 
+    // ipd
+    if (nxr_sensor_client_) {
+        NxrDisplayCalibration displayCalibration {};
+        nxr_sensor_client_->readDisplayCalibration(&displayCalibration);
+        float eye_distance = glm::distance(glm::vec3(displayCalibration.translation[0][0], displayCalibration.translation[0][1], displayCalibration.translation[0][2]),
+                                           glm::vec3(displayCalibration.translation[1][0], displayCalibration.translation[1][1], displayCalibration.translation[1][2]));
+        LOGV("eye distance %f", eye_distance);
+        // 0.060883f
+        lark::XRConfig::ipd = eye_distance;
+    }
+
+    // details in doc folder.
+    // preject matrix from unity.
+    // left
+    // near 0.3 far 1000
+    // cam.projectionMatrix = PerspectiveOffCenter(
+    // 2049.967081982467f, 2059.332355445469f, 648.1342214361877f, 347.5380574331058f, 1280f, 720f,
+    // cam.nearClipPlane, cam.farClipPlane);
+    // right
+    // near 0.3 far 1000
+    // Internal reference setting of glasses (right camera)
+    // cam.projectionMatrix = PerspectiveOffCenter(
+    // 2052.973221775336f, 2062.194471182466f, 644.7759307379876f, 335.8633168270726f, 1280f, 720f,
+    // cam.nearClipPlane, cam.farClipPlane);
+
+    lark::XRConfig::fov[0] = xvisio::PerspectiveOffCenter(0, 2049.967081982467f, 2059.332355445469f, 648.1342214361877f, 347.5380574331058f,
+                                 1280.0f, 720.0f, 0.3, 1000);
+    lark::XRConfig::fov[1] = xvisio::PerspectiveOffCenter(1, 2052.973221775336f, 2062.194471182466f, 644.7759307379876f, 335.8633168270726f,
+                                 1280.0f, 720.0f, 0.3, 1000);
+    lark::XRConfig::render_width = 1280 * 2;
+    lark::XRConfig::render_height = 720;
+
+    lark::XRConfig::fps = 60;
 #ifdef USE_RENDER_QUEUE
     lark::XRConfig::use_render_queue = true;
 #else
     lark::XRConfig::use_render_queue = false;
 #endif
-
+    lark::XRConfig::QuickConfigWithDefaulSetup(lark::QuickConfigLevel::QuickConfigLevel_Fast);
 //    lark::XRConfig::bitrate = 40 * 1000;
 
 //    lark::XRConfig::headset_desc.type = larkHeadSetType_NOLO_Sonic_1;
@@ -120,7 +153,7 @@ bool LarkxrClient::InitGL() {
     Input::SetCurrentRayCastType(Input::RayCast_Hmd);
 
     scene_local_ = std::make_shared<SceneLocal>();
-    scene_local_->InitGl(this, 960, 1080);
+    scene_local_->InitGl(this, 1920, 1080);
 
     rect_render_ = std::make_shared<RectTexture>();
 
@@ -244,7 +277,10 @@ void LarkxrClient::UpdateHmd(const glm::quat& rotation, const glm::vec3& positio
     larkxrTrackedPoseHmd.rotation.z = rotation.z;
     larkxrTrackedPoseHmd.rotation.w = rotation.w;
 
-    larkxrTrackedPoseHmd.position = position;
+    larkxrTrackedPoseHmd.position.x = position.x;
+    // extra height
+    larkxrTrackedPoseHmd.position.y = position.y + ROOM_HEIGHT;
+    larkxrTrackedPoseHmd.position.z = position.z;
 
     device_pair_ = {};
     device_pair_.hmdPose = larkxrTrackedPoseHmd;

@@ -15,11 +15,11 @@ namespace {
 
 using namespace lark;
 
-constexpr float View::VIEW_POSITION_X;
-constexpr float View::VIEW_POSITION_Y;
-constexpr float View::VIEW_POSITION_Z;
-constexpr float View::VIEW_WIDTH;
-constexpr float View::VIEW_HEIGHT;
+float View::VIEW_POSITION_X = 0.0f;
+float View::VIEW_POSITION_Y = 0.0F;
+float View::VIEW_POSITION_Z = -4.0F;
+float View::VIEW_WIDTH      = 6.0F;
+float View::VIEW_HEIGHT     = 4.0F;
 
 View::View(Navigation *navigation):
     navigation_(navigation),
