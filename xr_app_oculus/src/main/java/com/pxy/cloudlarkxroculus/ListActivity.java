@@ -54,12 +54,13 @@ import java.util.List;
 
 public class ListActivity extends Activity {
     private static final String TAG = "pvr_activity_list";
-
-    //网络设置
     private static final String SETTING = "pxy_setting";
+    private static final String SETTING_LIST_3D= "list3D";
+    //网络设置
+
     private static final String SETTING_SERVER = "serverAddress";
     private static final String SETTING_SERVER_USE_HTTPS = "useHttps";
-    private static final String SETTING_LIST_3D= "list3D";
+
     //生命周期管理
     private ClientLifeManager clientLifeManager;
     private Config config=null;
@@ -105,6 +106,7 @@ public class ListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        BaseApplication.getInstance().setmHandler(handler);
         setContentView(R.layout.activity_list);
         FindViewById();
         Init();
@@ -119,10 +121,10 @@ public class ListActivity extends Activity {
 
     private void Init(){
         SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
-        //boolean list3D=sp.getBoolean(SETTING_LIST_3D,false);
-        if (false){
-            finish();
-            startActivity(new Intent(ListActivity.this, MainActivity.class));
+        boolean list3Dbool=sp.getBoolean(SETTING_LIST_3D,false);
+        list3D.setChecked(list3Dbool);
+        if (list3Dbool){
+         GoMainActivity(ListActivity.this,null);
         }
 
         mServerIp = sp.getString(SETTING_SERVER, "");
@@ -282,6 +284,9 @@ public class ListActivity extends Activity {
         closeSetTab.setOnClickListener(v -> {
             setTab.setVisibility(View.GONE);
             Config.saveToCache(ListActivity.this, config);
+            if (list3D.isChecked()){
+                GoMainActivity(ListActivity.this,null);
+            }
         });
 
         QuickConfigLevel.setOnCheckedChangeListener((group, checkedId) -> {
@@ -635,6 +640,7 @@ public class ListActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
+        Init();
     }
 
     @Override
@@ -690,7 +696,9 @@ public class ListActivity extends Activity {
     private void GoMainActivity(Context context,String appid){
         Activity activity= (Activity) context;
         Intent intent=new Intent(activity, MainActivity.class);
-        intent.putExtra("appid",appid);
+        if (appid!=null) {
+            intent.putExtra("appid", appid);
+        }
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
         //Intent extraIntent = new Intent();
         extraIntent.addCategory("android.intent.category.LAUNCHER");
@@ -736,9 +744,11 @@ public class ListActivity extends Activity {
                 toastInner(getRunModeBean.getMessage());
             };
 
+        }else if (msg.what==3){
+            ListActivity.this.onPause();
+            ListActivity.this.onStop();
         }
     }
-
 
     public class AppListAdapter extends  RecyclerView.Adapter<AppListAdapter.ViewHolder> {
         private Context context;

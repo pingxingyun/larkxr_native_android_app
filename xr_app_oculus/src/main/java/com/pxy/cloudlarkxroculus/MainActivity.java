@@ -2,6 +2,7 @@ package com.pxy.cloudlarkxroculus;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.ConnectivityManager.NetworkCallback;
 import android.net.Network;
@@ -19,6 +20,8 @@ import com.pxy.cloudlarkxrkit.XrSystem;
 public class MainActivity extends android.app.NativeActivity {
 
     private static final String TAG = "OculusMainAcitvity";
+    private static final String SETTING = "pxy_setting";
+    private static final String SETTING_LIST_3D= "list3D";
 
     static {
         System.loadLibrary("lark_xr_oculus");
@@ -71,6 +74,13 @@ public class MainActivity extends android.app.NativeActivity {
     public void switchTo2DAppList() {
         // TODO switch to 2d applist.
         Log.d(TAG, "switchTo2DAppList");
+        //startActivity(new Intent(MainActivity.this,ListActivity.class));
+
+        SharedPreferences sp = MainActivity.this.getSharedPreferences(SETTING, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean(SETTING_LIST_3D, false);
+        editor.apply();
+        finish();
     }
 
     private NetworkCallback mNetworkCallback = new NetworkCallback() {

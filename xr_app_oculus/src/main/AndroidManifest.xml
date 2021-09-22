@@ -28,7 +28,10 @@
         >
 <!--        <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>-->
 
-        <activity android:name=".StartActivity">
+        <activity
+            android:name="com.pxy.cloudlarkxroculus.ListActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,12 +39,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ListActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|screenSize">
-        </activity>
-
-        <activity android:name=".MainActivity"
+        <activity
+            android:name="com.pxy.cloudlarkxroculus.MainActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
             android:launchMode="singleTask"
             android:screenOrientation="landscape"

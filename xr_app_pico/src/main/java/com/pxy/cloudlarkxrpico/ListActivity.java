@@ -722,7 +722,6 @@ public class ListActivity extends Activity {
                 ListActivity.this.onPause();
                 ListActivity.this.onStop();
             }
-
         }
     };
 
