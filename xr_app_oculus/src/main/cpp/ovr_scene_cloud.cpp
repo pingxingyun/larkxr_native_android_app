@@ -16,11 +16,7 @@
 #include "lark_xr/xr_latency_collector.h"
 #include "lark_xr/app_list_task.h"
 
-#define LOG_TAG "scene_cloud"
-
 using namespace lark;
-
-static bool EXIT_UI = false;
 
 OvrSceneCloud::OvrSceneCloud(): OvrScene()
 {
@@ -51,11 +47,14 @@ bool OvrSceneCloud::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
     // add to scene;
     OvrScene::AddObject(controller_right_);
 
-    if (EXIT_UI) {
-        menu_view_ = std::make_shared<MenuView>(nullptr);
-        menu_view_->Move(-0.75, -0.75, -1.5);
-        OvrScene::AddObject(menu_view_);
-    }
+    fake_hmd_ = std::make_shared<lark::Object>();
+    OvrScene::AddObject(fake_hmd_);
+
+    menu_view_ = std::make_shared<MenuView>(this);
+    menu_view_->Move(-0.75, -0.75, -1.8);
+    menu_view_->set_active(false);
+    OvrScene::AddObject(menu_view_);
+    fake_hmd_->AddChild(menu_view_);
 
     return OvrScene::InitGL(frame_buffer, num_buffers);
 }
@@ -92,13 +91,14 @@ bool OvrSceneCloud::UpdateAsync(ovrMobile *ovr) {
 
 bool OvrSceneCloud::HandleInput(ovrMobile *ovr) {
     OvrScene::HandleInput(ovr);
+    HandleInput();
+
     device_pair_frame_ = {
             frame_index_,
             utils::GetTimestampUs(),
             display_time_,
             GetDevicePair(ovr, display_time_),
     };
-    HandleInput();
     return true;
 }
 
@@ -140,23 +140,40 @@ void OvrSceneCloud::HandleInput() {
         inputState[rayCastType].enterButtonDown = enterButtonDownThisFrame[rayCastType];
         inputState[rayCastType].triggerButtonDown = triggerDownThisFrame[rayCastType];
 
+        // short press backbutton
+        if (inputState[rayCastType].backShortPressed) {
+            if (menu_view_->active()) {
+                HideMenu();
+            }
+        }
+
         // call after pressup.
         if ( triggerDownThisFrame[deviceIndex] && backButtonDownLastFrame && !backButtonDownThisFrame[deviceIndex] ) {
             LOGV("close app." );
-            if (Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D) {
-                OnCloseApp();
+            if (Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D &&
+                lark::AppListTask::run_mode() == GetVrClientRunMode::ClientRunMode::CLIENT_RUNMODE_SELF) {
+                // 显示退出菜单
+                ShowMenu();
             }
         }
 
         // call ater pressup.
-        if (traggerButtonDownLastFrame && !triggerDownThisFrame[deviceIndex] ) {
-            LOGV("trigger button short press" );
+        if (inputState[rayCastType].triggerShortPressed) {
+            LOGV("trigger button short press %d", rayCastType);
+            if (menu_view_->active()) {
+                Input::SetCurrentRayCastType(rayCastType);
+            }
         }
 
         // enter button.
-        if (enterButtonDownLastFrame && !enterButtonDownThisFrame[deviceIndex]) {
-            LOGV("enter button short press" );
+        if (inputState[rayCastType].enterShortPressed) {
+            LOGV("enter button short press %d", rayCastType);
         }
+    }
+
+    if (menu_view_->active()) {
+        // update input state.
+        menu_view_->Update();
     }
 }
 
@@ -234,8 +251,11 @@ larkxrDevicePair OvrSceneCloud::GetDevicePair(ovrMobile *ovr, double absTimeInSe
         }
     }
 
-
-    if (menu_view_) {
+    if (menu_view_->active()) {
+        devicePair.controllerState[0].inputState.isConnected = false;
+        devicePair.controllerState[1].inputState.isConnected = false;
+        devicePair.controllerState[0].pose.isConnected = false;
+        devicePair.controllerState[1].pose.isConnected = false;
         menu_view_->HandleInput(rays, 2);
     }
     return devicePair;
@@ -345,4 +365,33 @@ void OvrSceneCloud::OnClose() {
     sky_box_->set_active(true);
     tracking_frame_index_ = 0;
     rect_texture_->ClearTexture();
+    HideMenu();
+}
+
+void OvrSceneCloud::OnMenuViewSelect(bool submit) {
+    LOGV("OnMenuViewSelect %d", submit);
+    if (submit) {
+        // 用户选择退出
+        OnCloseApp();
+        HideMenu();
+    } else {
+        // 用户选择取消
+        HideMenu();
+    }
+}
+
+void OvrSceneCloud::ShowMenu() {
+    LOGV("show menu");
+    fake_hmd_->set_transform(Transform(device_pair_frame_.devicePair.hmdPose.rotation,
+                                       device_pair_frame_.devicePair.hmdPose.position));
+    menu_view_->set_active(true);
+    controller_left_->set_active(true);
+    controller_right_->set_active(true);
+}
+
+void OvrSceneCloud::HideMenu() {
+    LOGV("hide menu menu");
+    menu_view_->set_active(false);
+    controller_left_->set_active(false);
+    controller_right_->set_active(false);
 }

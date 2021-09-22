@@ -2,6 +2,7 @@
 // Created by fcx@pingixngyun.com on 2019/11/15.
 //
 
+#include <log.h>
 #include "view.h"
 #include "ui/aa_bb.h"
 #include "navigation.h"
@@ -23,7 +24,6 @@ float View::VIEW_HEIGHT     = 4.0F;
 
 View::View(Navigation *navigation):
     navigation_(navigation),
-    plane_(),
     aabb_list_(),
     ray_point_(),
     back_btn_(new BackButton),
@@ -33,11 +33,6 @@ View::View(Navigation *navigation):
     bg_->set_size(component::size(VIEW_WIDTH, VIEW_HEIGHT));
     bg_->Move(-VIEW_WIDTH / 2, -VIEW_HEIGHT / 2 - 0.5F, - 0.1F);
 //    AddChild(bg_);
-
-    plane_ = {
-            glm::vec3(0, 0, 1), // normal
-            glm::vec3(VIEW_POSITION_X, VIEW_POSITION_Y, VIEW_POSITION_Z + 0.2F), // dot
-    };
 }
 
 View::~View() {
@@ -65,8 +60,6 @@ void View::Init() {
 }
 
 void View::HandleInput(Ray * rays, int rayCount) {
-    // TODO setup ray.
-
     if (Input::GetCurrentRayCastType() != main_ray_cast_) {
         main_ray_cast_ = Input::GetCurrentRayCastType();
         ray_dots_[main_ray_cast_]->SetPath(ACTIVIVE, true);
@@ -77,15 +70,26 @@ void View::HandleInput(Ray * rays, int rayCount) {
         }
     }
 
+    // use curretn transforms.
+    Transform world_trans(GetTransforms());
+
+    Plane plane;
+    plane.normal = world_trans.Forward();
+    plane.dot = world_trans.GetPosition();
+
+//    LOGV("view word position %f %f %f; forward %f %f %f",
+//         world_trans.GetPosition()[0], world_trans.GetPosition()[1], world_trans.GetPosition()[2],
+//         world_trans.Forward()[0], world_trans.Forward()[1], world_trans.Forward()[2]);
+
     //    float t;
     //    float dot = utils::Dot(foward, normal);
     //    glm::vec3 f = planeDot - ray.p;
     //    float t =  utils::Dot(f, normal) / dot;
-    //    0 -> left 1 -> right for now.
-    Plane plane = plane_;
+    //    0 -> left 1 -> right 2 -> hmd for now.
     for (int i = 0; i < rayCount; i ++) {
         Ray ray = rays[i];
-        float t = (plane.dot.z - ray.ori.z) / ray.dir.z;
+
+        float t = (glm::dot(plane.normal, plane.dot) - glm::dot(plane.normal, ray.ori)) / (glm::dot(plane.normal, ray.dir));
         if (t > 0) {
             continue;
         }
@@ -94,18 +98,24 @@ void View::HandleInput(Ray * rays, int rayCount) {
         glm::vec3 parentPosition = parentTransforms.GetPosition();
 
         glm::vec3 p;
-        p.x = ray.ori.x + t * ray.dir.x - parentPosition.x;
-        p.y = ray.ori.y + t * ray.dir.y - parentPosition.y;
-        p.z = ray.ori.z + t * ray.dir.z - parentPosition.z;
-        Transform transform;
-        transform.Translate(p);
+        p.x = ray.ori.x + t * ray.dir.x;
+        p.y = ray.ori.y + t * ray.dir.y;
+        p.z = ray.ori.z + t * ray.dir.z;
 
+        glm::quat rotation = parentTransforms.GetRotation();
+        glm::mat4 wold = glm::translate(glm::mat4(1.0f), p);
+        wold = wold * glm::mat4_cast(rotation);
+        glm::mat4 local = glm::inverse(parentTransforms.GetTrans()) * wold;
+        local = glm::translate(local, glm::vec3(0,0,0.2));
+        Transform transform(local);
+        glm::vec3 local_position = transform.GetPosition();
+
+//        transform.Translate(p);
         ray_dots_[i]->set_transform(transform);
 
-
         //
-        ray_point_[i].x = p.x;
-        ray_point_[i].y = p.y;
+        ray_point_[i].x = local_position.x;
+        ray_point_[i].y = local_position.y;
     }
     for(auto& aabb : aabb_list_) {
         if (aabb->aabb_active()) {

@@ -45,7 +45,6 @@ protected:
     std::shared_ptr<Image>       left_ray_dot_;
     std::shared_ptr<Image>       right_ray_dot_;
     std::shared_ptr<ColorBox>    bg_;
-    lark::Plane             plane_;
 
     // 0 -> left ray dot; 1 -> right ray dot;
     std::shared_ptr<Image>       ray_dots_[Input::RayCast_Count];

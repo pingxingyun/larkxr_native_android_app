@@ -1,6 +1,7 @@
 package com.pxy.cloudlarkxroculus;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.ConnectivityManager.NetworkCallback;
 import android.net.Network;
@@ -65,6 +66,11 @@ public class MainActivity extends android.app.NativeActivity {
         super.onDestroy();
         Log.d(TAG, "java activity onDestroy");
         xrSystem.onDestroy();
+    }
+
+    public void switchTo2DAppList() {
+        // TODO switch to 2d applist.
+        Log.d(TAG, "switchTo2DAppList");
     }
 
     private NetworkCallback mNetworkCallback = new NetworkCallback() {

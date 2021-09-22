@@ -13,7 +13,7 @@
 #include "rect_texture.h"
 #include "ui/menu_view.h"
 
-class OvrSceneCloud: public OvrScene {
+class OvrSceneCloud: public OvrScene, public MenuView::Callback {
 public:
     OvrSceneCloud();
     ~OvrSceneCloud() override;
@@ -42,10 +42,15 @@ public:
     bool Render(ovrMobile * ovr, const larkxrTrackingFrame& trackingFrame, const lark::XRVideoFrame& videoFrame);
 
     inline larkxrTrackingDevicePairFrame device_pair_frame() { return device_pair_frame_; }
+
+    virtual void OnMenuViewSelect(bool submit) override;
 private:
+    void ShowMenu();
+    void HideMenu();
+    void OnCloseApp();
+
     larkxrDevicePair GetDevicePair(ovrMobile *ovr, double preditTime);
 
-    void OnCloseApp();
     bool back_button_down_last_frame_[Input::RayCast_Count]{};
     bool trigger_button_down_last_frame_[Input::RayCast_Count]{};
     bool enter_button_down_last_frame_[Input::RayCast_Count]{};
@@ -54,12 +59,14 @@ private:
     std::shared_ptr<Loading> loading_;
     std::shared_ptr<lark::Controller> controller_left_;
     std::shared_ptr<lark::Controller> controller_right_;
+    std::shared_ptr<lark::Object> fake_hmd_;
     std::shared_ptr<MenuView> menu_view_;
 
     std::shared_ptr<RectTexture> rect_texture_{};
     larkxrTrackingDevicePairFrame device_pair_frame_{};
 
     uint64_t tracking_frame_index_ = 0;
+
 };
 
 

@@ -3,19 +3,16 @@
 // Copyright (c) 2021 www.pingxingyun.com All rights reserved.
 //
 
+#include <log.h>
 #include "menu_view.h"
 
-MenuView::MenuView(Navigation *navigation) : View(navigation) {
+MenuView::MenuView(Callback* callback): View(nullptr), callback_(callback) {
     MenuView::Init();
 }
 
 MenuView::~MenuView() {
     // clear aabb.
     ClearAABB();
-}
-
-void MenuView::Update() {
-    Object::Update();
 }
 
 void MenuView::Init() {
@@ -28,7 +25,7 @@ void MenuView::Init() {
     }
 
     {
-        text_ = std::make_shared<Text>(L"确定退出当前应用？");
+        text_ = std::make_shared<Text>(L"确定退出当前云端应用？");
         text_->set_color(0xd7e1FF, 0xFF);
         text_->SetFontSize(25);
         text_->set_position(0.1, 1.2, 0);
@@ -68,10 +65,10 @@ void MenuView::Init() {
     View::back_btn_->set_active(false);
     View::Init();
 
-    plane_ = {
-            glm::vec3(0, 0, 1), // normal
-            glm::vec3(-0.75, -0.75, -1.5 + 0.2), // dot
-    };
+//    plane_ = {
+//            glm::vec3(0, 0, 1), // normal
+//            glm::vec3(-0.75, -0.75, -1.5 + 0.2), // dot
+//    };
 }
 
 void MenuView::Enter() {
@@ -80,4 +77,22 @@ void MenuView::Enter() {
 
 void MenuView::Leave() {
     View::Leave();
+}
+
+void MenuView::Update() {
+    Object::Update();
+
+    if (btn_submit_->picked() && Input::IsInputEnter()) {
+        LOGV("Menu view on submit");
+        if (callback_ != nullptr) {
+            callback_->OnMenuViewSelect(true);
+        }
+    }
+
+    if (btn_cancle_->picked() && Input::IsInputEnter()) {
+        LOGV("Menu view on cancle");
+        if (callback_ != nullptr) {
+            callback_->OnMenuViewSelect(false);
+        }
+    }
 }

@@ -129,6 +129,7 @@ void Home::Init() {
     {
         glm::vec2 p{};
         advance_setup_button_ = std::make_shared<TextButton>(localization::Loader::getResource().ui_home_advance_setting);
+        advance_setup_button_->set_color(vec4(0.843F, 0.882F, 1.0F, 0.5F));
         p.x = 1.9F - advance_setup_button_->GetSize().x / 2.0F;
         p.y = -1.85F;
         advance_setup_button_->Move(p.x, p.y, 0);
@@ -136,6 +137,21 @@ void Home::Init() {
         advance_setup_button_->SetAABBPositon(glm::vec2(p.x, p.y - advance_setup_button_->GetSize().y / 2.0F));
 //        PushAABB(advance_setup_button_.get());
 //        AddChild(advance_setup_button_);
+    }
+    // quit 3d ui button
+    {
+        glm::vec2 p{};
+        quit_3d_ui_button_ = std::make_shared<TextButton>(localization::Loader::getResource().ui_home_quick_3d_ui);
+        quit_3d_ui_button_->set_color(vec4(0.843F, 0.882F, 1.0F, 0.5F));
+        p.x = 1.9F - quit_3d_ui_button_->GetSize().x / 2.0F;
+        p.y = -1.6F;
+        quit_3d_ui_button_->Move(p.x, p.y, 0);
+        // add to aabb
+        quit_3d_ui_button_->SetAABBPositon(glm::vec2(p.x, p.y));
+        quit_3d_ui_button_->ClearStatus();
+        PushAABB(quit_3d_ui_button_.get());
+        AddChild(quit_3d_ui_button_);
+        quit_3d_ui_button_->set_active(false);
     }
     larkxrSystemInfo systemInfo = lark::XRClient::system_info();
     // device name
@@ -267,6 +283,9 @@ void Home::HandleInput(lark::Ray * rays, int rayCount) {
     }
     if (page_down_button_->picked() && Input::IsInputEnter()) {
         ChangePage(true);
+    }
+    if (quit_3d_ui_button_->active() && quit_3d_ui_button_->picked() && Input::IsInputEnter()) {
+        Application::instance()->Quit3DUI();
     }
 }
 
@@ -457,4 +476,10 @@ void Home::ResetAppPageInfo() {
     app_page_info_ = {};
 
     app_list_task_.SetPage(1);
+}
+
+void Home::SetSupport2DUI() {
+    if (quit_3d_ui_button_) {
+        quit_3d_ui_button_->set_active(true);
+    }
 }

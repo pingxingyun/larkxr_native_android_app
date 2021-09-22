@@ -635,3 +635,19 @@ void OvrApplication::ClearFrameBuffer() {
     }
     num_buffers_ = VRAPI_FRAME_LAYER_EYE_MAX;
 }
+
+void OvrApplication::Quit3DUI() {
+    Application::Quit3DUI();
+    LOGV("OnQuit3DUI");
+    auto env_wraper = Context::instance()->GetEnv();
+    auto env = env_wraper.get();
+    if (env == nullptr) {
+        LOGV("OnQuit3DUI failed env empty");
+        return;
+    }
+    jclass clazz = env->GetObjectClass(java_.ActivityObject);
+//    clazz = env->FindClass("com/pxy/cloudlarkxroculus/MainActivity");
+    jmethodID mid = env->GetMethodID(clazz, "switchTo2DAppList", "()V");
+    env->CallVoidMethod(java_.ActivityObject, mid);
+    env->DeleteLocalRef(clazz);
+}

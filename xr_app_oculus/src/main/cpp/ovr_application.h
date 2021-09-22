@@ -59,6 +59,8 @@ public:
     // handle network change
     virtual void OnNetworkAvailable() override;
     virtual void OnNetworkLost() override;
+
+    virtual void Quit3DUI() override;
 private:
     void CreateFrameBuffer(const ovrJava *java, const bool useMultiview);
     void DestoryFrameBuffer();

@@ -52,8 +52,9 @@ bool OvrSceneLocal::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
 
     // navigation.
     navigation_ = std::make_shared<Navigation>();
+    navigation_->SetSupport2DUI();
     OvrScene::AddObject(navigation_);
-    navigation_->SetLoadingTips(L"按手柄 Home 键选择退出返回应用列表");
+
     return OvrScene::InitGL(frame_buffer, num_buffers);
 }
 
@@ -161,7 +162,9 @@ bool OvrSceneLocal::HandleInput(ovrMobile * ovr) {
 //             call after pressup.
             if ( inputState[rayCastType].backShortPressed)
             {
-               // OnCloseApp();
+                if (Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D) {
+                    OnCloseApp();
+                }
             }
 
             // call ater pressup.
@@ -170,7 +173,10 @@ bool OvrSceneLocal::HandleInput(ovrMobile * ovr) {
             }
         }
     }
-    // update ui ray.
+
+    // update hmd pose.
+    const ovrTracking2 tracking = vrapi_GetPredictedTracking2(ovr, display_time_);
+
     navigation_->HandelInput(rays, 2);
 
     return OvrScene::HandleInput(ovr);

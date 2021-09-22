@@ -72,6 +72,8 @@ public:
     virtual void OnNetworkAvailable() {};
     virtual void OnNetworkLost() {};
 
+    virtual void Quit3DUI() {}
+
     inline void set_ui_mode(ApplicationUIMode ui_mode) { ui_mode_ = ui_mode; }
     inline ApplicationUIMode ui_mode() { return ui_mode_; }
 

@@ -52,7 +52,7 @@ void Image::LoadTexture(const char *buffer, int len) {
 
 void Image::SetPath(const std::string & path, bool isLocal) {
     if (path != path_) {
-        LOGV("update image url %s", path.c_str());
+        LOGV("update image url %s; old %s; isLocal %d;", path.c_str(), path_.c_str(), (int)isLocal);
         path_ = path;
         lark::BitmapFactory* bitmapFactory = Context::instance()->bitmap_factory();
         EnvWrapper envWrapper = Context::instance()->GetEnv();
