@@ -157,3 +157,9 @@ void Navigation::SetLoadingTips(const std::wstring &tips) {
         loading_->SetQuitTips(tips);
     }
 }
+
+void Navigation::SetSupport2DUI() {
+    if (home_page_) {
+        home_page_->SetSupport2DUI();
+    }
+}

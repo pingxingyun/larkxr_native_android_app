@@ -100,6 +100,7 @@ namespace localization {
         std::wstring ui_home_support_server_version;
         std::wstring ui_home_setup_serveraddr;
         std::wstring ui_home_advance_setting;
+        std::wstring ui_home_quick_3d_ui;
         std::wstring ui_home_setup;
         std::wstring ui_home_back;
         std::wstring ui_home_status_normal;

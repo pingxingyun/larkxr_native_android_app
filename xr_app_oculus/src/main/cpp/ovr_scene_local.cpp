@@ -52,6 +52,7 @@ bool OvrSceneLocal::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
 
     // navigation.
     navigation_ = std::make_shared<Navigation>();
+    navigation_->SetSupport2DUI();
     OvrScene::AddObject(navigation_);
 
     return OvrScene::InitGL(frame_buffer, num_buffers);

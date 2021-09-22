@@ -37,6 +37,8 @@ public:
     virtual void Update() override;
     void HandelInput(lark::Ray * rays, int rayCount);
     void SetLoadingTips(const std::wstring& tipstr);
+
+    void SetSupport2DUI();
 private:
     // static faileds
     static std::string s_toast_str_;
