@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -23,6 +25,9 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +35,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
 import com.pxy.cloudlarkxrkit.Config;
 import com.pxy.cloudlarkxroculus.MainActivity;
@@ -51,6 +57,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,10 +66,10 @@ public class ListActivity extends Activity {
     private static final String SETTING = "pxy_setting";
     private static final String SETTING_LIST_3D= "list3D";
     //网络设置
-
     private static final String SETTING_SERVER = "serverAddress";
     private static final String SETTING_SERVER_USE_HTTPS = "useHttps";
-
+    private List<ServerBean> serverBeanList=new ArrayList<>();
+    private Spinner serverList;
     //生命周期管理
     private ClientLifeManager clientLifeManager;
     private Config config=null;
@@ -147,10 +154,14 @@ public class ListActivity extends Activity {
         if (list3Dbool){
          GoMainActivity(ListActivity.this,null);
         }
+        if (!sp.getString(SETTING_SERVER, "").isEmpty()){
+            serverBeanList=JSON.parseArray(sp.getString(SETTING_SERVER, ""),ServerBean.class);
+            mServerIp="http://"+serverBeanList.get(0).getIp()+":"+serverBeanList.get(0).getPort();
+            useHttps=serverBeanList.get(0).getUse_https();
+        }
 
-        mServerIp = sp.getString(SETTING_SERVER, "");
-        useHttps = sp.getBoolean(SETTING_SERVER_USE_HTTPS, false);
-
+        /*mServerIp = sp.getString(SETTING_SERVER, "");
+        useHttps = sp.getBoolean(SETTING_SERVER_USE_HTTPS, false);*/
         CloudlarkManager.init(this,CloudlarkManager.APP_TYPE_VR);
 
         readconfig();
@@ -209,6 +220,8 @@ public class ListActivity extends Activity {
         nextPage=findViewById(R.id.nextPage);
 
         closeApp=findViewById(R.id.closeApp);
+
+        serverList=findViewById(R.id.serverList);
     }
 
     private void readconfig() {
@@ -218,13 +231,7 @@ public class ListActivity extends Activity {
             Log.d(TAG, "unset serverAddress");
             showSetupIP();
         } else {
-            String outhttp=mServerIp.substring(7);
-            Log.e("outhttp",outhttp);
-            inputIp.setText(outhttp.split(":")[0]);
-            inputPort.setText(outhttp.split(":")[1]);
-            Base.setServerAddr(useHttps, mServerIp);
-            config.serverIp=outhttp.split(":")[0];
-            config.serverPort= Integer.parseInt(outhttp.split(":")[1]);
+            setIp(serverBeanList.get(0));
             dorequest();
         }
 
@@ -282,7 +289,7 @@ public class ListActivity extends Activity {
             readconfig();
             setTab.setVisibility(View.VISIBLE);});
 
-        confirmip.setOnClickListener(v -> closeSetupIP());
+        confirmip.setOnClickListener(v ->closeSetupIP());
 
         advancedSetting.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked){
@@ -445,6 +452,95 @@ public class ListActivity extends Activity {
                 StopApp(true);
             }
         });
+
+        serverList.setAdapter(new SpinnerAdapter() {
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                if (convertView==null){
+                    convertView=LayoutInflater.from(ListActivity.this).inflate(R.layout.spinner_item,null);
+                    TextView textView=convertView.findViewById(R.id.text);
+                    textView.setText("http://"+serverBeanList.get(position).getIp()+":"+serverBeanList.get(position).getPort());
+                }
+                return convertView;
+            }
+
+            @Override
+            public void registerDataSetObserver(DataSetObserver observer) {
+
+            }
+
+            @Override
+            public void unregisterDataSetObserver(DataSetObserver observer) {
+
+            }
+
+            @Override
+            public int getCount() {
+                return serverBeanList.size();
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return serverBeanList.get(position);
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return position;
+            }
+
+            @Override
+            public boolean hasStableIds() {
+                return false;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if (convertView==null){
+                    convertView=LayoutInflater.from(ListActivity.this).inflate(R.layout.spinner_item,null);
+                    TextView textView=convertView.findViewById(R.id.text);
+                    textView.setText("http://"+serverBeanList.get(position).getIp()+":"+serverBeanList.get(position).getPort());
+                }
+                return convertView;
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                return 1;
+            }
+
+            @Override
+            public int getViewTypeCount() {
+                return 1;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return false;
+            }
+        });
+
+        serverList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.e("position",position+"");
+                setIp(serverBeanList.get(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.e("position","nonono");
+            }
+        });
+    }
+
+    private void setIp(ServerBean serverBean){
+        inputIp.setText(serverBean.getIp());
+        inputPort.setText(serverBean.getPort());
+        mServerIp="http://"+serverBean.getIp()+":"+serverBean.getPort();
+        Base.setServerAddr(useHttps, mServerIp);
+        config.serverIp=serverBean.getIp();
+        config.serverPort= Integer.parseInt(serverBean.getPort());
     }
 
     private void StopApp(Boolean close){
@@ -472,18 +568,28 @@ public class ListActivity extends Activity {
             toastInner("IP不能为空");
             return;
         }
+        setIp.setVisibility(View.GONE);
+        ServerBean serverBean=new ServerBean();
+        serverBean.setIp(inputIp.getText().toString());
+        serverBean.setPort(inputPort.getText().toString());
+        serverBean.setUse_https(false);
+        setIp(serverBean);
+        dorequest();
+        for (ServerBean s:serverBeanList){
+            if (s.getIp().equals(serverBean.getIp())){
+                if (s.getPort().equals(serverBean.getPort())){
+                    return;
+                }
+            }
+        }
+        serverBeanList.add(serverBean);
 
-        mServerIp="http://"+inputIp.getText().toString()+":"+inputPort.getText().toString();
         SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString(SETTING_SERVER, mServerIp);
-        editor.putBoolean(SETTING_SERVER_USE_HTTPS, false);
+        editor.putString(SETTING_SERVER, String.valueOf(JSON.toJSON(serverBeanList)));
+  /*      editor.putString(SETTING_SERVER, mServerIp);
+        editor.putBoolean(SETTING_SERVER_USE_HTTPS, false);*/
         editor.apply();
-        Base.setServerAddr(false, mServerIp);
-        setIp.setVisibility(View.GONE);
-        config.serverIp=inputIp.getText().toString();
-        config.serverPort= Integer.parseInt(inputPort.getText().toString());
-        dorequest();
     }
 
     private void dorequest() {
