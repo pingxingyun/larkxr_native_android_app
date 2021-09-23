@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -51,6 +52,7 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.UUID;
 
 public class ListActivity extends Activity {
     private static final String TAG = "pvr_activity_list";
@@ -111,6 +113,25 @@ public class ListActivity extends Activity {
         FindViewById();
         Init();
         initview();
+
+        Log.e("over ","over");
+        Log.e("deviceId ",getDeviceId().isEmpty()?"deviceId":getDeviceId());
+        Log.e("macAdress",Util.getLocalMacAddress(ListActivity.this));
+    }
+    /**
+     * 获取设备唯一ID
+     * @return
+     */
+    public static String getDeviceId() {
+        String m_szDevIDShort = "35" + (Build.BOARD.length() % 10) + (Build.BRAND.length() % 10) + (Build.CPU_ABI.length() % 10) + (Build.DEVICE.length() % 10) + (Build.MANUFACTURER.length() % 10) + (Build.MODEL.length() % 10) + (Build.PRODUCT.length() % 10);
+        String serial = null;
+        try {
+            serial = Build.class.getField("SERIAL").get(null).toString();
+            return new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString();
+        } catch (Exception exception) {
+            serial = "serial";
+        }
+        return new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString();
     }
 
     public Handler handler = new Handler() {

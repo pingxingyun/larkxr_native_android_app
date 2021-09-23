@@ -112,6 +112,8 @@ public class ListActivity extends Activity {
         FindViewById();
         Init();
         initview();
+
+        Log.e("macAdress",Util.getLocalMacAddress(ListActivity.this));
     }
 
     private void Init(){
