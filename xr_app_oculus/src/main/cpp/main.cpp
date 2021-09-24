@@ -21,7 +21,6 @@
 #include "log.h"
 #include "ovr_application.h"
 #include "env_context.h"
-#include "logger.h"
 
 #include "assimp/cimport.h"
 #include "assimp/Logger.hpp"
@@ -71,8 +70,6 @@ static void app_handle_cmd( struct android_app * app, int32_t cmd )
 }
 
 void android_main( struct android_app * app ) {
-    // inint logger
-    lark::Logger::InitLogger();
     ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 
     // init app

@@ -199,5 +199,5 @@ void OvrSceneLocal::OnCloseApp() {
 
 void OvrSceneLocal::LoadingPage() {
     LOGV("================LoadingPage");
-    navigation_->SetRouter(Navigation::HOME);
+    navigation_->SetRouter(Navigation::LOADING);
 }
