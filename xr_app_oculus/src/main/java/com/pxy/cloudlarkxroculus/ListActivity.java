@@ -115,15 +115,17 @@ public class ListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.e("over---","over---");
+        Log.e("deviceId ",getDeviceId().isEmpty()?"deviceId":getDeviceId());
+        Log.e("macAdress",Util.getLocalMacAddress(ListActivity.this));
+
         BaseApplication.getInstance().setmHandler(handler);
         setContentView(R.layout.activity_list);
         FindViewById();
         Init();
         initview();
 
-        Log.e("over ","over");
-        Log.e("deviceId ",getDeviceId().isEmpty()?"deviceId":getDeviceId());
-        Log.e("macAdress",Util.getLocalMacAddress(ListActivity.this));
+
     }
     /**
      * 获取设备唯一ID

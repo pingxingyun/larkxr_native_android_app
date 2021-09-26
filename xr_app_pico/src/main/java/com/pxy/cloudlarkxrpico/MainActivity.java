@@ -30,11 +30,8 @@ import com.psmart.vrlib.PicovrSDK;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
-import com.pxy.larkcore.request.Base;
-import com.pxy.larkcore.request.EnterAppliInfo;
 
 import java.io.File;
-import java.util.List;
 
 
 public class MainActivity extends VRActivity implements RenderInterface {

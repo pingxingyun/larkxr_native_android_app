@@ -5,11 +5,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -50,7 +51,6 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.UUID;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
@@ -115,24 +115,37 @@ public class ListActivity extends Activity {
         Init();
         initview();
 
-        Log.e("over ","over");
-        Log.e("deviceId ",getDeviceId().isEmpty()?"deviceId":getDeviceId());
         Log.e("macAdress",Util.getLocalMacAddress(ListActivity.this));
+        Log.e("deviceid",UniqueIDUtils.getUniqueID(ListActivity.this));
+        Log.e("androidId",getAndroidID(ListActivity.this));
+       //2021-09-26 10:23:07.326 5569-5569/com.pxy.cloudlarkxrpico E/resulutionScale: 1.0
+        //2021-09-26 10:23:07.330 5569-5569/com.pxy.cloudlarkxrpico E/macAdress: 2C4D79FB2217
+        //2021-09-26 10:23:07.334 5569-5569/com.pxy.cloudlarkxrpico E/UniqueIDUtils: getUniqueID: AndroidID获取成功b6d3abd2dbf1cffa
+        //2021-09-26 10:23:07.334 5569-5569/com.pxy.cloudlarkxrpico E/deviceid: b6d3abd2dbf1cffa
+
+//2021-09-26 10:24:07.635 13878-13878/com.pxy.cloudlarkxrpico E/macAdress: 3E3BF4B03279
+//2021-09-26 10:24:07.638 13878-13878/com.pxy.cloudlarkxrpico E/UniqueIDUtils: getUniqueID: AndroidID获取成功b6d3abd2dbf1cffa
+//2021-09-26 10:24:07.638 13878-13878/com.pxy.cloudlarkxrpico E/deviceid: b6d3abd2dbf1cffa
+//2021-09-26 10:24:07.638 13878-13878/com.pxy.cloudlarkxrpico E/androidId: b6d3abd2dbf1cffa
+
+//2021-09-26 10:25:14.825 22500-22500/com.pxy.cloudlarkxrpico E/macAdress: 3E3BF4B03279
+//2021-09-26 10:25:14.827 22500-22500/com.pxy.cloudlarkxrpico E/UniqueIDUtils: getUniqueID: AndroidID获取成功b6d3abd2dbf1cffa
+//2021-09-26 10:25:14.827 22500-22500/com.pxy.cloudlarkxrpico E/deviceid: b6d3abd2dbf1cffa
+//2021-09-26 10:25:14.827 22500-22500/com.pxy.cloudlarkxrpico E/androidId: b6d3abd2dbf1cffa
     }
-    /**
-     * 获取设备唯一ID
-     * @return
-     */
-    public static String getDeviceId() {
-        String m_szDevIDShort = "35" + (Build.BOARD.length() % 10) + (Build.BRAND.length() % 10) + (Build.CPU_ABI.length() % 10) + (Build.DEVICE.length() % 10) + (Build.MANUFACTURER.length() % 10) + (Build.MODEL.length() % 10) + (Build.PRODUCT.length() % 10);
-        String serial = null;
+
+    private static String getAndroidID(Context context) {
+        String androidID = null;
         try {
-            serial = Build.class.getField("SERIAL").get(null).toString();
-            return new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString();
-        } catch (Exception exception) {
-            serial = "serial";
+            androidID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            if (TextUtils.isEmpty(androidID) || "9774d56d682e549c".equals(androidID)) {
+                return "";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
         }
-        return new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString();
+        return androidID;
     }
 
     private void Init(){
