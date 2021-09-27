@@ -11,8 +11,10 @@
 #include <rect_texture.h>
 #include "skybox.h"
 #include "pvr_scene.h"
+#include "ui/menu_view.h"
+#include "pvr_utils.h"
 
-class PvrSceneCloud: public PvrScene {
+class PvrSceneCloud: public PvrScene, public MenuView::Callback {
 public:
     PvrSceneCloud();
     ~PvrSceneCloud();
@@ -27,8 +29,14 @@ public:
     virtual void UpdateHMDPose(glm::quat rotation, glm::vec3 position) override;
     virtual void Draw(int eye) override;
     virtual void SetVideoFrame(const lark::XRVideoFrame& videoFrame);
+
+    virtual void OnMenuViewSelect(bool submit);
+
+    inline bool IsShowMenu() { return menu_view_->active(); }
 private:
     void HandleInput();
+    void ShowMenu();
+    void HideMenu();
     void OnCloseApp();
 
     std::shared_ptr<lark::SkyBox> sky_box_ = nullptr;
@@ -41,6 +49,11 @@ private:
     bool enter_button_down_last_frame_[Input::RayCast_Count]{};
 
     std::shared_ptr<RectTexture> rect_texture_{};
+
+    std::shared_ptr<lark::Object> fake_hmd_;
+    std::shared_ptr<MenuView> menu_view_;
+
+    pvr::PvrPose hmd_pose_{};
 };
 
 

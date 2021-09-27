@@ -16,8 +16,6 @@
 #include "lark_xr/xr_latency_collector.h"
 #include "lark_xr/app_list_task.h"
 
-using namespace lark;
-
 OvrSceneCloud::OvrSceneCloud(): OvrScene()
 {
 }
@@ -25,7 +23,7 @@ OvrSceneCloud::OvrSceneCloud(): OvrScene()
 OvrSceneCloud::~OvrSceneCloud() = default;
 
 bool OvrSceneCloud::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
-    sky_box_ =  std::make_shared<SkyBox>("textures/skybox_8_2k.jpg");
+    sky_box_ =  std::make_shared<lark::SkyBox>("textures/skybox_8_2k.jpg");
     OvrScene::AddObject(sky_box_);
 
     loading_ = std::make_shared<Loading>(nullptr);
@@ -37,12 +35,12 @@ bool OvrSceneCloud::InitGL(OvrFrameBuffer *frame_buffer, int num_buffers) {
     // rect_texture_->set_active(false);
 
     // controllers
-    controller_left_ = std::make_shared<Controller>(true, CONTROLLER_OCULUS_QUEST);
+    controller_left_ = std::make_shared<lark::Controller>(true, lark::CONTROLLER_OCULUS_QUEST);
     controller_left_->Move(-0.3, 0, -0.3);
     // add to scene;
     OvrScene::AddObject(controller_left_);
 
-    controller_right_ = std::make_shared<Controller>(false, CONTROLLER_OCULUS_QUEST);
+    controller_right_ = std::make_shared<lark::Controller>(false, lark::CONTROLLER_OCULUS_QUEST);
     controller_right_->Move(0.3, 0, -0.3);
     // add to scene;
     OvrScene::AddObject(controller_right_);
@@ -151,7 +149,7 @@ void OvrSceneCloud::HandleInput() {
         if ( triggerDownThisFrame[deviceIndex] && backButtonDownLastFrame && !backButtonDownThisFrame[deviceIndex] ) {
             LOGV("close app." );
             if (Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D &&
-                lark::AppListTask::run_mode() == GetVrClientRunMode::ClientRunMode::CLIENT_RUNMODE_SELF) {
+                lark::AppListTask::run_mode() == lark::GetVrClientRunMode::ClientRunMode::CLIENT_RUNMODE_SELF) {
                 // 显示退出菜单
                 ShowMenu();
             }
@@ -220,7 +218,7 @@ larkxrDevicePair OvrSceneCloud::GetDevicePair(ovrMobile *ovr, double absTimeInSe
 
                     glm::quat rotation = ovr::toGlm(remoteTracking.HeadPose.Pose.Orientation);
                     glm::vec3 positon = ovr::toGlm(remoteTracking.HeadPose.Pose.Position);
-                    Transform transform(rotation, positon);
+                    lark::Transform transform(rotation, positon);
 
                     lark::Ray *ray = nullptr;
                     if (isLeft) {
@@ -262,16 +260,12 @@ larkxrDevicePair OvrSceneCloud::GetDevicePair(ovrMobile *ovr, double absTimeInSe
 }
 
 bool OvrSceneCloud::Render(ovrMobile *ovr) {
-//    if (!inited()) {
-//        // not inited.
-//        return false;
-//    }
     // render use clcoud
     return OvrScene::Render(ovr);
 }
 
 bool OvrSceneCloud::Render(ovrMobile *ovr, const larkxrTrackingFrame &trackingFrame,
-                           const XRVideoFrame &videoFrame) {
+                           const lark::XRVideoFrame &videoFrame) {
     if (videoFrame.frame_type() == lark::XRVideoFrame::FrameType::kNative_Multiview) {
         rect_texture_->SetMutiviewModeTexture(videoFrame.texture());
     } else if (videoFrame.frame_type() == lark::XRVideoFrame::FrameType::kNative_Stereo) {
@@ -283,12 +277,8 @@ bool OvrSceneCloud::Render(ovrMobile *ovr, const larkxrTrackingFrame &trackingFr
 }
 
 bool OvrSceneCloud::Render(ovrMobile *ovr, const larkxrTrackingFrame &trackingFrame) {
-//    if (!inited()) {
-//        // not inited.
-//        return false;
-//    }
     frame_index_++;
-    XRLatencyCollector::Instance().Rendered2(trackingFrame.frameIndex);
+    lark::XRLatencyCollector::Instance().Rendered2(trackingFrame.frameIndex);
 
     ovrTracking2 tracking = ovr::fromtLarkvrTrackedHMDPose(trackingFrame.tracking);
     const ovrLayerProjection2 worldLayer = RenderFrame(&tracking, ovr);
@@ -317,7 +307,7 @@ bool OvrSceneCloud::Render(ovrMobile *ovr, const larkxrTrackingFrame &trackingFr
     glm::vec3 renderAng = glm::eulerAngles(trackingFrame.tracking.rotation);
     glm::vec3 trackingAng = glm::eulerAngles(hmdPose.rotation);
     float degree = glm::degrees(renderAng.y - trackingAng.y);
-    XRLatencyCollector::Instance().Submit(trackingFrame.frameIndex, degree);
+    lark::XRLatencyCollector::Instance().Submit(trackingFrame.frameIndex, degree);
 
     // Hand over the eye images to the time warp.
     vrapi_SubmitFrame2( ovr, &frameDesc );
@@ -327,7 +317,7 @@ bool OvrSceneCloud::Render(ovrMobile *ovr, const larkxrTrackingFrame &trackingFr
 void OvrSceneCloud::OnCloseApp() {
     LOGV("================on close app");
     // 集中管控模式下由教师端控制退出应用。
-    if (lark::AppListTask::run_mode() == GetVrClientRunMode::ClientRunMode::CLIENT_RUNMODE_TEACHER) {
+    if (lark::AppListTask::run_mode() == lark::GetVrClientRunMode::ClientRunMode::CLIENT_RUNMODE_TEACHER) {
         return;
     }
     Application::instance()->CloseAppli();

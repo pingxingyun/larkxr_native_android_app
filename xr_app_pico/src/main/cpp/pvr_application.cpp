@@ -138,7 +138,7 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
         // pico may recreate gl context mutitimes.
         // must release old resource and recreate.
         // load assets.
-        //scene_local_.reset();
+        scene_local_.reset();
         scene_cloud_.reset();
         lark::AssetLoader::Release();
     }
@@ -152,8 +152,8 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
     lark::AssetLoader::instance()->Load(&context, Assetlist);
 
     // reset first to make sure release old point.
-    //scene_local_ = std::make_shared<PvrSceneLocal>();
-    //scene_local_->InitGl(eyeWidth, eyeHeight);
+    scene_local_ = std::make_shared<PvrSceneLocal>();
+    scene_local_->InitGl(eyeWidth, eyeHeight);
 
     scene_cloud_ = std::make_shared<PvrSceneCloud>();
     scene_cloud_->InitGl(eyeWidth, eyeHeight);
@@ -174,6 +174,11 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
     if (xr_client_) {
         xr_client_->OnResume();
     }
+
+    LOGV("pre appid ========== %s", appli_id_from_2d_ui_.c_str());
+    if (!appli_id_from_2d_ui_.empty()) {
+        EnterAppli(appli_id_from_2d_ui_);
+    }
     LOGV("PvrApplication InitGL Finish");
     return true;
 }
@@ -189,7 +194,7 @@ void PvrApplication::ShutdownGL() {
     Input::ResetInput();
     Navigation::ClearToast();
 
-    //scene_local_.reset();
+    scene_local_.reset();
     scene_cloud_.reset();
     lark::AssetLoader::Release();
     LOGD("ShutdownGL finished");
@@ -206,7 +211,7 @@ void PvrApplication::deInitGL() {
     // pico may recreate gl context mutitimes.
     // must release old resource and recreate.
     // load assets.
-    //scene_local_.reset();
+    scene_local_.reset();
     scene_cloud_.reset();
     lark::AssetLoader::Release();
     LOGD("deInitGL finished");
@@ -220,7 +225,7 @@ void PvrApplication::FrameBegin(const pvr::PvrPose& pose) {
     if (connected_) {
         scene_cloud_->UpdateHMDPose(pose.rotation, pose.position);
     } else {
-        //scene_local_->UpdateHMDPose(pose.rotation, pose.position);
+        scene_local_->UpdateHMDPose(pose.rotation, pose.position);
     }
     hmd_pose_ = pose;
 #ifdef USE_RENDER_QUEUE
@@ -311,7 +316,7 @@ void PvrApplication::Draw(int eye) {
     if (connected_) {
         scene_cloud_->Draw(eye);
     } else {
-        //scene_local_->Draw(eye);
+        scene_local_->Draw(eye);
     }
 }
 
@@ -367,7 +372,7 @@ void PvrApplication::OnClose(int code) {
     has_new_frame_ = false;
     cloud_tracking_ = {};
     scene_cloud_->OnClose();
-    //scene_local_->HomePage();
+    scene_local_->HomePage();
     switch(code) {
         case LK_XR_MEDIA_TRANSPORT_CHANNEL_CLOSED:
             Navigation::ShowToast("与服务器媒体连接关闭");
@@ -386,10 +391,10 @@ void PvrApplication::OnError(int errCode, const std::string &msg) {
     LOGE("on xr client error %d; msg %s;", errCode, msg.c_str());
     if (errCode == 1) {
         // enter applifailed.
-        //scene_local_->HomePage();
+        scene_local_->HomePage();
     } else {
         connected_ = false;
-        //scene_local_->HomePage();
+        scene_local_->HomePage();
     }
     Navigation::ShowToast(msg);
     ResetTracking(pvr::PvrTrackingOrigin_EyeLevel);
@@ -406,6 +411,11 @@ void PvrApplication::RequestTrackingInfo() {
     devicePair.hmdPose = pvr::toLarkHMDTrakedPose(hmdPose);
     for (int i = 0; i < LARKVR_TOTAL_CONTROLLER_COUNT; i++) {
         devicePair.controllerState[i] = pvr::toLarkxrControllerState(controller_[i]);
+        // disable cloud controller when show local menu
+        if (scene_cloud_->IsShowMenu()) {
+            devicePair.controllerState[i].inputState.isConnected = false;
+            devicePair.controllerState[i].pose.isConnected = false;
+        }
         // rotate pico neo2 controller
         if (lark::XRConfig::headset_desc.type == larkHeadSetType_PICO_2) {
             devicePair.controllerState[i].rotateDeg = glm::half_pi<float>() / 3.0F;
@@ -470,4 +480,20 @@ void PvrApplication::OnSyncPlayerSpace(larkxrPlaySpace *playSpace) {
 void PvrApplication::ResetTracking(pvr::PvrTrackingOrigin origin) {
     bool res = pvr::setTrackingOriginType(pvr_sdk_object_, origin);
     LOGV("ResetTracking %d", res);
+}
+
+void PvrApplication::Quit3DUI() {
+    Application::Quit3DUI();
+    LOGV("OnQuit3DUI");
+    auto env_wraper = Context::instance()->GetEnv();
+    auto env = env_wraper.get();
+    if (env == nullptr) {
+        LOGV("OnQuit3DUI failed env empty");
+        return;
+    }
+    jclass clazz = env->GetObjectClass(mainactivity_object_);
+//    clazz = env->FindClass("com/pxy/cloudlarkxroculus/MainActivity");
+    jmethodID mid = env->GetMethodID(clazz, "switchTo2DAppList", "()V");
+    env->CallVoidMethod(mainactivity_object_, mid);
+    env->DeleteLocalRef(clazz);
 }

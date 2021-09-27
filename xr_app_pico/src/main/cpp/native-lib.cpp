@@ -409,7 +409,7 @@ Java_com_pxy_cloudlarkxrpico_MainActivity_intoApp(JNIEnv *env, jobject thiz, jlo
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_pxy_cloudlarkxrpico_MainActivity_intoApp__JLjava_lang_String_2(JNIEnv *env, jobject thiz,jlong ptr,jstring rtc_params) {
+Java_com_pxy_cloudlarkxrpico_MainActivity_nativeIntoApp__JLjava_lang_String_2(JNIEnv *env, jobject thiz,jlong ptr,jstring rtc_params) {
     // TODO: implement intoApp()
     PvrApplication* application = (PvrApplication*)ptr;
     if (application == nullptr) {
@@ -417,6 +417,6 @@ Java_com_pxy_cloudlarkxrpico_MainActivity_intoApp__JLjava_lang_String_2(JNIEnv *
     }
     const char *charappid = env->GetStringUTFChars(rtc_params, 0);
     LogE("appid","%s", charappid);
-    application->EnterAppli(charappid);
+    application->Set2DUIEnterAppliMode(charappid);
     env->ReleaseStringUTFChars(rtc_params, charappid);
 }

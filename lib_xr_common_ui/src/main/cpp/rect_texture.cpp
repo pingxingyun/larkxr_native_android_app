@@ -205,6 +205,9 @@ RectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection, cons
     if (!enable_ || has_error_ || !frame_texture_left_ || !frame_texture_right_)
         return;
 
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+
     Object::DrawMultiview(projection, view);
     lark::VertexArrayObject * vao = vao_all_.get();
     shader_->UseProgram();
@@ -214,6 +217,9 @@ RectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection, cons
     shader_->UnUseProgram();
     vao->UnbindVAO();
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
 
     if (HasGLError()) {
         LOGD("render cloudtexturehas error. %d", frame_texture_);

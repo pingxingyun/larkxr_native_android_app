@@ -305,8 +305,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
     @Override
     public void initGL(int width, int height) {
         Log.d(TAG, "init gl " + width + " " + height+" "+nativeApplication);
-        nativeInitGl(nativeApplication, width, height);
-
 /*        rtcParams = getIntent().getParcelableExtra(EnterAppliInfo.Config.name);
         if (rtcParams!=null){
             intoApp(nativeApplication,rtcParams);
@@ -314,10 +312,14 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.d(TAG, "appid:"+appid);
         if (appid.isEmpty()){
             appid=getIntent().getStringExtra("appid");
-            intoApp(nativeApplication,appid);
+            if (appid != null && !appid.isEmpty()) {
+                // form 2dui appid.
+                nativeIntoApp(nativeApplication, appid);
+            }
             Log.d(TAG, "intoApp:"+appid);
         }
-        //intoApp(nativeApplication,appid);
+
+        nativeInitGl(nativeApplication, width, height);
         Log.d(TAG, "init gl finish");
     }
 
@@ -350,6 +352,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
         protected void onUserLeaveHint() {
         Log.e("onUserLeaveHint", "onUserLeaveHint");
         super.onUserLeaveHint();
+    }
+
+    public void switchTo2DAppList() {
+        Log.d(TAG, "on switchTo2DAppList");
+        // TODO switch to 2d applist.
     }
 
     private void setMessage(int what,Object obj){
@@ -392,6 +399,5 @@ public class MainActivity extends VRActivity implements RenderInterface {
     //
     private native void nativeSetControlerBatteryLevel(int left, int right);
 
-//    private native void intoApp(long ptr, EnterAppliInfo.Config rtcParams);
-    private native void intoApp(long ptr, String rtcParams);
+    private native void nativeIntoApp(long ptr, String rtcParams);
 }

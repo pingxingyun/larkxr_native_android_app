@@ -25,6 +25,9 @@ void PvrSceneCloud::InitGl(int eyeBufferWidth, int eyeBufferHeight) {
     loading_->Move(View::VIEW_POSITION_Y, View::VIEW_POSITION_X, View::VIEW_POSITION_Z);
     PvrScene::AddObject(loading_);
 
+    rect_texture_ = std::make_shared<RectTexture>();
+    PvrScene::AddObject(rect_texture_);
+
     lark::ControllerConfig controllerConfig = {};
     larkxrSystemInfo systemInfo = lark::XRClient::system_info();
     if (systemInfo.platFromType == larkxrPlatFromType::Larkxr_Platform_PICO_NEO_2 ||
@@ -44,8 +47,14 @@ void PvrSceneCloud::InitGl(int eyeBufferWidth, int eyeBufferHeight) {
     // add to pvr_xr_scene;
     PvrScene::AddObject(controller_right_);
 
-    rect_texture_ = std::make_shared<RectTexture>();
-    PvrScene::AddObject(rect_texture_);
+    fake_hmd_ = std::make_shared<lark::Object>();
+    PvrScene::AddObject(fake_hmd_);
+
+    menu_view_ = std::make_shared<MenuView>(this);
+    menu_view_->Move(-0.75, -0.75, -1.8);
+    menu_view_->set_active(false);
+    PvrScene::AddObject(menu_view_);
+    fake_hmd_->AddChild(menu_view_);
 
     LOGV("obj size %lld", objects_.size());
 }
@@ -64,6 +73,8 @@ void PvrSceneCloud::Draw(int eye) {
 
 void PvrSceneCloud::UpdateHMDPose(glm::quat rotation, glm::vec3 position) {
     PvrScene::UpdateHMDPose(rotation, position);
+    hmd_pose_.position = position;
+    hmd_pose_.rotation = rotation;
     HandleInput();
 }
 
@@ -91,11 +102,15 @@ void PvrSceneCloud::HandleInput() {
         lark::Ray *ray = nullptr;
         if (isLeft) {
             controller_left_->set_transform(transform);
-            controller_left_->set_active(controllerState.input.isConnected);
+            if (!controllerState.input.isConnected) {
+                controller_left_->set_active(false);
+            }
             ray = &rays[0];
         } else {
             controller_right_->set_transform(transform);
-            controller_right_->set_active(controllerState.input.isConnected);
+            if (!controllerState.input.isConnected) {
+                controller_right_->set_active(false);
+            }
             ray = &rays[1];
         }
         ray->ori = transform.GetPosition();
@@ -127,11 +142,23 @@ void PvrSceneCloud::HandleInput() {
         inputState[rayCastType].enterButtonDown = enterButtonDownThisFrame[rayCastType];
         inputState[rayCastType].triggerButtonDown = triggerDownThisFrame[rayCastType];
 
+        // short press backbutton
+        if (inputState[rayCastType].backShortPressed) {
+            if (menu_view_->active()) {
+                HideMenu();
+            }
+        }
+
         //             call after pressup.
         if (inputState[rayCastType].triggerButtonDown && inputState[rayCastType].backShortPressed)
         {
 //                LOGV( "back button short press %d", rayCastType);
             //OnCloseApp();
+            if (Application::instance()->ui_mode() == Application::ApplicationUIMode_Opengles_3D &&
+                lark::AppListTask::run_mode() == lark::GetVrClientRunMode::ClientRunMode::CLIENT_RUNMODE_SELF) {
+                // 显示退出菜单
+                ShowMenu();
+            }
         }
 
         // call ater pressup.
@@ -139,6 +166,11 @@ void PvrSceneCloud::HandleInput() {
 //                LOGV( "trigger button short press %d", rayCastType);
             Input::SetCurrentRayCastType(rayCastType);
         }
+    }
+
+    if (menu_view_->active()) {
+        menu_view_->HandleInput(rays, 2);
+        menu_view_->Update();
     }
 }
 
@@ -176,6 +208,7 @@ void PvrSceneCloud::OnClose() {
     controller_left_->set_active(true);
     controller_right_->set_active(true);
     rect_texture_->ClearTexture();
+    menu_view_->set_active(false);
 }
 
 void PvrSceneCloud::OnConnect() {
@@ -191,5 +224,33 @@ void PvrSceneCloud::SetVideoFrame(const lark::XRVideoFrame &videoFrame) {
         rect_texture_->SetMutiviewModeTexture(videoFrame.texture());
     } else if (videoFrame.frame_type() == lark::XRVideoFrame::FrameType::kNative_Stereo) {
         rect_texture_->SetStereoTexture(videoFrame.texture_left(), videoFrame.texture_right());
+    }
+}
+
+void PvrSceneCloud::ShowMenu() {
+    LOGV("show menu");
+    fake_hmd_->set_transform(lark::Transform(hmd_pose_.rotation,
+                                             hmd_pose_.position));
+    menu_view_->set_active(true);
+    controller_left_->set_active(true);
+    controller_right_->set_active(true);
+}
+
+void PvrSceneCloud::HideMenu() {
+    LOGV("hide menu menu");
+    menu_view_->set_active(false);
+    controller_left_->set_active(false);
+    controller_right_->set_active(false);
+}
+
+void PvrSceneCloud::OnMenuViewSelect(bool submit) {
+    LOGV("OnMenuViewSelect %d", submit);
+    if (submit) {
+        // 用户选择退出
+        OnCloseApp();
+        HideMenu();
+    } else {
+        // 用户选择取消
+        HideMenu();
     }
 }

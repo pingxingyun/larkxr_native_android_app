@@ -59,6 +59,7 @@ public:
     virtual void OnMediaReady() override;
     virtual void RequestTrackingInfo() override;
     virtual void OnSyncPlayerSpace(larkxrPlaySpace* playSpace) override;
+    virtual void Quit3DUI() override;
 private:
     static PvrApplication* s_pvr_instance_;
 
