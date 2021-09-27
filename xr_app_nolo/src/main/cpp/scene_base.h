@@ -20,6 +20,8 @@ public:
     virtual void Draw(int eye);
     virtual void Draw(int eye, const glm::mat4& project, const glm::mat4& view);
 
+    inline glm::mat4 GetViewMatrix(int eye) { return view_[eye]; }
+    inline glm::mat4 GetProjection(int eye) { return projection_[eye]; }
 protected:
     void AddObject(std::shared_ptr<lark::Object> object);
     void RemoveObject(std::shared_ptr<lark::Object> object);

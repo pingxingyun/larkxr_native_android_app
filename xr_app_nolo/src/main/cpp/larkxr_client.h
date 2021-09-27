@@ -6,6 +6,7 @@
 #define NOLOLARKXR_LARKXR_CLIENT_H
 #include <lark_xr/xr_client.h>
 #include <nibiru/NibiruVRApi.h>
+#include <ui/menu_view.h>
 #include "lark_xr/app_list_task.h"
 #include "log.h"
 #include "gsxr/gsxr_dev.h"
@@ -19,7 +20,7 @@
 
 using namespace lark;
 
-class LarkxrClient:public lark::AppListTask::AppListTaskListener, public Application {
+class LarkxrClient:public lark::AppListTask::AppListTaskListener, public Application, public MenuView::Callback {
 public:
     LarkxrClient();
     ~LarkxrClient();
@@ -87,9 +88,14 @@ public:
     inline GsxrDev* gsxr_dev() { return gsxrDev_; }
     bool media_ready(){ return xr_client_ &&xr_client_->media_ready(); }
     inline bool has_new_frame() { return has_new_frame_; }
+
+    virtual void OnMenuViewSelect(bool submit) override;
 private:
     void updateHmd();
     void handlInput();
+
+    void ShowMenu();
+    void HideMenu();
 
     GsxrDev* gsxrDev_ = NULL;
     nvr::NibiruVRApi * nibiruVrApi = NULL;
@@ -106,7 +112,12 @@ private:
     bool connected = false;
 
     std::shared_ptr<SceneLocal> scene_local_ = nullptr;
+    std::shared_ptr<SceneBase> scene_cloud_ = nullptr;
+    std::shared_ptr<lark::Object> fake_hmd_;
+    std::shared_ptr<MenuView> menu_view_;
     std::shared_ptr<RectTexture> rect_render_ = nullptr;
+    std::shared_ptr<lark::Controller> controller_left_;
+    std::shared_ptr<lark::Controller> controller_right_;
 
     bool back_button_down_last_frame_[Input::RayCast_Count]{};
     bool trigger_button_down_last_frame_[Input::RayCast_Count]{};

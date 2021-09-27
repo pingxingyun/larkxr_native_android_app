@@ -110,6 +110,38 @@ bool LarkxrClient::InitGL() {
     scene_local_ = std::make_shared<SceneLocal>();
     scene_local_->InitGl(this, 1600, 1600);
 
+    // for render cloud ui
+    scene_cloud_ = std::make_shared<SceneBase>();
+    scene_cloud_->InitGl(1600, 1600);
+
+    lark::ControllerConfig controllerConfig = {
+            "model/nolo_controller_m1_left/nolo_controller_m1_left.obj",
+            "model/nolo_controller_m1_right/nolo_controller_m1_right.obj",
+            glm::vec3(-0.009, 0.006, -0.007),
+            glm::vec3(0.009, 0.006, -0.007),
+            1.0f,
+            glm::half_pi<float>() / 3.0F,
+            glm::vec3(1,0,0),
+            glm::vec4(1, 1, 1, 1),
+            {
+                    lark::Model::MaterialTextureType_DIFFUSE,
+                    "oculus_quest_controller.png"
+            }
+    };
+    // controllers
+    controller_left_ = std::make_shared<lark::Controller>(true, controllerConfig);
+    controller_left_->Move(-0.3, 0, -0.3);
+
+    controller_right_ = std::make_shared<lark::Controller>(false, controllerConfig);
+    controller_right_->Move(0.3, 0, -0.3);
+
+    fake_hmd_ = std::make_shared<lark::Object>();
+
+    menu_view_ = std::make_shared<MenuView>(this);
+    menu_view_->Move(-0.75, -0.75, -1.8);
+    menu_view_->set_active(false);
+    fake_hmd_->AddChild(menu_view_);
+
     rect_render_ = std::make_shared<RectTexture>();
 
     inited = true;
@@ -180,6 +212,7 @@ void LarkxrClient::Update() {
         scene_local_->UpdateHMDPose(device_pair_.hmdPose.rotation, device_pair_.hmdPose.position);
         scene_local_->HandleInput(device_pair_);
     } else {
+        scene_cloud_->UpdateHMDPose(device_pair_.hmdPose.rotation, device_pair_.hmdPose.position);
         handlInput();
         has_new_frame_ = false;
         lark::XRVideoFrame xrVideoFrame(0);
@@ -225,13 +258,23 @@ void LarkxrClient::updateHmd() {
 
     gsxrDev_->GetLeftControllerState(gsxr_poseData,device_pair_.controllerState[0]);
     gsxrDev_->GetRightControllerState(gsxr_poseData,device_pair_.controllerState[1]);
+
+    // update cloud
+
 }
 
 void LarkxrClient::handlInput() {
+    // update global input state.
+    Input::InputState * inputState = Input::GetInputState();
+
     // 处理事件，关闭应用等
     bool backButtonDownThisFrame[Input::RayCast_Count] = {false, false};
     bool triggerDownThisFrame[Input::RayCast_Count] = {false, false};
     bool enterButtonDownThisFrame[Input::RayCast_Count] = {false, false};
+
+    // 0->left, 1->right, 2->hmd
+    lark::Ray rays[Input::RayCast_Count] = {};
+
     for (int i = 0; i < 2; i++) {
         Input::RayCastType rayCastType = i == 0 ? Input::RayCast_left : Input::RayCast_Right;
         backButtonDownThisFrame[rayCastType] |=
@@ -258,11 +301,59 @@ void LarkxrClient::handlInput() {
         bool enterButtonDownLastFrame = enter_button_down_last_frame_[rayCastType];
         enter_button_down_last_frame_[rayCastType] = enterButtonDownThisFrame[rayCastType];
 
-        // 关闭连接
+        inputState[rayCastType].backShortPressed = backButtonDownLastFrame && !backButtonDownThisFrame[rayCastType];
+        inputState[rayCastType].enterShortPressed = enterButtonDownLastFrame && !enterButtonDownThisFrame[rayCastType];
+        inputState[rayCastType].triggerShortPressed = traggerButtonDownLastFrame && !triggerDownThisFrame[rayCastType];
+        inputState[rayCastType].backButtonDown = backButtonDownThisFrame[rayCastType];
+        inputState[rayCastType].enterButtonDown = enterButtonDownThisFrame[rayCastType];
+        inputState[rayCastType].triggerButtonDown = triggerDownThisFrame[rayCastType];
+
+        // short press backbutton
+        if (inputState[rayCastType].backShortPressed) {
+            if (menu_view_->active()) {
+                HideMenu();
+            }
+        }
+
+        // call after pressup.
         if ( triggerDownThisFrame[rayCastType] && backButtonDownLastFrame && !backButtonDownThisFrame[rayCastType] ) {
             LOGV("close app." );
-            CloseAppli();
+            // 显示退出菜单
+            ShowMenu();
         }
+
+        // call ater pressup.
+        if (inputState[rayCastType].triggerShortPressed) {
+            LOGV("trigger button short press %d", rayCastType);
+            if (menu_view_->active()) {
+                Input::SetCurrentRayCastType(rayCastType);
+            }
+        }
+
+        Ray *ray = nullptr;
+        Transform transform(device_pair_.controllerState[i].pose.rotation,
+                            device_pair_.controllerState[i].pose.position);
+        transform.Rotate(device_pair_.controllerState[i].rotateDeg, device_pair_.controllerState[i].rotateAxis);
+        if (rayCastType == Input::RayCast_left) {
+            controller_left_->set_transform(transform);
+            // controller_left_->set_active(devicePair.controllerState[i].inputState.isConnected);
+            ray = &rays[0];
+        } else {
+            controller_right_->set_transform(transform);
+            // controller_right_->set_active(devicePair.controllerState[i].inputState.isConnected);
+            ray = &rays[1];
+        }
+        ray->ori = transform.GetPosition();
+        ray->dir = transform.Forward();
+    }
+
+    if (menu_view_->active()) {
+        device_pair_.controllerState[0].inputState.isConnected = false;
+        device_pair_.controllerState[1].inputState.isConnected = false;
+        device_pair_.controllerState[0].pose.isConnected = false;
+        device_pair_.controllerState[1].pose.isConnected = false;
+        menu_view_->HandleInput(rays, 2);
+        menu_view_->Update();
     }
 }
 
@@ -278,10 +369,26 @@ void LarkxrClient::Draw(const nvr::nvr_Eye& eye) {
         if (has_new_frame_) {
             if (eye.pos == 0) {
                 rect_render_->Draw(static_cast<Object::Eye>(eye.pos), glm::mat4(), glm::mat4());
-//             textureRect.drawSelf(this->nativeTextrureLeft);
+                if (controller_left_->active()) {
+                    controller_left_->Draw(
+                            static_cast<Object::Eye>(eye.pos),
+                            scene_cloud_->GetProjection(eye.pos), scene_cloud_->GetViewMatrix(eye.pos));
+                }
+                if (menu_view_->active()) {
+                    menu_view_->Draw(static_cast<Object::Eye>(eye.pos),
+                                     scene_cloud_->GetProjection(eye.pos), scene_cloud_->GetViewMatrix(eye.pos));
+                }
             } else {
                 rect_render_->Draw(static_cast<Object::Eye>(eye.pos), glm::mat4(), glm::mat4());
-//             textureRect.drawSelf(this->nativeTextrureRight);
+                if (controller_right_->active()) {
+                    controller_right_->Draw(
+                            static_cast<Object::Eye>(eye.pos),
+                            scene_cloud_->GetProjection(eye.pos), scene_cloud_->GetViewMatrix(eye.pos));
+                }
+                if (menu_view_->active()) {
+                    menu_view_->Draw(static_cast<Object::Eye>(eye.pos),
+                                     scene_cloud_->GetProjection(eye.pos), scene_cloud_->GetViewMatrix(eye.pos));
+                }
             }
         }
     }
@@ -458,4 +565,32 @@ void LarkxrClient::CloseAppli() {
     if (xr_client_) {
         xr_client_->Close();
     }
+}
+
+void LarkxrClient::OnMenuViewSelect(bool submit) {
+    LOGV("OnMenuViewSelect %d", submit);
+    if (submit) {
+        // 用户选择退出
+        CloseAppli();
+        HideMenu();
+    } else {
+        // 用户选择取消
+        HideMenu();
+    }
+}
+
+void LarkxrClient::ShowMenu() {
+    LOGV("show menu");
+    fake_hmd_->set_transform(lark::Transform(device_pair_.hmdPose.rotation,
+                                             device_pair_.hmdPose.position));
+    menu_view_->set_active(true);
+    controller_left_->set_active(true);
+    controller_right_->set_active(true);
+}
+
+void LarkxrClient::HideMenu() {
+    LOGV("hide menu menu");
+    menu_view_->set_active(false);
+    controller_left_->set_active(false);
+    controller_right_->set_active(false);
 }
