@@ -186,7 +186,7 @@ larkxrDevicePair OvrSceneCloud::GetDevicePair(ovrMobile *ovr, double absTimeInSe
 
     // save ray
     // 0->left, 1->right.
-    Ray rays[Input::RayCast_Count] = {};
+    lark::Ray rays[Input::RayCast_Count] = {};
 
     // update controller pose.
     for (uint32_t i = 0; ; i++) {
@@ -222,7 +222,7 @@ larkxrDevicePair OvrSceneCloud::GetDevicePair(ovrMobile *ovr, double absTimeInSe
                     glm::vec3 positon = ovr::toGlm(remoteTracking.HeadPose.Pose.Position);
                     Transform transform(rotation, positon);
 
-                    Ray *ray = nullptr;
+                    lark::Ray *ray = nullptr;
                     if (isLeft) {
                         controller_left_->set_transform(transform);
                         ray = &rays[0];
@@ -360,12 +360,13 @@ void OvrSceneCloud::OnMediaReady() {
 }
 
 void OvrSceneCloud::OnClose() {
+    LOGV("==========OnClose");
+    menu_view_->set_active(false);
     controller_left_->set_active(true);
     controller_right_->set_active(true);
     sky_box_->set_active(true);
     tracking_frame_index_ = 0;
     rect_texture_->ClearTexture();
-    HideMenu();
 }
 
 void OvrSceneCloud::OnMenuViewSelect(bool submit) {
@@ -382,7 +383,7 @@ void OvrSceneCloud::OnMenuViewSelect(bool submit) {
 
 void OvrSceneCloud::ShowMenu() {
     LOGV("show menu");
-    fake_hmd_->set_transform(Transform(device_pair_frame_.devicePair.hmdPose.rotation,
+    fake_hmd_->set_transform(lark::Transform(device_pair_frame_.devicePair.hmdPose.rotation,
                                        device_pair_frame_.devicePair.hmdPose.position));
     menu_view_->set_active(true);
     controller_left_->set_active(true);

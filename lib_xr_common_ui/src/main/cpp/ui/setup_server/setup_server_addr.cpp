@@ -180,7 +180,7 @@ void SetupServerAddr::Enter() {
 //    getMode();
     getServerAddr();
 
-    if (lark::XRClient::GetServerHost() == "") {
+    if (lark::XRClient::GetServerHost().empty()) {
         status_messsage_->SetText(L"请设置服务器地址");
     }
     is_detecting_ = false;
@@ -254,11 +254,14 @@ void SetupServerAddr::GetAppList() {
             status_messsage_->SetText(L"检测服务器版本号成功", false);
         } else {
             char buffer[100];
-            sprintf(buffer, "检测到与服务器版本号不匹配，服务器版本 [%d.%d] 客户端 SDK 版本 [%d.%d]",
+            // 检测到与服务器版本号不匹配，服务器版本
+            // 客户端 SDK 版本
+            sprintf(buffer, "Server [%d.%d] Client [%d.%d]",
                                               info.marjor, info.minor,
                                               LARK_NATIVE_CLIENT_SDK_VERSION_MARJOR,
                                               LARK_NATIVE_CLIENT_SDK_VERSION_MINOR);
-            status_messsage_->SetText(utils::StringToWstring(buffer), false);
+            std::string msg = "检测到与服务器版本号不匹配，服务器版本" + std::string(buffer);
+            status_messsage_->SetText(utils::StringToWstring(msg), false);
             // reset status
             is_detecting_ = false;
             return;

@@ -34,6 +34,7 @@ public:
     inline void BindTexture() { glBindTexture(GL_TEXTURE_2D, texture_id_); }
     inline void UnbindTexture() { glBindTexture(GL_TEXTURE_2D, 0); }
     inline void GlViewportFull() { glViewport(0, 0, width_, height_); }
+    inline void GlScissorFull() { glScissor(0, 0, width_, height_); }
     inline int texture_id() { return texture_id_; }
     inline int has_error() { return has_error_; }
 private:

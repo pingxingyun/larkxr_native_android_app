@@ -11,9 +11,6 @@ import android.util.Log;
 
 import java.io.File;
 
-import static android.os.Environment.getExternalStorageDirectory;
-import static com.pxy.cloudlarkxrhtc.BuildConfig.VERSION_NAME;
-
 public class MainActivity extends VRActivity {
     private static String TAG = "HTC_MainActivity";
     static {
