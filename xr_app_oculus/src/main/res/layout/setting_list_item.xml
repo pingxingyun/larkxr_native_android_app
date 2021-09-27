@@ -67,6 +67,11 @@
                     android:layout_height="match_parent"/>
             </RadioGroup>
         </LinearLayout>
+        <Button
+            android:text="清除服务器记录"
+            android:id="@+id/clearServer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/list3D"
             android:text="@string/list3D"

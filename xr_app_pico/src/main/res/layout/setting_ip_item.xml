@@ -14,6 +14,7 @@
     <EditText
         android:focusable="true"
         android:id="@+id/inputIp"
+        android:text="192.168.31.15"
         android:hint="请输入IP地址"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -42,5 +43,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>
-
+    <Spinner
+        android:spinnerMode="dialog"
+        android:id="@+id/serverList"
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

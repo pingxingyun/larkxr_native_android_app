@@ -10,6 +10,14 @@
         <entry key="..\:/work3/aspro/larkxr_native_android_app/xr_app_oculus/src/main/res/layout/setting_ip_item.xml" value="0.264" />
         <entry key="..\:/work3/aspro/larkxr_native_android_app/xr_app_oculus/src/main/res/layout/setting_list_item.xml" value="0.264" />
         <entry key="..\:/work3/aspro/larkxr_native_android_app/xr_app_oculus/src/main/res/layout/spinner_item.xml" value="0.1" />
+        <entry key="xr_app_oculus/src/main/res/layout/activity_list.xml" value="0.14175724637681159" />
+        <entry key="xr_app_oculus/src/main/res/layout/applist_item.xml" value="0.14175724637681159" />
+        <entry key="xr_app_oculus/src/main/res/layout/setting_ip_item.xml" value="0.14175724637681159" />
+        <entry key="xr_app_oculus/src/main/res/layout/setting_list_item.xml" value="0.10033199404755146" />
+        <entry key="xr_app_oculus/src/main/res/layout/spinner_item.xml" value="0.14175724637681159" />
+        <entry key="xr_app_pico/src/main/res/layout/setting_ip_item.xml" value="0.1118659420289855" />
+        <entry key="xr_app_pico/src/main/res/layout/setting_list_item.xml" value="0.10260416666666666" />
+        <entry key="xr_app_pico/src/main/res/layout/spinner_item.xml" value="0.1118659420289855" />
       </map>
     </option>
   </component>
