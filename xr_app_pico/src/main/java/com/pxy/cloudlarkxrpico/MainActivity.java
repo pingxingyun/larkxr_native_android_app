@@ -182,22 +182,13 @@ public class MainActivity extends VRActivity implements RenderInterface {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
-        openListActivity();
+
         super.onDestroy();
-        if (nativeApplication != 0) {
-            nativeReleaseApplication(nativeApplication);
-            nativeApplication = 0;
-        }
+
         xrSystem.onDestroy();
-        Log.d(TAG, "onDestroyFinish1");
-        Process.killProcess(Process.myPid());
-        Log.d(TAG, "onDestroyFinish2");
         //System.exit(0);
     }
 
-    private void openListActivity() {
-        startActivity(new Intent(MainActivity.this,ListActivity.class));
-    }
 
     @Override
     protected void onStop() {
@@ -357,6 +348,12 @@ public class MainActivity extends VRActivity implements RenderInterface {
     public void switchTo2DAppList() {
         Log.d(TAG, "on switchTo2DAppList");
         // TODO switch to 2d applist.
+        finish();
+        //startActivity(new Intent(MainActivity.this,ListActivity.class));
+        if (nativeApplication != 0) {
+            nativeReleaseApplication(nativeApplication);
+            nativeApplication = 0;
+        }
     }
 
     private void setMessage(int what,Object obj){
