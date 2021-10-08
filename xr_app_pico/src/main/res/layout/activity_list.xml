@@ -5,8 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    android:padding="5dp"
+    android:padding="10dp"
     tools:context=".ListActivity">
+    <FrameLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <TextView
         android:id="@+id/SelfOnlineText"
         android:visibility="gone"
@@ -22,27 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
-            android:paddingRight="50dp"
-            android:gravity="right|center_vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:layout_marginRight="20dp"
-                android:background="@drawable/blue_shape"
-                android:textColor="#ffffff"
-                android:id="@+id/settingIP"
-                android:text="设置IP"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:background="@drawable/blue_shape"
-                android:textColor="#ffffff"
-                android:id="@+id/settingTab"
-                android:text="设置面板"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-        <LinearLayout
             android:gravity="center"
             android:layout_weight="1"
             android:orientation="horizontal"
@@ -53,11 +36,13 @@
                 android:src="@mipmap/lastpage"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
+
             <androidx.recyclerview.widget.RecyclerView
-                android:layout_weight="0.6"
                 android:id="@+id/rec"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:layout_weight="0.6" />
+
             <ImageView
                 android:id="@+id/nextPage"
                 android:src="@mipmap/nextpage"
@@ -74,13 +59,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/closeApp"
-        android:src="@mipmap/out2"
-        android:layout_gravity="right|top"
-        android:layout_width="50dp"
-        android:layout_height="50dp"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:background="@drawable/blue_shape"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:layout_gravity="right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_marginRight="20dp"
+            android:id="@+id/openMenu"
+            android:src="@mipmap/setting"
+            android:layout_width="30dp"
+            android:layout_height="30dp"/>
+        <ImageView
+            android:id="@+id/closeApp"
+            android:src="@mipmap/out3"
+            android:layout_width="30dp"
+            android:layout_height="30dp"/>
+    </LinearLayout>
 
     <include layout="@layout/setting_ip_item"
         android:visibility="gone"
@@ -93,4 +93,92 @@
         android:clickable="true"
         android:focusable="true"
         android:id="@+id/setTab"/>
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/draw"
+        tools:openDrawer="start"
+        android:layout_width="200dp"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:background="#000000"
+            android:layout_gravity="start"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/blue_shape"
+                android:textColor="#ffffff"
+                android:id="@+id/settingIP"
+                android:text="设置IP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/blue_shape"
+                android:textColor="#ffffff"
+                android:id="@+id/settingTab"
+                android:text="设置面板"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/firstRun"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="80dp"
+            android:text="这里是设置↑"
+            android:textSize="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="20dp"
+            android:text="这里是退出↑"
+            android:textSize="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/text3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="150dp"
+            android:text="↓这里是应用列表"
+            android:textSize="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/text4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="150dp"
+            android:layout_marginEnd="250dp"
+            android:text="让我们开始吧"
+            android:textSize="50dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
