@@ -1,4 +1,4 @@
-package com.pxy.cloudlarkxrhtc;
+package com.pxy.cloudlarkxroculus;
 
 import android.app.Activity;
 import android.content.Context;
@@ -38,8 +38,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
-import com.pxy.cloudlarkxrhtc.MainActivity;
-import com.pxy.cloudlarkxrhtc.R;
 import com.pxy.cloudlarkxrkit.Config;
 import com.pxy.larkcore.ClientLifeManager;
 import com.pxy.larkcore.CloudlarkManager;

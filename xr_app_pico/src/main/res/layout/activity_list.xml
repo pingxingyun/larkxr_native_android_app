@@ -102,21 +102,20 @@
         <LinearLayout
             android:background="#000000"
             android:layout_gravity="start"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <Button
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/blue_shape"
+                android:background="#000000"
                 android:textColor="#ffffff"
                 android:id="@+id/settingIP"
                 android:text="设置IP"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <Button
-                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/blue_shape"
+                android:background="#000000"
                 android:textColor="#ffffff"
                 android:id="@+id/settingTab"
                 android:text="设置面板"

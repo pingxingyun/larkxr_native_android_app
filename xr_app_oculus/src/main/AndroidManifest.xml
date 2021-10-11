@@ -27,18 +27,26 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         >
 <!--        <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>-->
-
         <activity
-            android:launchMode="singleTask"
+            android:name=".StartActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="landscape"
-            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode"
-            android:name=".ListActivity"
-            >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ListActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="landscape">
+            <!--            <intent-filter>
+                            <action android:name="android.intent.action.MAIN" />
+
+                            <category android:name="android.intent.category.LAUNCHER" />
+                        </intent-filter>-->
         </activity>
         <activity
             android:name="com.pxy.cloudlarkxroculus.MainActivity"
