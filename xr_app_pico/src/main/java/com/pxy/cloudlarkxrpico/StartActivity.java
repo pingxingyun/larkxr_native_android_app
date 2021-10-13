@@ -9,6 +9,8 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
 public class StartActivity extends AppCompatActivity {
     private ImageView logo;
     @Override
@@ -17,6 +19,7 @@ public class StartActivity extends AppCompatActivity {
         setContentView(R.layout.activity_start);
 
         logo=findViewById(R.id.logo);
+        Glide.with(this).load(R.mipmap.logo).into(logo);
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

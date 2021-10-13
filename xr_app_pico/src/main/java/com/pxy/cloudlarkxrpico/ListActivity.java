@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,7 +72,7 @@ public class ListActivity extends Activity {
     private boolean useHttps;
 
     //设置按钮和列表
-    private Button settingIP, settingTab, confirmip, closeip, closeSetTab, clearServer;
+    private Button confirmip, closeip, closeSetTab, clearServer;
     private RecyclerView rec;
     //设置面板
     private LinearLayout setIp, advancedList, setTab, selfOnline;
@@ -102,15 +100,13 @@ public class ListActivity extends Activity {
     //关闭app按钮
     private ImageView closeApp;
     //打开菜单
-    private ImageView openMenu;
-    //菜单
-    private DrawerLayout draw;
+    private ImageView openMenu,opennet;
     //getrunmode
     private GetRunMode getRunMode;
 
-    private TextView text1,text2,text3,text4;
+    private TextView text1, text2, text3, text4;
     private ConstraintLayout firstrun;
-    private int stap=0;
+    private int stap = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,15 +117,15 @@ public class ListActivity extends Activity {
         FindViewById();
 
         SharedPreferences sp = getSharedPreferences("firststap", Context.MODE_PRIVATE);
-        if (sp.getBoolean("first",true)){
+        if (sp.getBoolean("first", true)) {
             firstrun.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (stap>=4){
-                        stap=0;
+                    if (stap >= 4) {
+                        stap = 0;
                         SharedPreferences sp = getSharedPreferences("firststap", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sp.edit();
-                        editor.putBoolean("first",false);
+                        editor.putBoolean("first", false);
                         editor.apply();
                         firstrun.setVisibility(View.GONE);
 
@@ -140,7 +136,7 @@ public class ListActivity extends Activity {
                 }
             });
             firstrun.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             Init();
             initview();
         }
@@ -166,7 +162,7 @@ public class ListActivity extends Activity {
             serverBeanList = JSON.parseArray(sp.getString(SETTING_SERVER, ""), ServerBean.class);
             mServerIp = "http://" + serverBeanList.get(0).getIp() + ":" + serverBeanList.get(0).getPort();
             useHttps = serverBeanList.get(0).getUse_https();
-            Log.e("getmessage","init");
+            Log.e("getmessage", "init");
             setIp(serverBeanList, 0);
         } else {
             showSetupIP();
@@ -219,15 +215,11 @@ public class ListActivity extends Activity {
     }
 
     private void FindViewById() {
-        settingIP = findViewById(R.id.settingIP);
-        settingTab = findViewById(R.id.settingTab);
         rec = findViewById(R.id.rec);
 /*        int screenWidth = getWindowManager().getDefaultDisplay().getWidth(); // 屏幕宽（像素，如：480px）
         int screenHeight = getWindowManager().getDefaultDisplay().getHeight(); // 屏幕高（像素，如：800p）
         int spancount=screenWidth>screenHeight?4:2;*/
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 4);
-        rec.setLayoutManager(gridLayoutManager);
-
+        rec.setLayoutManager(new GridLayoutManager(this, 4));
         selfOnline = findViewById(R.id.SelfOnline);
 
         setTab = findViewById(R.id.setTab);
@@ -272,30 +264,31 @@ public class ListActivity extends Activity {
 
         closeApp = findViewById(R.id.closeApp);
         openMenu = findViewById(R.id.openMenu);
-        draw = findViewById(R.id.draw);
+        opennet = findViewById(R.id.opennet);
 
         serverList = findViewById(R.id.serverList);
         clearServer = findViewById(R.id.clearServer);
 
-        text1=findViewById(R.id.text1);
-        text2=findViewById(R.id.text2);
-        text3=findViewById(R.id.text3);
-        text4=findViewById(R.id.text4);
-        firstrun=findViewById(R.id.firstRun);
+        text1 = findViewById(R.id.text1);
+        text2 = findViewById(R.id.text2);
+        text3 = findViewById(R.id.text3);
+        text4 = findViewById(R.id.text4);
+        firstrun = findViewById(R.id.firstRun);
     }
 
 
     private void initview() {
         Log.d(TAG, "cached server address use https " + useHttps + " serverIp " + mServerIp);
-
-        settingIP.setOnClickListener(v -> showSetupIP());
+        opennet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSetupIP();
+            }
+        });
         closeip.setOnClickListener(v -> setIp.setVisibility(View.GONE));
 
-        settingTab.setOnClickListener(v -> {
+        openMenu.setOnClickListener(v -> {
             Init();
-            if (draw.isDrawerOpen(Gravity.LEFT)){
-                draw.closeDrawer(Gravity.LEFT);
-            }
             setTab.setVisibility(View.VISIBLE);
         });
 
@@ -467,20 +460,6 @@ public class ListActivity extends Activity {
             }
         });
 
-        openMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.e("draw","open");
-                if (draw.isDrawerOpen(Gravity.LEFT)){
-                    draw.closeDrawer(Gravity.LEFT);
-                }else {
-                    draw.openDrawer(Gravity.LEFT);
-                }
-
-
-            }
-        });
-
         serverList.setAdapter(new SpinnerAdapter() {
             @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
@@ -572,13 +551,13 @@ public class ListActivity extends Activity {
         });
     }
 
-    private void StapText(int s){
-        List<TextView> textViews=new ArrayList<>();
+    private void StapText(int s) {
+        List<TextView> textViews = new ArrayList<>();
         textViews.add(text1);
         textViews.add(text2);
         textViews.add(text3);
         textViews.add(text4);
-        for (int i=0;i<textViews.size();i++){
+        for (int i = 0; i < textViews.size(); i++) {
             textViews.get(i).setVisibility(View.GONE);
         }
         textViews.get(s).setVisibility(View.VISIBLE);
@@ -606,10 +585,10 @@ public class ListActivity extends Activity {
         editor.putBoolean(SETTING_SERVER_USE_HTTPS, false);*/
         editor.apply();
 
-        if (clientLifeManager==null) {
+        if (clientLifeManager == null) {
             clientLifeManager = new ClientLifeManager(this);
         }
-        if (imSocketChannel==null) {
+        if (imSocketChannel == null) {
             imSocketChannel = new ImSocketChannel(socketChannelObserver, ListActivity.this);
         }
         if (getAppliList == null) {
@@ -652,9 +631,9 @@ public class ListActivity extends Activity {
 
                 @Override
                 public void onFail(String s) {
-                    Log.e("GetapplistFail",s);
+                    Log.e("GetapplistFail", s);
                     toastInner(s);
-                    getAppliList=null;
+                    getAppliList = null;
                     showSetupIP();
                 }
             });
@@ -674,12 +653,13 @@ public class ListActivity extends Activity {
                     }
 
                 }
+
                 @Override
                 public void onFail(String s) {
                     Log.e("getRunModeFaile", s);
                     toastInner(s);
                     showSetupIP();
-                    getRunMode=null;
+                    getRunMode = null;
                 }
             });
             getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
@@ -704,15 +684,11 @@ public class ListActivity extends Activity {
     }
 
     private void showSetupIP() {
-        if (draw.isDrawerOpen(Gravity.LEFT)){
-            draw.closeDrawer(Gravity.LEFT);
-        }
         ListActivity.this.runOnUiThread(() -> {
             setIp.setVisibility(View.VISIBLE);
-            appListAdapter=null;
+            appListAdapter = null;
             rec.setAdapter(null);
         });
-
     }
 
     private void closeSetupIP() {
@@ -720,7 +696,7 @@ public class ListActivity extends Activity {
             toastInner("IP不能为空");
             return;
         }
-
+        hideSoftInputFromWindow(this);
         setIp.setVisibility(View.GONE);
 
         ServerBean serverBean = new ServerBean();
@@ -729,19 +705,19 @@ public class ListActivity extends Activity {
         serverBean.setUse_https(false);
 
         boolean f = true;
-        int index=0;
-        for (int i=0;i<serverBeanList.size();i++){
-            if (serverBeanList.get(i).getIp().equals(serverBean.getIp())){
-                if (serverBeanList.get(i).getPort().equals(serverBean.getPort())){
-                    f=false;
-                    index=i;
+        int index = 0;
+        for (int i = 0; i < serverBeanList.size(); i++) {
+            if (serverBeanList.get(i).getIp().equals(serverBean.getIp())) {
+                if (serverBeanList.get(i).getPort().equals(serverBean.getPort())) {
+                    f = false;
+                    index = i;
                 }
             }
         }
-        if (f){
+        if (f) {
             serverBeanList.add(serverBean);
-            setIp(serverBeanList, serverBeanList.size()-1);
-        }else {
+            setIp(serverBeanList, serverBeanList.size() - 1);
+        } else {
             setIp(serverBeanList, index);
         }
     }
@@ -857,8 +833,6 @@ public class ListActivity extends Activity {
         Log.d(TAG, "onResume");
     }
 
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -927,17 +901,17 @@ public class ListActivity extends Activity {
     private void getMessage(Message msg) {
         if (msg.what == 1) {
             List<AppListItem> locallist = (List<AppListItem>) msg.obj;
-            if (rec.getAdapter()==null){
+            if (rec.getAdapter() == null) {
                 appListAdapter = new AppListAdapter(ListActivity.this, locallist);
                 rec.setAdapter(appListAdapter);
-            }else {
+            } else {
                 if (!locallist.equals(applist)) {
                     applist = locallist;
                     appListAdapter = new AppListAdapter(ListActivity.this, applist);
                     rec.setAdapter(appListAdapter);
                 }
             }
-            Log.e("getmessage","getapplist");
+            Log.e("getmessage", "getapplist");
             getAppliList.getAppliList();
         } else if (msg.what == 2) {
             GetRunModeBean getRunModeBean = (GetRunModeBean) msg.obj;
@@ -996,7 +970,7 @@ public class ListActivity extends Activity {
                     .load(Base.getServerUrl().getUrl() + data.getPicUrl())
                     .error(R.mipmap.cover_11)
                     .into(viewHolder.pic);
-            Log.e("url",data.getPicUrl());
+            Log.e("url", data.getPicUrl());
         }
 
         @Override

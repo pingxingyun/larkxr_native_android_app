@@ -14,7 +14,6 @@
     <EditText
         android:focusable="true"
         android:id="@+id/inputIp"
-        android:text="192.168.31.15"
         android:hint="请输入IP地址"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

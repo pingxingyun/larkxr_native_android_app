@@ -7,10 +7,6 @@
     android:background="#000000"
     android:padding="10dp"
     tools:context=".ListActivity">
-    <FrameLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
     <TextView
         android:id="@+id/SelfOnlineText"
         android:visibility="gone"
@@ -26,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
+            android:layout_marginTop="50dp"
             android:gravity="center"
             android:layout_weight="1"
             android:orientation="horizontal"
@@ -51,15 +48,6 @@
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
-        android:layout_gravity="bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-    <LinearLayout
         android:orientation="horizontal"
         android:background="@drawable/blue_shape"
         android:paddingTop="10dp"
@@ -69,6 +57,12 @@
         android:layout_gravity="right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+        <ImageView
+            android:layout_marginRight="20dp"
+            android:id="@+id/opennet"
+            android:src="@mipmap/net"
+            android:layout_width="30dp"
+            android:layout_height="30dp"/>
         <ImageView
             android:layout_marginRight="20dp"
             android:id="@+id/openMenu"
@@ -81,50 +75,29 @@
             android:layout_width="30dp"
             android:layout_height="30dp"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_gravity="bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
 
     <include layout="@layout/setting_ip_item"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
         android:id="@+id/setIP"/>
+
     <include
         layout="@layout/setting_list_item"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
         android:id="@+id/setTab"/>
-
-    <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/draw"
-        tools:openDrawer="start"
-        android:layout_width="200dp"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:background="#000000"
-            android:layout_gravity="start"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <Button
-                android:background="#000000"
-                android:textColor="#ffffff"
-                android:id="@+id/settingIP"
-                android:text="设置IP"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:layout_marginTop="10dp"
-                android:background="#000000"
-                android:textColor="#ffffff"
-                android:id="@+id/settingTab"
-                android:text="设置面板"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-    </androidx.drawerlayout.widget.DrawerLayout>
-
-    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/firstRun"
