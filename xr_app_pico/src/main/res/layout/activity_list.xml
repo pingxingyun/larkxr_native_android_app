@@ -101,19 +101,20 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/firstRun"
-        android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
         <TextView
+            android:visibility="gone"
             android:id="@+id/text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
             android:layout_marginEnd="80dp"
-            android:text="这里是设置↑"
+            android:text="这里是设置列表↑"
+            android:textColor="#f3f3f3"
             android:textSize="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -125,31 +126,45 @@
             android:layout_marginTop="60dp"
             android:layout_marginEnd="20dp"
             android:text="这里是退出↑"
+            android:textColor="#f3f3f3"
             android:textSize="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:visibility="gone"
             android:id="@+id/text3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
+            android:layout_marginEnd="120dp"
+            android:text="这里是设置IP↑"
+            android:textColor="#f3f3f3"
+            android:textSize="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/text4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="150dp"
             android:text="↓这里是应用列表"
+            android:textColor="#f3f3f3"
             android:textSize="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:visibility="gone"
-            android:id="@+id/text4"
+            android:id="@+id/text5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="150dp"
-            android:layout_marginEnd="250dp"
+            android:layout_marginEnd="220dp"
             android:text="让我们开始吧"
             android:textSize="50dp"
+            android:textColor="#f3f3f3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>

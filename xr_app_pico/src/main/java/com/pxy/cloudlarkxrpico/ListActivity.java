@@ -104,7 +104,7 @@ public class ListActivity extends Activity {
     //getrunmode
     private GetRunMode getRunMode;
 
-    private TextView text1, text2, text3, text4;
+    private TextView text1, text2, text3, text4,text5;
     private ConstraintLayout firstrun;
     private int stap = 0;
 
@@ -121,7 +121,7 @@ public class ListActivity extends Activity {
             firstrun.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (stap >= 4) {
+                    if (stap >= 5) {
                         stap = 0;
                         SharedPreferences sp = getSharedPreferences("firststap", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sp.edit();
@@ -273,6 +273,7 @@ public class ListActivity extends Activity {
         text2 = findViewById(R.id.text2);
         text3 = findViewById(R.id.text3);
         text4 = findViewById(R.id.text4);
+        text5 = findViewById(R.id.text5);
         firstrun = findViewById(R.id.firstRun);
     }
 
@@ -557,6 +558,7 @@ public class ListActivity extends Activity {
         textViews.add(text2);
         textViews.add(text3);
         textViews.add(text4);
+        textViews.add(text5);
         for (int i = 0; i < textViews.size(); i++) {
             textViews.get(i).setVisibility(View.GONE);
         }
@@ -996,7 +998,6 @@ public class ListActivity extends Activity {
                 pic = view.findViewById(R.id.pic);
             }
         }
-
     }
 
     @Override
