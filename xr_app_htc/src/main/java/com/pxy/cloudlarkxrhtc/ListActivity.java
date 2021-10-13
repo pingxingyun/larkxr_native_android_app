@@ -530,6 +530,7 @@ public class ListActivity extends Activity {
                     convertView = LayoutInflater.from(ListActivity.this).inflate(R.layout.spinner_item, null);
                     TextView textView = convertView.findViewById(R.id.text);
                     textView.setText("http://" + serverBeanList.get(position).getIp() + ":" + serverBeanList.get(position).getPort());
+
                 }
                 return convertView;
             }
