@@ -36,6 +36,9 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rec"
+                android:layout_margin="5dp"
+                android:padding="15dp"
+                android:background="@mipmap/border"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.6" />
@@ -101,6 +104,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/firstRun"
+        android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
         android:layout_width="match_parent"
