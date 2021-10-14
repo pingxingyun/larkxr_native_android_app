@@ -33,15 +33,27 @@
                 android:src="@mipmap/lastpage"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rec"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_weight="0.6"
                 android:layout_margin="5dp"
                 android:padding="15dp"
+                android:gravity="center"
                 android:background="@mipmap/border"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.6" />
+                android:layout_height="match_parent">
+                <com.pxy.cloudlarkxroculus.UI.AnimatBanner
+                    android:id="@+id/animateBanner"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rec"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+
 
             <ImageView
                 android:id="@+id/nextPage"

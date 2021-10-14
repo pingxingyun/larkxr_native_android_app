@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.pxy.cloudlarkxroculus.UI.Fastclick;
 
 public class StartActivity extends AppCompatActivity {
     private ImageView logo;
@@ -69,8 +70,10 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void startListActivity(){
-        logo.setVisibility(View.GONE);
-        startActivity(new Intent(StartActivity.this,ListActivity.class));
-        finish();
+        if (!Fastclick.isFastClick()) {
+            logo.setVisibility(View.GONE);
+            startActivity(new Intent(StartActivity.this, ListActivity.class));
+            finish();
+        }
     }
 }

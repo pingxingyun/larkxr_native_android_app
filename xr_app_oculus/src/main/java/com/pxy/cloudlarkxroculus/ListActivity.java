@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,13 +31,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
 import com.pxy.cloudlarkxrkit.Config;
+import com.pxy.cloudlarkxroculus.UI.AnimatBanner;
 import com.pxy.larkcore.ClientLifeManager;
 import com.pxy.larkcore.CloudlarkManager;
 import com.pxy.larkcore.ImSocketChannel;
@@ -105,11 +104,16 @@ public class ListActivity extends Activity {
     private ImageView openMenu,opennet;
     //getrunmode
     private GetRunMode getRunMode;
-
+    //初始引导步骤
     private TextView text1, text2, text3, text4,text5;
     private ConstraintLayout firstrun;
     private int stap = 0;
-
+    //列表样式
+    private RadioGroup list_show_type;
+    private RadioButton type_list,type_scroll;
+    private int list_show_type_num=0;
+    //animateBanner
+    private AnimatBanner animateBanner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -277,6 +281,9 @@ public class ListActivity extends Activity {
         text4 = findViewById(R.id.text4);
         text5 = findViewById(R.id.text5);
         firstrun = findViewById(R.id.firstRun);
+
+        list_show_type=findViewById(R.id.list_show_type);
+        animateBanner=findViewById(R.id.animateBanner);
     }
 
 
@@ -551,6 +558,16 @@ public class ListActivity extends Activity {
             editor.apply();
 
             toastInner("记录已清除");
+        });
+
+        list_show_type.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case R.id.type_list:list_show_type_num=0;break;
+                    case R.id.type_scroll:list_show_type_num=1;break;
+                }
+            }
         });
     }
 
@@ -887,7 +904,7 @@ public class ListActivity extends Activity {
         }
     };
 
-    private void GoMainActivity(Context context, String appid) {
+    public void GoMainActivity(Context context, String appid) {
         Activity activity = (Activity) context;
         Intent intent = new Intent(activity, MainActivity.class);
         if (appid != null) {
@@ -905,16 +922,42 @@ public class ListActivity extends Activity {
     private void getMessage(Message msg) {
         if (msg.what == 1) {
             List<AppListItem> locallist = (List<AppListItem>) msg.obj;
-            if (rec.getAdapter() == null) {
-                appListAdapter = new AppListAdapter(ListActivity.this, locallist);
-                rec.setAdapter(appListAdapter);
-            } else {
-                if (!locallist.equals(applist)) {
-                    applist = locallist;
-                    appListAdapter = new AppListAdapter(ListActivity.this, applist);
-                    rec.setAdapter(appListAdapter);
-                }
+
+            switch (list_show_type_num){
+                case 0:{
+                    animateBanner.setVisibility(View.GONE);
+                    rec.setVisibility(View.VISIBLE);
+                    if (rec.getAdapter() == null) {
+                        appListAdapter = new AppListAdapter(ListActivity.this, locallist);
+                        rec.setAdapter(appListAdapter);
+                    } else {
+                        if (!locallist.equals(applist)) {
+                            applist = locallist;
+                            appListAdapter = new AppListAdapter(ListActivity.this, applist);
+                            rec.setAdapter(appListAdapter);
+                        }
+                    }
+                }break;
+                case 1:{
+                    animateBanner.setVisibility(View.VISIBLE);
+                    rec.setVisibility(View.GONE);
+
+                    animateBanner.setAutoPlay(false);
+                    animateBanner.setClickSwitchable(true);
+                    if (animateBanner.getItems()==null || animateBanner.getItems().isEmpty()){
+                        Log.e("ani","animateBanner.getItems()==null");
+                        animateBanner.setImagesToBanner(locallist);
+                    }else {
+                        Log.e("ani","animateBannerNotnnull");
+                        if (!locallist.equals(applist)) {
+                            applist = locallist;
+                            animateBanner.setImagesToBanner(applist);
+                        }
+                    }
+                }break;
             }
+
+
             Log.e("getmessage", "getapplist");
             getAppliList.getAppliList();
         } else if (msg.what == 2) {
