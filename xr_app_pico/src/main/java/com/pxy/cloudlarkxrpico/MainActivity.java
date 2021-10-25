@@ -30,6 +30,7 @@ import com.psmart.vrlib.PicovrSDK;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
+import com.pxy.cloudlarkxrpico.Activity.BaseApplication;
 
 import java.io.File;
 
