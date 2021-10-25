@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="#020c1d"
     android:padding="10dp"
-    tools:context=".ListActivity">
+    tools:context=".Activity.ListActivity">
     <TextView
         android:id="@+id/SelfOnlineText"
         android:visibility="gone"
@@ -34,10 +34,11 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
             <LinearLayout
+                android:id="@+id/list_background"
                 android:orientation="horizontal"
                 android:layout_weight="0.6"
                 android:layout_margin="5dp"
-                android:padding="15dp"
+                android:padding="20dp"
                 android:gravity="center"
                 android:background="@mipmap/border"
                 android:layout_width="match_parent"
@@ -46,7 +47,7 @@
                     android:id="@+id/animateBanner"
                     android:visibility="gone"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rec"

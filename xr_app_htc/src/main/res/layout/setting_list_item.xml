@@ -67,6 +67,32 @@
                     android:layout_height="match_parent"/>
             </RadioGroup>
         </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="列表展示"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <RadioGroup
+                android:id="@+id/list_show_type"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+                <RadioButton
+                    android:id="@+id/type_list"
+                    android:text="列表"
+                    android:checked="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+                <RadioButton
+                    android:id="@+id/type_scroll"
+                    android:text="循环"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+            </RadioGroup>
+        </LinearLayout>
         <Button
             android:text="清除服务器记录"
             android:id="@+id/clearServer"

@@ -6,12 +6,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -19,7 +20,7 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
-import com.pxy.cloudlarkxroculus.ListActivity;
+import com.pxy.cloudlarkxroculus.Activity.ListActivity;
 import com.pxy.cloudlarkxroculus.R;
 import com.pxy.larkcore.request.AppListItem;
 import com.pxy.larkcore.request.Base;
@@ -40,7 +41,7 @@ public class AnimatBanner extends ViewGroup {
     private boolean clickSwitchable = true;
 
     private int imgWidth = dip2px(300);//图片宽度  默认为76dp
-    private int imgHeight = dip2px(300);//图片宽度  默认为76dp
+    private int imgHeight = dip2px(170);//图片宽度  默认为76dp
     private int pageMargin = dip2px(20);//图片之间的间距  默认为15dp
     private float scalingRatio = 0.5f;
 
@@ -219,8 +220,6 @@ public class AnimatBanner extends ViewGroup {
         view.layout(left, top, right, bottom);//将viewpager绘制到父布局中
     }
 
-
-    private boolean clickable = false;
     private int clickPosition = -1;
 
     //当点击的位置不在viewpager上时  事件才会返回到该布局上  再将其分发到viewpager上 嘤嘤嘤
@@ -230,7 +229,6 @@ public class AnimatBanner extends ViewGroup {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 Log.e("ACTION_DOWN", "ACTION_DOWN");
-                clickable = true;
                 if (event.getX() > bannerPager.getX()) {//判断按下的位置是在viewpager左边还是右边  1：右  0：左
                     clickPosition = 1;
                 } else {
@@ -240,7 +238,6 @@ public class AnimatBanner extends ViewGroup {
                 break;
             case MotionEvent.ACTION_MOVE://如果移动那么点击事件不生效  clickable为false
                 Log.e("ACTION_MOVE", "ACTION_MOVE");
-                clickable = false;
                 break;
             case MotionEvent.ACTION_UP://没有移动  点击事件生效  根据位置切换viewpager
                 Log.e("ACTION_UP", clickSwitchable + "-" + clickPosition);
@@ -252,7 +249,6 @@ public class AnimatBanner extends ViewGroup {
                         bannerPager.setCurrentItem(bannerPager.getCurrentItem() + 1);
                     }
                 }
-                clickable = false;
                 break;
         }
 
@@ -262,10 +258,10 @@ public class AnimatBanner extends ViewGroup {
     class BannerPagerAdapter extends PagerAdapter {
         @Override
         public Object instantiateItem(ViewGroup container, final int position) {
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(imgWidth,
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imgWidth,
                     imgHeight);//设置图片大小也相当于设置viewpager的大小
 
-            layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);//viewapger居中显示
+            layoutParams.gravity= Gravity.CENTER_HORIZONTAL;
 
             container.setLayoutParams(layoutParams);//container为布局容器  需要手动设置container大小并将其居中
 

@@ -14,6 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="120dp"/>
     <TextView
+        android:layout_marginTop="10dp"
         android:textColor="#ffffff"
         android:id="@+id/appname"
         android:gravity="center"

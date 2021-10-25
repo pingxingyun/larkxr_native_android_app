@@ -16,7 +16,6 @@ public abstract class BasePageTransformer implements ViewPager.PageTransformer {
         {
             mPageTransformer.transformPage(view, position);
         }
-
         pageTransform(view, position);
     }
 

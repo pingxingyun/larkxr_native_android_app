@@ -28,7 +28,7 @@
         >
 <!--        <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>-->
         <activity
-            android:name=".StartActivity"
+            android:name=".Activity.StartActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="landscape"
             android:exported="true">
@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ListActivity"
+            android:name=".Activity.ListActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="landscape">
             <!--            <intent-filter>

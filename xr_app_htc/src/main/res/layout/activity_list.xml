@@ -4,13 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="#020c1d"
     android:padding="10dp"
-    tools:context=".ListActivity">
-    <FrameLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    tools:context=".Activity.ListActivity">
     <TextView
         android:id="@+id/SelfOnlineText"
         android:visibility="gone"
@@ -26,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
+            android:layout_marginTop="50dp"
             android:gravity="center"
             android:layout_weight="1"
             android:orientation="horizontal"
@@ -36,12 +33,28 @@
                 android:src="@mipmap/lastpage"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rec"
+            <LinearLayout
+                android:id="@+id/list_background"
+                android:orientation="horizontal"
+                android:layout_weight="0.6"
+                android:layout_margin="5dp"
+                android:padding="20dp"
+                android:gravity="center"
+                android:background="@mipmap/border"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.6" />
+                android:layout_height="match_parent">
+                <com.pxy.cloudlarkxroculus.UI.AnimatBanner
+                    android:id="@+id/animateBanner"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rec"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+
 
             <ImageView
                 android:id="@+id/nextPage"
@@ -49,15 +62,6 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
         </LinearLayout>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_gravity="bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
@@ -71,6 +75,12 @@
         android:layout_height="wrap_content">
         <ImageView
             android:layout_marginRight="20dp"
+            android:id="@+id/opennet"
+            android:src="@mipmap/net"
+            android:layout_width="30dp"
+            android:layout_height="30dp"/>
+        <ImageView
+            android:layout_marginRight="20dp"
             android:id="@+id/openMenu"
             android:src="@mipmap/setting"
             android:layout_width="30dp"
@@ -81,50 +91,29 @@
             android:layout_width="30dp"
             android:layout_height="30dp"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_gravity="bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
 
     <include layout="@layout/setting_ip_item"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
         android:id="@+id/setIP"/>
+
     <include
         layout="@layout/setting_list_item"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
         android:id="@+id/setTab"/>
-
-    <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/draw"
-        tools:openDrawer="start"
-        android:layout_width="200dp"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:background="#000000"
-            android:layout_gravity="start"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <Button
-                android:background="#000000"
-                android:textColor="#ffffff"
-                android:id="@+id/settingIP"
-                android:text="设置IP"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:layout_marginTop="10dp"
-                android:background="#000000"
-                android:textColor="#ffffff"
-                android:id="@+id/settingTab"
-                android:text="设置面板"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-    </androidx.drawerlayout.widget.DrawerLayout>
-
-    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/firstRun"
@@ -135,12 +124,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
         <TextView
+            android:visibility="gone"
             android:id="@+id/text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
             android:layout_marginEnd="80dp"
-            android:text="这里是设置↑"
+            android:text="这里是设置列表↑"
+            android:textColor="#f3f3f3"
             android:textSize="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -152,31 +143,45 @@
             android:layout_marginTop="60dp"
             android:layout_marginEnd="20dp"
             android:text="这里是退出↑"
+            android:textColor="#f3f3f3"
             android:textSize="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:visibility="gone"
             android:id="@+id/text3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
+            android:layout_marginEnd="120dp"
+            android:text="这里是设置IP↑"
+            android:textColor="#f3f3f3"
+            android:textSize="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/text4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="150dp"
             android:text="↓这里是应用列表"
+            android:textColor="#f3f3f3"
             android:textSize="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:visibility="gone"
-            android:id="@+id/text4"
+            android:id="@+id/text5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="150dp"
-            android:layout_marginEnd="250dp"
+            android:layout_marginEnd="220dp"
             android:text="让我们开始吧"
             android:textSize="50dp"
+            android:textColor="#f3f3f3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -27,7 +27,6 @@ public class ScaleInTransformer extends BasePageTransformer {
         mPageTransformer = pageTransformer;
     }
 
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void pageTransform(View view, float position) {
         int pageWidth = view.getWidth();
