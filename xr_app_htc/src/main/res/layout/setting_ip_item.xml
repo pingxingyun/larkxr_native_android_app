@@ -12,6 +12,8 @@
     android:layout_height="wrap_content">
     <!--        android:digits="0123456789."-->
     <EditText
+        android:textColor="@color/white"
+        android:textColorHint="@color/grey"
         android:focusable="true"
         android:id="@+id/inputIp"
         android:hint="请输入IP地址"
@@ -22,6 +24,8 @@
         android:focusable="true"
         android:id="@+id/inputPort"
         android:hint="请输入端口号"
+        android:textColor="@color/white"
+        android:textColorHint="@color/grey"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <LinearLayout

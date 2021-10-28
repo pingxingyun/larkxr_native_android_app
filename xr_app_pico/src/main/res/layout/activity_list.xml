@@ -43,7 +43,7 @@
                 android:background="@mipmap/border"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <com.pxy.cloudlarkxrpico.UI.AnimatBanner
+                <com.pxy.cloudlarkxrhtc.UI.AnimatBanner
                     android:id="@+id/animateBanner"
                     android:visibility="gone"
                     android:layout_width="match_parent"

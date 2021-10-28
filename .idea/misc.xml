@@ -12,7 +12,9 @@
         <entry key="..\:/work3/aspro/larkxr_native_android_app/xr_app_oculus/src/main/res/layout/spinner_item.xml" value="0.1" />
         <entry key="xr_app_htc/src/main/res/drawable/blue_shape.xml" value="0.1359375" />
         <entry key="xr_app_htc/src/main/res/layout/activity_list.xml" value="0.11979166666666667" />
+        <entry key="xr_app_htc/src/main/res/layout/applist_item.xml" value="0.11979166666666667" />
         <entry key="xr_app_htc/src/main/res/layout/setting_ip_item.xml" value="0.16485507246376813" />
+        <entry key="xr_app_htc/src/main/res/layout/setting_list_item.xml" value="0.335" />
         <entry key="xr_app_htc/src/main/res/layout/spinner_item.xml" value="0.15489130434782608" />
         <entry key="xr_app_oculus/src/main/res/drawable/blue_shape_with_back.xml" value="0.2984375" />
         <entry key="xr_app_oculus/src/main/res/layout/activity_list.xml" value="0.19072696097309202" />

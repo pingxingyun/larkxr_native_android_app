@@ -38,17 +38,14 @@ public class StartActivity extends AppCompatActivity {
         animation2.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
                 startListActivity();
             }
-
             @Override
             public void onAnimationRepeat(Animation animation) {
-
             }
         });
 
