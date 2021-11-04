@@ -100,7 +100,7 @@ dependencies {
     //
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
-    implementation(name: 'larkxr-kit-3.2.0.0-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.1-build-1', ext: 'aar')
     implementation(name: 'lark-core-kit-3.2.0.0-build-1', ext: 'aar')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
