@@ -1,13 +1,18 @@
 package com.pxy.cloudlarkxrhtc;
 
 import com.htc.vr.sdk.VRActivity;
+import com.pxy.cloudlarkxrhtc.Activity.BaseApplication;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import java.io.File;
 
@@ -41,7 +46,20 @@ public class MainActivity extends VRActivity {
 
         Log.d(TAG, "onCreate");
         nativeCreated();
+
+        BaseApplication.getInstance().setmHandler(handler);
     }
+
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "msg:"+msg.what);
+            if (msg.what==4){
+                finish();
+            }
+        }
+    };
     @Override
     protected void onResume() {
         super.onResume();

@@ -370,6 +370,9 @@ public class MainActivity extends VRActivity implements RenderInterface {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             Log.d(TAG, "msg:"+msg.what);
+            if (msg.what==4){
+                finish();
+            }
         }
     };
 
