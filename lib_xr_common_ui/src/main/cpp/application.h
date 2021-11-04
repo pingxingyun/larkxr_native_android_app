@@ -52,6 +52,10 @@ public:
     virtual void OnStreamingDisconnect() override {};
     virtual void OnInfo(int infoCode, const std::string& msg) override;
     virtual void OnError(int errCode, const std::string& msg) override {};
+    virtual void OnDataChannelOpen() override {};
+    virtual void OnDataChannelClose() override {};
+    virtual void OnDataChannelData(const char* buffer, int length) override {};
+    virtual void OnDataChannelData(const std::string& data) override {};
     // soft decoder
     virtual void OnMediaReady() override  {};
     // hw decoder callback textrue.

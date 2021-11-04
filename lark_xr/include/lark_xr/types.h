@@ -26,7 +26,8 @@ typedef struct larkxrUserSetting_ {
 //
 typedef enum larkxrSystemType_ {
     Larkxr_System_VR_HEADSET = 0,
-    Larkxr_Systeim_Mobile,
+    Larkxr_System_Mobile,
+    Larkxr_System_Win32,
     Larkxr_System_Other,
 }  larkxrSystemType;
 
@@ -45,6 +46,7 @@ typedef enum larkxrPlatFromType_ {
     Larkxr_Platform_DPVR_P1        = 8,
     Larkxr_Platform_Oculus_Quest   = 9,
     Larkxr_Platform_Oculus_Quest_2 = 10,
+    Larkxr_Platform_GENERAL_UNITY_WIN32 = 900,
     Larkxr_Platform_GENERAL_WAVE   = 1000,
 }  larkxrPlatFromType;
 
@@ -375,5 +377,35 @@ typedef struct larkxrPlaySpace_
     float           (*perimeterPoints)[3];
 } larkxrPlaySpace;
 
+//
+// 硬件视频解码纹理类型
+//
+typedef enum larkxrHwRenderTextureType_ {
+    // 不包含纹理
+    larkxrHwRenderTextureType_None = -1,
+    // Android gltexture2d 纹理 左右眼在一起
+    larkxrHwRenderTextureType_Android_Mutiview = 4,
+    // android gltexture2d opengl 双眼分开，左眼一个纹理右眼一个纹理
+    larkxrHwRenderTextureType_Android_Stereo   = 5,
+    // windows d3d11 native texture 左右眼在一起
+    larkxrHwRenderTextureType_D3D11                = 6,
+    // windows d3d11 nv12 native texture 左右眼在一起
+    larkxrHwRenderTextureType_D3D11_NV12           = 7,
+    // windows d3d11 yuv texture, ShaderResourceView 类型
+    // 分成 y 和 uv 两个纹理，从 nv12 纹理中取出。左右眼在一起
+    larkxrHwRenderTextureType_D3D11_Y_UV_SRV       = 8,
+} larkxrHwRenderTextureType;
+
+//
+// 硬件视频解码的纹理
+// 
+typedef struct larkxrHwRenderTexture_
+{
+    larkxrHwRenderTextureType type;
+    void* textureSlot1;
+    void* textureSlot2;
+    int width;
+    int height;
+} larkxrHwRenderTexture;
 //#pragma pack(pop) // end pack
 #endif //CLOUDLARKVRMODULE_TYPES_H

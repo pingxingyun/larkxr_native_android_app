@@ -36,6 +36,9 @@ const larkColorCorrention LK_CONFIG_DEFAULT_COLOR_CORRENTION = {};
 const larkStreamType LK_CONFIG_DEFAULT_STREAM_TYPE = larkStreamType_KCP;
 const bool LK_CONFIG_DEFAULT_USE_RENDER_QUEUE = false;
 const bool LK_CONFIG_DEFAULT_REPORT_FEC_FAILED = false;
+#ifdef WIN32
+const bool LK_CONFIG_DEFAULT_D3D11_TEXTURE_OUTPUT = true;
+#endif
 
 typedef enum QuickConfigLevel_ {
     QuickConfigLevel_Manual    = 0,
@@ -58,34 +61,34 @@ typedef struct QuickConfigGroup_ {
 
 const QuickConfigLevel DEFAULT_QUICK_CONFIG_LEVEL = QuickConfigLevel_Normal;
 const QuickConfigGroup DEFALUT_QUICK_CONFIG_GROUP_FAST = {
-        QuickConfigLevel_Fast,
-        0.9,
-        20 * 1000,
-        larkStreamType::larkStreamType_UDP,
-        true,
-        true,
-        false,
-        true,
+        QuickConfigLevel_Fast,                   // 流畅
+        0.9,                             // 分辨率缩放 0.9
+        20 * 1000,                              // 码率 20M
+        larkStreamType::larkStreamType_UDP, // 普通 udp
+        true,                       // 启用 ffr
+        true,                                  // 启用 h265
+        false,                          // 关闭 10 bit 编码
+        true,                            // 发送 fec 失败
 };
 const QuickConfigGroup DEFALUT_QUICK_CONFIG_GROUP_NORMAL = {
-        QuickConfigLevel_Normal,
-        LK_CONFIG_DEFAULT_RESOLUTION_SCALE,
-        LK_CONFIG_DEFAULT_BITRATE,
-        LK_CONFIG_DEFAULT_STREAM_TYPE,
-        LK_CONFIG_DEFAULT_FOVEATED_RENDERING.enableFoveateRendering,
-        LK_CONFIG_DEFAULT_USE_H265,
-        LK_CONFIG_DEFAULT_USE_10BIT_ENCODER,
-        LK_CONFIG_DEFAULT_REPORT_FEC_FAILED,
+        QuickConfigLevel_Normal,                 // 标准
+        LK_CONFIG_DEFAULT_RESOLUTION_SCALE,            // 分辨率缩放 1
+        LK_CONFIG_DEFAULT_BITRATE,                     // 码率 40M
+        LK_CONFIG_DEFAULT_STREAM_TYPE,                 // 增强 udp
+        LK_CONFIG_DEFAULT_FOVEATED_RENDERING.enableFoveateRendering, // 启用 ffr
+        LK_CONFIG_DEFAULT_USE_H265,                    // 关闭 h265
+        LK_CONFIG_DEFAULT_USE_10BIT_ENCODER,           // 关闭 10 bit 编码
+        LK_CONFIG_DEFAULT_REPORT_FEC_FAILED,            // 发送 fec 失败
 };
 const QuickConfigGroup DEFALUT_QUICK_CONFIG_GROUP_EXTREME = {
-        QuickConfigLevel_Extreme,
-        1.0,
-        60 * 1000,
-        larkStreamType::larkStreamType_KCP,
-        true,
-        false,
-        true,
-        false,
+        QuickConfigLevel_Extreme,                  // 超清
+        1.0,                               // 分辨率缩放 1
+        60 * 1000,                                // 码率 60M
+        larkStreamType::larkStreamType_KCP,   // 增强 udp
+        true,                         // 启用 ffr
+        false,                                  // 关闭 h265
+        true,                            // 关闭 10 bit 编码
+        false,                            // 发送 fec 失败
 };
 
 class LARK_XR_API XRConfig {
@@ -138,6 +141,11 @@ public:
     // 是否使用渲染队列 (3.1.8.0新增)
     static bool use_render_queue;
     static QuickConfigLevel quick_config_level;
+
+#ifdef WIN32
+    static bool d3d11_texture_output;
+#endif // WIN32
+
 
     static void set_render_width(int width);
     static void set_render_height(int height);

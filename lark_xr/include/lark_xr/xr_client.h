@@ -12,9 +12,15 @@
 #include "request/vr_client.h"
 #include "request/report_resource.h"
 #include "request/vrclient_heartbeat.h"
+
 #ifdef __ANDROID__
 #include <jni.h>
+#elif WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <d3d11.h>
 #endif
+
 
 namespace lark {
 /**
@@ -130,6 +136,22 @@ public:
 	 * 请求同步玩家区域数据
 	 */
 	 virtual void OnSyncPlayerSpace(larkxrPlaySpace* playSpace) = 0;
+	 /**
+	  * 数据通道开启
+	  */
+	  virtual void OnDataChannelOpen() = 0;
+    /**
+    * 数据通道关闭
+    */
+    virtual void OnDataChannelClose() = 0;
+	/**
+	* 收到二进制数据
+	*/
+	virtual void OnDataChannelData(const char* buffer, int length) = 0;
+	/**
+	* 收到字符数据
+	*/
+	virtual void OnDataChannelData(const std::string& data) = 0;
 };
 
 class XRClientImp;
@@ -240,12 +262,26 @@ public:
 	 *
 	 */
 	void ReleaseGLShareContext();
-#else
+#elif WIN32
 	/**
 	 * 初始化sdk
 	 */
-	void Init(bool debug_mode = false);
+	void Init(bool debug_mode = false, const std::string& debug_path = "");
+	/*
+	* 初始化 d3d11 device，用于解码输出共享纹理
+	*/
+	void InitD3D11Device(ID3D11Device* device);
+	/*
+	* 释放 d3d11 devices
+	*/
+	void ReleaseD3D11Device();
+#else
+#error "SDK 目前只支持 win平台和 android 平台"
 #endif
+	// 是否打印 debug 日志。
+	// 目前只在 win 平台上起作用
+	void EnableDebugMode(bool enable_debug_mode);
+
 	/**
 	 * 释放资源
 	 */
@@ -304,6 +340,24 @@ public:
 	 * 发送上一次缓存的姿态数据
 	 */
 	void SendDevicePair();
+	/**
+	 * 发送音频数据给云端
+	 * @param buffer
+	 * @param length
+	 */
+	void SendAudioData(const char* buffer, int length);
+	/**
+	 * 发送自定义数据给云端应用
+	 * @param buffer
+	 * @param length
+	 */
+	void SendData(const char* buffer, int length);
+	/**
+	 * 发送自定义数据给云端应用
+	 * @param buffer
+	 * @param length
+	 */
+	void SendData(const std::string& data);
 	/**
 	 * 检测是否收到新的帧
 	 * @return
@@ -371,7 +425,15 @@ public:
 	 * @return 返回 opengl 纹理id
 	 */
 	int native_textrure_right() const;
-
+	/**
+	 * 解码帧的类型 
+	 * @see XRVideoFrame::FrameType
+	*/
+	int native_frame_type() const;
+	/**
+	* 硬件解码
+	*/
+	larkxrHwRenderTexture hw_video_frame() const;
 	/**
 	 * 当前缓存下来的设备姿态数据
 	 * @return 设备姿态数据
