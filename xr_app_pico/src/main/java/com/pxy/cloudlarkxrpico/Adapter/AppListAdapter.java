@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.pxy.cloudlarkxrpico.Activity.ListActivity;
 import com.pxy.cloudlarkxrpico.R;
 import com.pxy.larkcore.request.AppListItem;
 import com.pxy.larkcore.request.Base;
@@ -41,13 +40,11 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
         Log.e("viewholder", data.getAppliName());
         viewHolder.appname.setText(data.getAppliName());
         viewHolder.appid.setText(data.getAppliId());
-        viewHolder.item.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ListActivity activity= (ListActivity) context;
-                activity.GoMainActivity(context, data.getAppliId());
-            }
+        viewHolder.item.setOnClickListener(v -> {
+            ListActivity activity= (ListActivity) context;
+            activity.GoMainActivity(context, data.getAppliId());
         });
+
         Glide.with(context)
                 .load(Base.getServerUrl().getUrl() + data.getPicUrl())
                 .error(R.mipmap.cover_11)

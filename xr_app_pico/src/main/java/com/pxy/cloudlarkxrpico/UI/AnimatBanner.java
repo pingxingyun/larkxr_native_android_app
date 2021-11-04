@@ -20,7 +20,6 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
-import com.pxy.cloudlarkxrpico.Activity.ListActivity;
 import com.pxy.cloudlarkxrpico.R;
 import com.pxy.larkcore.request.AppListItem;
 import com.pxy.larkcore.request.Base;

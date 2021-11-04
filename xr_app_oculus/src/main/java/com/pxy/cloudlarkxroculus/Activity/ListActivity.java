@@ -104,20 +104,21 @@ public class ListActivity extends Activity {
     //关闭app按钮
     private ImageView closeApp;
     //打开菜单
-    private ImageView openMenu,opennet;
+    private ImageView openMenu, opennet;
     //getrunmode
     private GetRunMode getRunMode;
     //初始引导步骤
-    private TextView text1, text2, text3, text4,text5;
+    private TextView text1, text2, text3, text4, text5;
     private ConstraintLayout firstrun;
     private int stap = 0;
     //列表样式
     private RadioGroup list_show_type;
-    private RadioButton type_list,type_scroll;
-    private int list_show_type_num=0;
+    private RadioButton type_list, type_scroll;
+    private int list_show_type_num = 0;
     //animateBanner
     private AnimatBanner animateBanner;
     private LinearLayout list_background;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +152,7 @@ public class ListActivity extends Activity {
             initview();
         }
 
+        Log.e("mac", Util.getLocalMacAddress(ListActivity.this));
     }
 
     public Handler handler = new Handler() {
@@ -286,9 +288,9 @@ public class ListActivity extends Activity {
         text5 = findViewById(R.id.text5);
         firstrun = findViewById(R.id.firstRun);
 
-        list_show_type=findViewById(R.id.list_show_type);
-        animateBanner=findViewById(R.id.animateBanner);
-        list_background=findViewById(R.id.list_background);
+        list_show_type = findViewById(R.id.list_show_type);
+        animateBanner = findViewById(R.id.animateBanner);
+        list_background = findViewById(R.id.list_background);
     }
 
     private void initview() {
@@ -567,9 +569,13 @@ public class ListActivity extends Activity {
         list_show_type.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case R.id.type_list:list_show_type_num=0;break;
-                    case R.id.type_scroll:list_show_type_num=1;break;
+                switch (checkedId) {
+                    case R.id.type_list:
+                        list_show_type_num = 0;
+                        break;
+                    case R.id.type_scroll:
+                        list_show_type_num = 1;
+                        break;
                 }
             }
         });
@@ -682,14 +688,13 @@ public class ListActivity extends Activity {
                 @Override
                 public void onFail(String s) {
                     Log.e("getRunModeFaile", s);
-                    toastInner(s);
+                    /*toastInner(s);
                     showSetupIP();
-                    getRunMode = null;
+                    getRunMode = null;*/
                 }
             });
             getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
         }
-
     }
 
     private void StopApp(Boolean close) {
@@ -758,31 +763,6 @@ public class ListActivity extends Activity {
         runOnUiThread(() -> Toast.makeText(ListActivity.this, msg, Toast.LENGTH_SHORT).show());
     }
 
-    private void toJavaBeanS(String s) {
-        try {
-            JSONObject jsonObject = new JSONObject(s);
-            switch (jsonObject.optString("type")) {
-                case ImSocketChannel.IM_MESSAGE_TYPE_KEEPALIVE: {
-                    break;
-                }
-                case ImSocketChannel.IM_MESSAGE_TYPE_START: {
-
-                    break;
-                }
-                case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
-
-                    break;
-                }
-                case ImSocketChannel.IM_MESSAGE_TYPE_CONNECT_SUCCESS: {
-                    toastInner("连接成功");
-                    break;
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void setMessage(int what, Object obj) {
         Message message = Message.obtain();
         message.what = what;
@@ -823,11 +803,11 @@ public class ListActivity extends Activity {
         if (clientLifeManager != null) {
             clientLifeManager.ClientOffline();
         }
-        if (imSocketChannel != null) {
+        /*if (imSocketChannel != null) {
             if (imSocketChannel.isConnected()) {
                 imSocketChannel.close();
             }
-        }
+        }*/
     }
 
     @Override
@@ -904,11 +884,35 @@ public class ListActivity extends Activity {
         @Override
         public void onMessage(String s) {
             Log.e(TAG, "onMessagestr:" + s);
-            toJavaBeanS(s);
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+                switch (jsonObject.optString("type")) {
+                    case ImSocketChannel.IM_MESSAGE_TYPE_KEEPALIVE: {
+                        break;
+                    }
+                    case ImSocketChannel.IM_MESSAGE_TYPE_START: {
+                        GoMainActivity(ListActivity.this,jsonObject.optString("appliId"));
+                        break;
+                    }
+                    case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
+                        Message message=new Message();
+                        message.what=4;
+                        BaseApplication.getInstance().getmHandler().sendMessage(message);
+                        break;
+                    }
+                    case ImSocketChannel.IM_MESSAGE_TYPE_CONNECT_SUCCESS: {
+                        toastInner("连接成功");
+                        break;
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     };
 
     public void GoMainActivity(Context context, String appid) {
+        Log.e("GoMainActivity", appid);
         Activity activity = (Activity) context;
         Intent intent = new Intent(activity, MainActivity.class);
         if (appid != null) {
@@ -927,8 +931,8 @@ public class ListActivity extends Activity {
         if (msg.what == 1) {
             List<AppListItem> locallist = (List<AppListItem>) msg.obj;
 
-            switch (list_show_type_num){
-                case 0:{
+            switch (list_show_type_num) {
+                case 0: {
                     animateBanner.setVisibility(View.GONE);
                     rec.setVisibility(View.VISIBLE);
                     list_background.setBackground(getResources().getDrawable(R.mipmap.border));
@@ -942,27 +946,27 @@ public class ListActivity extends Activity {
                             rec.setAdapter(appListAdapter);
                         }
                     }
-                }break;
-                case 1:{
+                }
+                break;
+                case 1: {
                     animateBanner.setVisibility(View.VISIBLE);
                     rec.setVisibility(View.GONE);
                     list_background.setBackground(getResources().getDrawable(R.mipmap.homebackground));
                     animateBanner.setAutoPlay(false);
                     animateBanner.setClickSwitchable(true);
-                    if (animateBanner.getItems()==null || animateBanner.getItems().isEmpty()){
-                        Log.e("ani","animateBanner.getItems()==null");
+                    if (animateBanner.getItems() == null || animateBanner.getItems().isEmpty()) {
+                        Log.e("ani", "animateBanner.getItems()==null");
                         animateBanner.setImagesToBanner(locallist);
-                    }else {
-                        Log.e("ani","animateBannerNotnnull");
+                    } else {
+                        Log.e("ani", "animateBannerNotnnull");
                         if (!locallist.equals(applist)) {
                             applist = locallist;
                             animateBanner.setImagesToBanner(applist);
                         }
                     }
-                }break;
+                }
+                break;
             }
-
-
             Log.e("getmessage", "getapplist");
             getAppliList.getAppliList();
         } else if (msg.what == 2) {
@@ -972,7 +976,8 @@ public class ListActivity extends Activity {
                 if (getRunModeBean.getResult().getRunMode().equals("1")) {
                     selfOnline.setVisibility(View.GONE);
                     SelfOnlineText.setVisibility(View.VISIBLE);
-                    GoMainActivity(ListActivity.this, getRunModeBean.getResult().getPrimaryClientId());
+                    /* GoMainActivity(ListActivity.this, getRunModeBean.getResult().getPrimaryClientId());
+                     getRunMode = null;*/
                 } else {
                     selfOnline.setVisibility(View.VISIBLE);
                     SelfOnlineText.setVisibility(View.GONE);

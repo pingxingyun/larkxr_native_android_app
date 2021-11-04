@@ -10,12 +10,15 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
+import com.pxy.cloudlarkxroculus.Activity.BaseApplication;
 
 public class MainActivity extends android.app.NativeActivity {
 
@@ -49,8 +52,20 @@ public class MainActivity extends android.app.NativeActivity {
 
         xrSystem = new XrSystem();
         xrSystem.init(this);
+
+        BaseApplication.getInstance().setmHandler(handler);
     }
 
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Log.d(TAG, "msg:"+msg.what);
+            if (msg.what==4){
+                finish();
+            }
+        }
+    };
     @Override
     protected void onResume() {
         super.onResume();

@@ -34,16 +34,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activity.ListActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="landscape">
-            <!--            <intent-filter>
-                            <action android:name="android.intent.action.MAIN" />
-
-                            <category android:name="android.intent.category.LAUNCHER" />
-                        </intent-filter>-->
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask"
