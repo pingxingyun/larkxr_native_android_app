@@ -912,11 +912,13 @@ public class ListActivity extends Activity {
     };
 
     public void GoMainActivity(Context context, String appid) {
-        Log.e("GoMainActivity", appid);
         Activity activity = (Activity) context;
         Intent intent = new Intent(activity, MainActivity.class);
         if (appid != null) {
+            Log.e("GoMainActivity", appid);
             intent.putExtra("appid", appid);
+        }else {
+            Log.e("GoMainActivity", "justGo");
         }
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
         //Intent extraIntent = new Intent();
