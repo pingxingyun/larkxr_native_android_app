@@ -39,7 +39,6 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         AppListItem data = appListItems.get(i);
         Log.e("viewholder", data.getAppliName());
-        Log.e("viewholderpic", data.getPicUrl());
         viewHolder.appname.setText(data.getAppliName());
         viewHolder.appid.setText(data.getAppliId());
         viewHolder.item.setOnClickListener(new View.OnClickListener() {
@@ -53,7 +52,6 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
                 .load(Base.getServerUrl().getUrl() + data.getPicUrl())
                 .error(R.mipmap.cover_11)
                 .into(viewHolder.pic);
-        Log.e("url", data.getPicUrl());
     }
 
     @Override

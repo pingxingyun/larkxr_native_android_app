@@ -682,9 +682,9 @@ public class ListActivity extends Activity {
                 @Override
                 public void onFail(String s) {
                     Log.e("getRunModeFaile", s);
-                    toastInner(s);
-                    showSetupIP();
-                    getRunMode = null;
+                    //toastInner(s);
+                    //showSetupIP();
+                    //getRunMode = null;
                 }
             });
             getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));

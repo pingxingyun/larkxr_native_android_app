@@ -657,9 +657,9 @@ public class ListActivity extends Activity {
                 @Override
                 public void onFail(String s) {
                     Log.e("GetapplistFail", s);
-                    toastInner(s);
+                    /*toastInner(s);
                     getAppliList = null;
-                    showSetupIP();
+                    showSetupIP();*/
                 }
             });
             getAppliList.getAppliList();
