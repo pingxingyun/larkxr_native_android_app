@@ -123,6 +123,8 @@ public class ListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        GoMainActivity(ListActivity.this, null);
+
         BaseApplication.getInstance().setmHandler(handler);
         setContentView(R.layout.activity_list);
         FindViewById();
@@ -923,10 +925,9 @@ public class ListActivity extends Activity {
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
         //Intent extraIntent = new Intent();
         extraIntent.addCategory("android.intent.category.LAUNCHER");
-        extraIntent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("intent", extraIntent);*/
         activity.startActivity(intent);
-        //activity.finish();
+        activity.finish();
     }
 
     private void getMessage(Message msg) {

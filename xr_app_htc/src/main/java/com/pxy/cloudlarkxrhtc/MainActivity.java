@@ -47,7 +47,7 @@ public class MainActivity extends VRActivity {
         Log.d(TAG, "onCreate");
         nativeCreated();
 
-        BaseApplication.getInstance().setmHandler(handler);
+        //BaseApplication.getInstance().setmHandler(handler);
     }
 
     Handler handler=new Handler(){
