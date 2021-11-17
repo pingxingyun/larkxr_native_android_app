@@ -930,9 +930,10 @@ public class ListActivity extends Activity {
         }
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
         //Intent extraIntent = new Intent();
-        extraIntent.addCategory("android.intent.category.LAUNCHER");*/
-        //intent.putExtra("intent", extraIntent);
-        //intent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
+        extraIntent.addCategory("android.intent.category.LAUNCHER");
+//        intent.putExtra("intent", extraIntent);*/
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
