@@ -60,6 +60,9 @@ public:
     virtual void RequestTrackingInfo() override;
     virtual void OnSyncPlayerSpace(larkxrPlaySpace* playSpace) override;
     virtual void Quit3DUI() override;
+
+    // back to 2d list when error
+    void JniCallbackOnError(int code, const std::string& msg);
 private:
     static PvrApplication* s_pvr_instance_;
 

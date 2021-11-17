@@ -372,29 +372,49 @@ void PvrApplication::OnClose(int code) {
     has_new_frame_ = false;
     cloud_tracking_ = {};
     scene_cloud_->OnClose();
-    scene_local_->HomePage();
+
+    std::string msg = "";
     switch(code) {
         case LK_XR_MEDIA_TRANSPORT_CHANNEL_CLOSED:
-            Navigation::ShowToast("与服务器媒体连接关闭");
+            msg = "与服务器媒体传输通道连接关闭";
             break;
         case LK_RENDER_SERVER_CLOSE:
-            Navigation::ShowToast("与渲染服务器 TCP 连接关闭");
+            msg = "与渲染服务器 WebSocket 连接关闭";
             break;
         case LK_PROXY_SERVER_CLOSE:
-            Navigation::ShowToast("与渲染服务器代理连接关闭");
+            msg = "与渲染服务器代理连接关闭";
             break;
     }
+    Navigation::ShowToast(msg);
+
+    if (ui_mode() == ApplicationUIMode_Opengles_3D) {
+        scene_local_->HomePage();
+    } else {
+        scene_local_->LoadingPage();
+        JniCallbackOnError(code, msg);
+    }
+
     ResetTracking(pvr::PvrTrackingOrigin_EyeLevel);
 }
 
 void PvrApplication::OnError(int errCode, const std::string &msg) {
     LOGE("on xr client error %d; msg %s;", errCode, msg.c_str());
-    if (errCode == 1) {
+    if (errCode == LK_API_ENTERAPPLI_FAILED) {
         // enter applifailed.
-        scene_local_->HomePage();
+        if (ui_mode() == ApplicationUIMode_Opengles_3D) {
+            scene_local_->HomePage();
+        } else {
+            JniCallbackOnError(errCode, msg);
+            scene_local_->LoadingPage();
+        }
     } else {
         connected_ = false;
-        scene_local_->HomePage();
+        scene_cloud_->OnClose();
+        if (ui_mode() == ApplicationUIMode_Opengles_3D) {
+            scene_local_->HomePage();
+        } else {
+            scene_local_->LoadingPage();
+        }
     }
     Navigation::ShowToast(msg);
     ResetTracking(pvr::PvrTrackingOrigin_EyeLevel);
@@ -496,4 +516,23 @@ void PvrApplication::Quit3DUI() {
     jmethodID mid = env->GetMethodID(clazz, "switchTo2DAppList", "()V");
     env->CallVoidMethod(mainactivity_object_, mid);
     env->DeleteLocalRef(clazz);
+}
+
+void PvrApplication::JniCallbackOnError(int code, const std::string &msg) {
+    LOGV("JniCallbackOnError");
+    auto env_wraper = Context::instance()->GetEnv();
+    auto env = env_wraper.get();
+    if (env == nullptr) {
+        LOGV("OnQuit3DUI failed env empty");
+        return;
+    }
+    jclass clazz = env->GetObjectClass(mainactivity_object_);
+//    clazz = env->FindClass("com/pxy/cloudlarkxroculus/MainActivity");
+    jmethodID mid = env->GetMethodID(clazz, "onError", "(ILjava/lang/String;)V");
+
+    jstring jstr = env->NewStringUTF(msg.c_str());
+    env->CallVoidMethod(mainactivity_object_, mid, code, jstr);
+
+    env->DeleteLocalRef(clazz);
+    env->DeleteLocalRef(jstr);
 }

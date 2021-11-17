@@ -87,8 +87,11 @@ public class MainActivity extends android.app.NativeActivity {
         xrSystem.onDestroy();
     }
 
+    public void onError(int errCode, String msg) {
+        // TODO back to 2d applist when error
+    }
+
     public void switchTo2DAppList() {
-        // TODO switch to 2d applist.
         Log.d(TAG, "switchTo2DAppList");
         startActivity(new Intent(MainActivity.this, ListActivity.class));
 

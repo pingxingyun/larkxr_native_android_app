@@ -61,6 +61,9 @@ public:
     virtual void OnNetworkLost() override;
 
     virtual void Quit3DUI() override;
+
+    // back to 2d list when error
+    void JniCallbackOnError(int code, const std::string& msg);
 private:
     void CreateFrameBuffer(const ovrJava *java, const bool useMultiview);
     void DestoryFrameBuffer();

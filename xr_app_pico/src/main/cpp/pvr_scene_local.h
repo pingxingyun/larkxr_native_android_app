@@ -26,6 +26,7 @@ public:
     virtual void Draw(int eye) override;
 
     void HomePage();
+    void LoadingPage();
 private:
     void HandleInput();
     void OnCloseApp();

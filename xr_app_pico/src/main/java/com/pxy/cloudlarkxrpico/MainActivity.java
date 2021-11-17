@@ -347,6 +347,10 @@ public class MainActivity extends VRActivity implements RenderInterface {
         super.onUserLeaveHint();
     }
 
+    public void onError(int errCode, String msg) {
+        // TODO back to 2d applist when error
+    }
+
     public void switchTo2DAppList() {
         Log.d(TAG, "on switchTo2DAppList");
         // TODO switch to 2d applist.

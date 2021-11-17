@@ -175,8 +175,14 @@ void PvrSceneLocal::HomePage() {
     navigation_->SetRouter(Navigation::HOME);
 }
 
+void PvrSceneLocal::LoadingPage() {
+    LOGV("================LoadingPage");
+    navigation_->SetRouter(Navigation::LOADING);
+}
+
 void PvrSceneLocal::OnCloseApp() {
     LOGV("================on close app");
     // TODO 关闭应用
     Application::instance()->CloseAppli();
 }
+
