@@ -110,5 +110,6 @@ Java_com_pxy_cloudlarkxrhtc_MainActivity_nativeDestory(JNIEnv *env, jobject thiz
 	WaveApplication* application = (WaveApplication*)WaveApplication::instance();
 	if (application != nullptr) {
 		application->OnDestory();
+
 	}
 }

@@ -12,6 +12,11 @@
     <!-- test write -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <!-- 显示系统窗口权限 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <!-- 在屏幕最顶部显示addview-->
+    <uses-permission android:name="android.permissionmission.SYSTEM_OVERLAY_WINDOW" />
 
     <application
         android:name=".Activity.BaseApplication"
@@ -26,6 +31,7 @@
             android:name=".Activity.StartActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="landscape"
+            android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,19 +39,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Activity.ListActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="landscape"
+            android:launchMode="singleTop"
+            android:exported="true">
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask"
             android:screenOrientation="landscape"
             android:taskAffinity="com.pxy.cloudlarkxrpico.MainActivity">
-            <meta-data
-                android:name="com.picovr.type"
-                android:value="vr" />
-            <meta-data
-                android:name="pvr.display.orientation"
-                android:value="180" />
         </activity>
     </application>
-
+    <meta-data
+        android:name="com.picovr.type"
+        android:value="vr" />
+    <meta-data
+        android:name="pvr.display.orientation"
+        android:value="180" />
 </manifest>

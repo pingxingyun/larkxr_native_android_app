@@ -123,8 +123,6 @@ public class ListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GoMainActivity(ListActivity.this, null);
-
         BaseApplication.getInstance().setmHandler(handler);
         setContentView(R.layout.activity_list);
         FindViewById();
@@ -893,12 +891,12 @@ public class ListActivity extends Activity {
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_START: {
-                        GoMainActivity(ListActivity.this,jsonObject.optString("appliId"));
+                        GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
-                        Message message=new Message();
-                        message.what=4;
+                        Message message = new Message();
+                        message.what = 4;
                         BaseApplication.getInstance().getmHandler().sendMessage(message);
                         break;
                     }
@@ -916,18 +914,16 @@ public class ListActivity extends Activity {
     public void GoMainActivity(Context context, String appid) {
         Activity activity = (Activity) context;
         Intent intent = new Intent(activity, MainActivity.class);
-        if (appid != null) {
-            Log.e("GoMainActivity", appid);
-            intent.putExtra("appid", appid);
-        }else {
-            Log.e("GoMainActivity", "justGo");
-        }
+        intent.putExtra("appid", appid);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
         //Intent extraIntent = new Intent();
         extraIntent.addCategory("android.intent.category.LAUNCHER");
         intent.putExtra("intent", extraIntent);*/
         activity.startActivity(intent);
-        activity.finish();
+        //activity.finish();
+        Log.e("ListActivity", "go");
     }
 
     private void getMessage(Message msg) {

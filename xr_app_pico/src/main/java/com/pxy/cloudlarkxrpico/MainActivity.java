@@ -31,6 +31,7 @@ import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.cloudlarkxrpico.Activity.BaseApplication;
+import com.pxy.cloudlarkxrpico.Activity.ListActivity;
 
 import java.io.File;
 
@@ -150,6 +151,8 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.d(TAG, "on create nativeApplication " + nativeApplication);
 //        boolean res = PicovrSDK.setTrackingOriginType(1);
 //        Log.d(TAG, "set tracking origin " + res);
+
+
     }
 
 
@@ -301,7 +304,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
         if (rtcParams!=null){
             intoApp(nativeApplication,rtcParams);
         }*/
-        Log.d(TAG, "appid:"+appid);
         if (appid.isEmpty()){
             appid=getIntent().getStringExtra("appid");
             if (appid != null && !appid.isEmpty()) {
@@ -310,7 +312,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
             }
             Log.d(TAG, "intoApp:"+appid);
         }
-
         nativeInitGl(nativeApplication, width, height);
         Log.d(TAG, "init gl finish");
     }
@@ -350,19 +351,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
         Log.d(TAG, "on switchTo2DAppList");
         // TODO switch to 2d applist.
         finish();
-        //startActivity(new Intent(MainActivity.this,ListActivity.class));
+        startActivity(new Intent(MainActivity.this, ListActivity.class));
         if (nativeApplication != 0) {
             nativeReleaseApplication(nativeApplication);
             nativeApplication = 0;
         }
-    }
-
-    private void setMessage(int what,Object obj){
-        Message message = Message.obtain();
-        message.what=what;
-        message.obj=obj;
-        //message.obj = ToJavaBean.toJavaBean(value,obj);
-        BaseApplication.getInstance().getmHandler().sendMessage(message);
     }
 
     Handler handler=new Handler(){
@@ -371,7 +364,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
             super.handleMessage(msg);
             Log.d(TAG, "msg:"+msg.what);
             if (msg.what==4){
-                finish();
+                System.exit(0);
             }
         }
     };

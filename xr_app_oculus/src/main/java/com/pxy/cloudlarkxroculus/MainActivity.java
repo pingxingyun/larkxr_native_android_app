@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.cloudlarkxroculus.Activity.BaseApplication;
+import com.pxy.cloudlarkxroculus.Activity.ListActivity;
 
 public class MainActivity extends android.app.NativeActivity {
 
@@ -62,7 +63,7 @@ public class MainActivity extends android.app.NativeActivity {
             super.handleMessage(msg);
             Log.d(TAG, "msg:"+msg.what);
             if (msg.what==4){
-                finish();
+                System.exit(0);
             }
         }
     };
@@ -89,7 +90,7 @@ public class MainActivity extends android.app.NativeActivity {
     public void switchTo2DAppList() {
         // TODO switch to 2d applist.
         Log.d(TAG, "switchTo2DAppList");
-        //startActivity(new Intent(MainActivity.this,ListActivity.class));
+        startActivity(new Intent(MainActivity.this, ListActivity.class));
 
         SharedPreferences sp = MainActivity.this.getSharedPreferences(SETTING, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();

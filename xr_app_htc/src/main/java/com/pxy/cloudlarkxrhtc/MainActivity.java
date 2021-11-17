@@ -5,6 +5,9 @@ import com.pxy.cloudlarkxrhtc.Activity.BaseApplication;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -28,6 +31,8 @@ public class MainActivity extends VRActivity {
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.e(TAG,"inmain");
         String s1 = getFilesDir().getAbsolutePath();
 
         String s2 = "";
@@ -37,6 +42,7 @@ public class MainActivity extends VRActivity {
         }
 
         init(getResources().getAssets(), s1, s2);
+
         super.onCreate(savedInstanceState);
 
         CrashHandler.getInstance().init(this);
@@ -46,20 +52,8 @@ public class MainActivity extends VRActivity {
 
         Log.d(TAG, "onCreate");
         nativeCreated();
-
-        //BaseApplication.getInstance().setmHandler(handler);
     }
 
-    Handler handler=new Handler(){
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "msg:"+msg.what);
-            if (msg.what==4){
-                finish();
-            }
-        }
-    };
     @Override
     protected void onResume() {
         super.onResume();
@@ -67,6 +61,7 @@ public class MainActivity extends VRActivity {
         nativeResume();
         xrSystem.onResume();
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -74,6 +69,7 @@ public class MainActivity extends VRActivity {
         nativePause();
         xrSystem.onPause();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -81,7 +77,6 @@ public class MainActivity extends VRActivity {
         nativeDestory();
         xrSystem.onDestroy();
     }
-
 
     // Pass this acitivty instance to native
     public native void init(AssetManager am, String internalDataPath, String externalDataPath);

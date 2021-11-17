@@ -39,7 +39,6 @@ OvrApplication::~OvrApplication() {
 
 bool OvrApplication::InitVR(android_app *app) {
     LOGENTRY();
-
     java_.Vm = app->activity->vm;
     java_.Env = app->activity->env;
     // TODO
@@ -48,18 +47,20 @@ bool OvrApplication::InitVR(android_app *app) {
     java_.ActivityObject = app->activity->clazz;
     // Note that AttachCurrentThread will reset the thread name.
     prctl( PR_SET_NAME, (long)"OVR::Main", 0, 0, 0 );
-
+    LOGE("ovrInitParms");
     const ovrInitParms initParms = vrapi_DefaultInitParms( &java_ );
     int32_t initResult = vrapi_Initialize( &initParms );
+
     if ( initResult != VRAPI_INITIALIZE_SUCCESS )
     {
         // If intialization failed, vrapi_* function calls will not be available.
         return false;
     }
-
+    LOGE("初始化环境");
     // 初始化环境。
     Context::Init(app->activity);
     // 初始化客户端接入凭证
+    LOGE("初始化客户端接入凭证");
     InitCertificate();
     return true;
 }

@@ -9,7 +9,7 @@ android {
 //    ndkVersion '22.1.7171670'
     defaultConfig {
         applicationId "com.pxy.cloudlarkxrpico"
-        minSdkVersion 26
+        minSdkVersion 22
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "3.2.0.6"

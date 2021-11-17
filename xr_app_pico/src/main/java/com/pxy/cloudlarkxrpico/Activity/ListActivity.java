@@ -1,14 +1,18 @@
 package com.pxy.cloudlarkxrpico.Activity;
 
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -110,7 +114,7 @@ public class ListActivity extends Activity {
     //初始引导步骤
     private TextView text1, text2, text3, text4, text5;
     private ConstraintLayout firstrun;
-    private int stap = 0;
+    private int stap = 1;
     //列表样式
     private RadioGroup list_show_type;
     private RadioButton type_list, type_scroll;
@@ -726,6 +730,7 @@ public class ListActivity extends Activity {
             toastInner("IP不能为空");
             return;
         }
+
         hideSoftInputFromWindow(this);
         setIp.setVisibility(View.GONE);
 
@@ -888,6 +893,9 @@ public class ListActivity extends Activity {
                 JSONObject jsonObject = new JSONObject(s);
                 switch (jsonObject.optString("type")) {
                     case ImSocketChannel.IM_MESSAGE_TYPE_KEEPALIVE: {
+                        if (clientLifeManager != null) {
+                            clientLifeManager.ClientOnline();
+                        }
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_START: {
@@ -912,21 +920,20 @@ public class ListActivity extends Activity {
     };
 
     public void GoMainActivity(Context context, String appid) {
-        Activity activity = (Activity) context;
-        Intent intent = new Intent(activity, MainActivity.class);
+        Intent intent = new Intent(context, MainActivity.class);
         if (appid != null) {
             Log.e("GoMainActivity", appid);
             intent.putExtra("appid", appid);
         }else {
+            finish();
             Log.e("GoMainActivity", "justGo");
         }
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
         //Intent extraIntent = new Intent();
-        extraIntent.addCategory("android.intent.category.LAUNCHER");
-        extraIntent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("intent", extraIntent);*/
-        activity.startActivity(intent);
-        //activity.finish();
+        extraIntent.addCategory("android.intent.category.LAUNCHER");*/
+        //intent.putExtra("intent", extraIntent);
+        //intent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
     }
 
     private void getMessage(Message msg) {
@@ -980,6 +987,9 @@ public class ListActivity extends Activity {
                     SelfOnlineText.setVisibility(View.VISIBLE);
                     /* GoMainActivity(ListActivity.this, getRunModeBean.getResult().getPrimaryClientId());
                      getRunMode = null;*/
+                    if (clientLifeManager != null) {
+                        clientLifeManager.ClientOnline();
+                    }
                 } else {
                     selfOnline.setVisibility(View.VISIBLE);
                     SelfOnlineText.setVisibility(View.GONE);
