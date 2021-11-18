@@ -89,11 +89,13 @@ public class MainActivity extends android.app.NativeActivity {
 
     public void onError(int errCode, String msg) {
         // TODO back to 2d applist when error
+        Log.e(TAG,errCode+"|"+msg);
+        switchTo2DAppList();
     }
 
     public void switchTo2DAppList() {
         Log.d(TAG, "switchTo2DAppList");
-        startActivity(new Intent(MainActivity.this, ListActivity.class));
+        //startActivity(new Intent(MainActivity.this, ListActivity.class));
 
         SharedPreferences sp = MainActivity.this.getSharedPreferences(SETTING, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();

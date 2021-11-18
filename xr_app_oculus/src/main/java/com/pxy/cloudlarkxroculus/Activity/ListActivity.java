@@ -925,7 +925,7 @@ public class ListActivity extends Activity {
             Log.e("GoMainActivity", appid);
             intent.putExtra("appid", appid);
         }else {
-            finish();
+            //finish();
             Log.e("GoMainActivity", "justGo");
         }
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");

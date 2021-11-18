@@ -1,27 +1,21 @@
 package com.pxy.cloudlarkxrpico;
 
 import android.content.Context;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Process;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
-import com.picovr.client.HbController;
-import com.picovr.client.HbListener;
-import com.picovr.client.HbManager;
 import com.picovr.cvclient.ButtonNum;
 import com.picovr.cvclient.CVController;
 import com.picovr.cvclient.CVControllerListener;
 import com.picovr.cvclient.CVControllerManager;
 import com.picovr.picovrlib.cvcontrollerclient.ControllerClient;
-import com.picovr.picovrlib.hummingbird.HummingBirdControllerService;
 import com.picovr.vractivity.Eye;
 import com.picovr.vractivity.HmdState;
 import com.picovr.vractivity.RenderInterface;
@@ -31,7 +25,6 @@ import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.cloudlarkxrpico.Activity.BaseApplication;
-import com.pxy.cloudlarkxrpico.Activity.ListActivity;
 
 import java.io.File;
 
@@ -39,7 +32,8 @@ import java.io.File;
 public class MainActivity extends VRActivity implements RenderInterface {
 
     private static final String TAG = "pvr_activity_main";
-
+    private static final String SETTING = "pxy_setting";
+    private static final String SETTING_LIST_3D= "list3D";
     private static int HEAD_SETY_TYPE_OTHER = 0;
     private static int HEAD_SETY_TYPE_NEO_2 = 1;
     private static int HEAD_SETY_TYPE_NEO_3 = 2;
@@ -191,6 +185,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
         xrSystem.onDestroy();
         //System.exit(0);
+        //startActivity(new Intent(MainActivity.this, ListActivity.class));
+        if (nativeApplication != 0) {
+            nativeReleaseApplication(nativeApplication);
+            nativeApplication = 0;
+        }
     }
 
 
@@ -290,11 +289,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
     public void onRendererShutdown() {
         Log.d(TAG, "onRendererShutdown " + nativeApplication);
         xrSystem.onDestroy();
-        if (nativeApplication != 0) {
+  /*      if (nativeApplication != 0) {
             nativeOnRenderDestory(nativeApplication);
             nativeReleaseApplication(nativeApplication);
             nativeApplication = 0;
-        }
+        }*/
     }
 
     @Override
@@ -349,17 +348,19 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
     public void onError(int errCode, String msg) {
         // TODO back to 2d applist when error
+        Log.e(TAG,errCode+"|"+msg);
+        switchTo2DAppList();
     }
 
     public void switchTo2DAppList() {
         Log.d(TAG, "on switchTo2DAppList");
         // TODO switch to 2d applist.
+        //startActivity(new Intent(MainActivity.this, ListActivity.class));
+        SharedPreferences sp = MainActivity.this.getSharedPreferences(SETTING, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean(SETTING_LIST_3D, false);
+        editor.apply();
         finish();
-        startActivity(new Intent(MainActivity.this, ListActivity.class));
-        if (nativeApplication != 0) {
-            nativeReleaseApplication(nativeApplication);
-            nativeApplication = 0;
-        }
     }
 
     Handler handler=new Handler(){
@@ -368,7 +369,8 @@ public class MainActivity extends VRActivity implements RenderInterface {
             super.handleMessage(msg);
             Log.d(TAG, "msg:"+msg.what);
             if (msg.what==4){
-                System.exit(0);
+                //startActivity(new Intent(MainActivity.this,ListActivity.class));
+               finish();
             }
         }
     };

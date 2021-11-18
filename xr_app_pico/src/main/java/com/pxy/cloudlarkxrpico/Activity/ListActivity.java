@@ -1,18 +1,14 @@
 package com.pxy.cloudlarkxrpico.Activity;
 
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -167,8 +163,8 @@ public class ListActivity extends Activity {
 
     private void Init() {
         config = Config.readFromCache(this);
-
         SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
+
         boolean list3Dbool = sp.getBoolean(SETTING_LIST_3D, false);
         list3D.setChecked(list3Dbool);
         if (list3Dbool) {
@@ -337,6 +333,8 @@ public class ListActivity extends Activity {
             Config.saveToCache(ListActivity.this, config);
             if (list3D.isChecked()) {
                 GoMainActivity(ListActivity.this, null);
+
+                list3D.setChecked(false);
             }
         });
 
@@ -925,7 +923,7 @@ public class ListActivity extends Activity {
             Log.e("GoMainActivity", appid);
             intent.putExtra("appid", appid);
         }else {
-            finish();
+            //finish();
             Log.e("GoMainActivity", "justGo");
         }
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
@@ -934,6 +932,13 @@ public class ListActivity extends Activity {
 //        intent.putExtra("intent", extraIntent);*/
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+/*        ApplicationInfo appInfo;
+        try {
+            appInfo =context.getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+            appInfo.metaData.putString("com.picovr.type", "vr");
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }*/
         startActivity(intent);
     }
 
@@ -979,7 +984,8 @@ public class ListActivity extends Activity {
             }
             Log.e("getmessage", "getapplist");
             getAppliList.getAppliList();
-        } else if (msg.what == 2) {
+        }
+        else if (msg.what == 2) {
             GetRunModeBean getRunModeBean = (GetRunModeBean) msg.obj;
             Log.e("gerrunmode", getRunModeBean.toString());
             if (getRunModeBean.getCode() == 1000) {
@@ -999,10 +1005,12 @@ public class ListActivity extends Activity {
             } else {
                 toastInner(getRunModeBean.getMessage());
             }
-        } else if (msg.what == 3) {
+        }
+        else if (msg.what == 3) {
             ListActivity.this.onPause();
             ListActivity.this.onStop();
         }
+
     }
 
     @Override

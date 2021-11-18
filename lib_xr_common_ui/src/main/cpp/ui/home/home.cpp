@@ -138,6 +138,17 @@ void Home::Init() {
 //        PushAABB(advance_setup_button_.get());
 //        AddChild(advance_setup_button_);
     }
+
+    larkxrSystemInfo systemInfo = lark::XRClient::system_info();
+    // device name
+    {
+//        systemInfo.deviceName
+        std::string deviceName = systemInfo.deviceName;
+        device_name_ = std::make_shared<Text>(localization::Loader::getResource().ui_home_device_name + L": " +  utils::StringToWstring(deviceName));
+        device_name_->Move(-2.37F, -1.6F, 0);
+        device_name_->SetFontSize(22);
+        AddChild(device_name_);
+    }
     // quit 3d ui button
     {
         glm::vec2 p{};
@@ -150,18 +161,10 @@ void Home::Init() {
         quit_3d_ui_button_->SetAABBPositon(glm::vec2(p.x, p.y));
         quit_3d_ui_button_->ClearStatus();
         PushAABB(quit_3d_ui_button_.get());
+        //隐藏按钮
+
         AddChild(quit_3d_ui_button_);
         quit_3d_ui_button_->set_active(false);
-    }
-    larkxrSystemInfo systemInfo = lark::XRClient::system_info();
-    // device name
-    {
-//        systemInfo.deviceName
-        std::string deviceName = systemInfo.deviceName;
-        device_name_ = std::make_shared<Text>(localization::Loader::getResource().ui_home_device_name + L": " +  utils::StringToWstring(deviceName));
-        device_name_->Move(-2.37F, -1.6F, 0);
-        device_name_->SetFontSize(22);
-        AddChild(device_name_);
     }
     // mac 地址
     {
