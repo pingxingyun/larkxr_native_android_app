@@ -23,27 +23,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name="com.pxy.cloudlarkxrpico.MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="landscape"
-            android:launchMode="singleTask"
-            android:taskAffinity="com.pxy.cloudlarkxrpico.MainActivity">
-            <meta-data
-                android:name="com.picovr.type"
-                android:value="vr" />
-            <meta-data
-                android:name="pvr.display.orientation"
-                android:value="180" />
-        </activity>
-
-        <activity
-            android:launchMode="singleTask"
-            android:name="com.pxy.cloudlarkxrpico.Activity.ListActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="landscape"
-            android:exported="true">
-        </activity>
 
         <activity
             android:name="com.pxy.cloudlarkxrpico.Activity.StartActivity"
@@ -57,7 +36,28 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:launchMode="singleTask"
+            android:name="com.pxy.cloudlarkxrpico.Activity.ListActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="landscape"
+            android:exported="true"
+            android:taskAffinity="com.pxy.cloudlarkxrpico.ListActivity">
+        </activity>
 
+        <activity
+            android:name="com.pxy.cloudlarkxrpico.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="landscape"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.pxy.cloudlarkxrpico.MainActivity">
+            <meta-data
+                android:name="com.picovr.type"
+                android:value="vr" />
+            <meta-data
+                android:name="pvr.display.orientation"
+                android:value="180" />
+        </activity>
 
     </application>
 

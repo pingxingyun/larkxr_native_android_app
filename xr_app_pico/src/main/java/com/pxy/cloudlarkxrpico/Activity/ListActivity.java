@@ -1,6 +1,7 @@
 package com.pxy.cloudlarkxrpico.Activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -123,7 +124,6 @@ public class ListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        BaseApplication.getInstance().setmHandler(handler);
         setContentView(R.layout.activity_list);
         FindViewById();
 
@@ -163,8 +163,8 @@ public class ListActivity extends Activity {
 
     private void Init() {
         config = Config.readFromCache(this);
+        BaseApplication.getInstance().setmHandler(handler);
         SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
-
         boolean list3Dbool = sp.getBoolean(SETTING_LIST_3D, false);
         list3D.setChecked(list3Dbool);
         if (list3Dbool) {
@@ -174,7 +174,6 @@ public class ListActivity extends Activity {
             serverBeanList = JSON.parseArray(sp.getString(SETTING_SERVER, ""), ServerBean.class);
             mServerIp = "http://" + serverBeanList.get(0).getIp() + ":" + serverBeanList.get(0).getPort();
             useHttps = serverBeanList.get(0).getUse_https();
-            Log.e("getmessage", "init");
             setIp(serverBeanList, 0);
         } else {
             showSetupIP();
@@ -333,7 +332,6 @@ public class ListActivity extends Activity {
             Config.saveToCache(ListActivity.this, config);
             if (list3D.isChecked()) {
                 GoMainActivity(ListActivity.this, null);
-
                 list3D.setChecked(false);
             }
         });
@@ -622,8 +620,16 @@ public class ListActivity extends Activity {
             clientLifeManager = new ClientLifeManager(this);
         }
         if (imSocketChannel == null) {
+            Log.e("imSocketChannel", "isnull");
             imSocketChannel = new ImSocketChannel(socketChannelObserver, ListActivity.this);
+        } else {
+            Log.e("imSocketChannel", "notnull");
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
+            }
+            imSocketChannel.connect();
         }
+
         if (getAppliList == null) {
             getAppliList = new GetAppliList(new GetAppliList.Callback() {
                 @Override
@@ -703,10 +709,8 @@ public class ListActivity extends Activity {
         if (clientLifeManager != null) {
             clientLifeManager.ClientOffline();
         }
-        if (imSocketChannel != null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.close();
-            }
+        if (imSocketChannel != null && !imSocketChannel.isConnected()) {
+            imSocketChannel.close();
         }
         stoprunmode = close;
         if (close) {
@@ -781,20 +785,23 @@ public class ListActivity extends Activity {
         //message.obj = ToJavaBean.toJavaBean(value,obj);
         handler.sendMessageDelayed(message, time);
     }
+/*
 
     @Override
     protected void onStart() {
         super.onStart();
+        Log.e(TAG, "onstart");
         if (clientLifeManager != null) {
             clientLifeManager.ClientOnline();
         }
         if (imSocketChannel != null) {
-            if (!imSocketChannel.isConnected()) {
-                imSocketChannel.connect();
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
             }
-            imSocketChannel.sendKeepAlive();
+            imSocketChannel.connect();
         }
     }
+*/
 
     @Override
     protected void onPause() {
@@ -806,11 +813,9 @@ public class ListActivity extends Activity {
         if (clientLifeManager != null) {
             clientLifeManager.ClientOffline();
         }
-        /*if (imSocketChannel != null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.close();
-            }
-        }*/
+        if (imSocketChannel != null && !imSocketChannel.isConnected()) {
+            imSocketChannel.close();
+        }
     }
 
     @Override
@@ -827,12 +832,12 @@ public class ListActivity extends Activity {
             clientLifeManager.ClientOnline();
         }
         if (imSocketChannel != null) {
-            if (!imSocketChannel.isConnected()) {
-                imSocketChannel.connect();
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
             }
-            imSocketChannel.sendKeepAlive();
+            imSocketChannel.connect();
         }
-        Init();
+        //Init();
     }
 
     @Override
@@ -863,25 +868,31 @@ public class ListActivity extends Activity {
         return false;
     }
 
-    private SocketChannelObserver socketChannelObserver = new SocketChannelObserver() {
+    private final SocketChannelObserver socketChannelObserver = new SocketChannelObserver() {
         @Override
         public void onOpen() {
-            Log.e(TAG, "onOpen");
+            Log.e("socketChannelObserver", "onOpen");
         }
 
         @Override
         public void onClose() {
-            Log.e(TAG, "onClose");
+            Log.e("socketChannelObserver", "onClose");
         }
 
         @Override
         public void onError(String s) {
-            Log.e(TAG, "onError:" + s);
+            Log.e("socketChannelObserver", "onError:" + s);
+            if (imSocketChannel != null) {
+                if (imSocketChannel.isConnected()) {
+                    imSocketChannel.close();
+                }
+                imSocketChannel.connect();
+            }
         }
 
         @Override
         public void onMessage(byte[] bytes) {
-            Log.e(TAG, "onMessagebyt:" + bytes.toString());
+            Log.e("socketChannelObserver", "onMessagebyt:" + bytes.toString());
         }
 
         @Override
@@ -897,12 +908,16 @@ public class ListActivity extends Activity {
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_START: {
-                        GoMainActivity(ListActivity.this,jsonObject.optString("appliId"));
+                        if (clientLifeManager != null) {
+                            clientLifeManager.ClientOnline();
+                        }
+                        if (!getTopActivity(ListActivity.this).equals(MainActivity.class.getName()))
+                        GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
-                        Message message=new Message();
-                        message.what=4;
+                        Message message = new Message();
+                        message.what = 4;
                         BaseApplication.getInstance().getmHandler().sendMessage(message);
                         break;
                     }
@@ -922,23 +937,10 @@ public class ListActivity extends Activity {
         if (appid != null) {
             Log.e("GoMainActivity", appid);
             intent.putExtra("appid", appid);
-        }else {
-            //finish();
+        } else {
+            intent.putExtra("appid", "");
             Log.e("GoMainActivity", "justGo");
         }
-/*        Intent extraIntent = new Intent("android.intent.action.MAIN");
-        //Intent extraIntent = new Intent();
-        extraIntent.addCategory("android.intent.category.LAUNCHER");
-//        intent.putExtra("intent", extraIntent);*/
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-/*        ApplicationInfo appInfo;
-        try {
-            appInfo =context.getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-            appInfo.metaData.putString("com.picovr.type", "vr");
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }*/
         startActivity(intent);
     }
 
@@ -984,8 +986,7 @@ public class ListActivity extends Activity {
             }
             Log.e("getmessage", "getapplist");
             getAppliList.getAppliList();
-        }
-        else if (msg.what == 2) {
+        } else if (msg.what == 2) {
             GetRunModeBean getRunModeBean = (GetRunModeBean) msg.obj;
             Log.e("gerrunmode", getRunModeBean.toString());
             if (getRunModeBean.getCode() == 1000) {
@@ -1005,8 +1006,7 @@ public class ListActivity extends Activity {
             } else {
                 toastInner(getRunModeBean.getMessage());
             }
-        }
-        else if (msg.what == 3) {
+        } else if (msg.what == 3) {
             ListActivity.this.onPause();
             ListActivity.this.onStop();
         }
@@ -1023,5 +1023,15 @@ public class ListActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.e("listkeyCode", keyCode + "");
         return super.onKeyDown(keyCode, event);
+    }
+
+    public String getTopActivity(Context context) {
+        android.app.ActivityManager manager = (android.app.ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
+
+        if (runningTaskInfos != null) {
+            return (runningTaskInfos.get(0).topActivity.getClassName());
+        } else
+            return null;
     }
 }

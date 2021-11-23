@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.pxy.cloudlarkxroculus",
+  "applicationId": "com.pxy.cloudlarkxrpico",
   "variantName": "processReleaseResources",
   "elements": [
     {
@@ -12,7 +12,7 @@
       "filters": [],
       "versionCode": 1,
       "versionName": "3.2.0.6",
-      "outputFile": "lark-xr-3.2.0.6-build-1-quest-beta-all.apk"
+      "outputFile": "lark-xr-3.2.0.6-build-1-pico-beta-all.apk"
     }
   ]
 }

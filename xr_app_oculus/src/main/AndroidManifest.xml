@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
+        android:name=".Activity.BaseApplication"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -42,7 +43,8 @@
             android:name=".Activity.ListActivity"
             android:launchMode="singleTask"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:taskAffinity="com.pxy.cloudlarkxrpico.ListActivity">
         </activity>
         <activity
             android:name="com.pxy.cloudlarkxroculus.MainActivity"
@@ -56,13 +58,6 @@
             <meta-data android:name="com.oculus.supportedDevices" android:value="quest|quest2"/>
             <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>
 <!--            <meta-data android:name="android.app.lib_name" android:value="CloudXRClientOVR"/>-->
-
-            <!-- This filter lets the apk show up as a launchable icon. -->
-<!--            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
         </activity>
     </application>
 

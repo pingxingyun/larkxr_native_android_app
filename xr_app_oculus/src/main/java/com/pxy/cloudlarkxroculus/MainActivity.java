@@ -20,6 +20,7 @@ import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.cloudlarkxroculus.Activity.BaseApplication;
 import com.pxy.cloudlarkxroculus.Activity.ListActivity;
+import com.pxy.larkcore.Util;
 
 public class MainActivity extends android.app.NativeActivity {
 
@@ -51,22 +52,25 @@ public class MainActivity extends android.app.NativeActivity {
             connectivityManager.registerNetworkCallback(request, mNetworkCallback);
         }
 
-        xrSystem = new XrSystem();
-        xrSystem.init(this);
+        if (!getIntent().getStringExtra("appid").isEmpty()) {
+            BaseApplication.getInstance().setmHandler(handler);
+        }
 
-        BaseApplication.getInstance().setmHandler(handler);
+        xrSystem = new XrSystem();
+        xrSystem.init(this, Util.getLocalMacAddress(this));
     }
 
     Handler handler=new Handler(){
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            Log.d(TAG, "msg:"+msg.what);
+            Log.e("Basehandler", "msg:"+msg.what);
             if (msg.what==4){
                 System.exit(0);
             }
         }
     };
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -90,18 +94,18 @@ public class MainActivity extends android.app.NativeActivity {
     public void onError(int errCode, String msg) {
         // TODO back to 2d applist when error
         Log.e(TAG,errCode+"|"+msg);
-        switchTo2DAppList();
+        //switchTo2DAppList();
     }
 
     public void switchTo2DAppList() {
         Log.d(TAG, "switchTo2DAppList");
-        //startActivity(new Intent(MainActivity.this, ListActivity.class));
-
         SharedPreferences sp = MainActivity.this.getSharedPreferences(SETTING, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean(SETTING_LIST_3D, false);
         editor.apply();
         finish();
+        //startActivity(new Intent(MainActivity.this, ListActivity.class));
+
     }
 
     private NetworkCallback mNetworkCallback = new NetworkCallback() {

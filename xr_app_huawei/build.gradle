@@ -1,0 +1,120 @@
+apply plugin: 'com.android.application'
+
+apply from:"$projectDir/../config.gradle"
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOS_VERSION
+    ndkVersion NDK_VERSION
+
+    defaultConfig {
+        applicationId "com.pxy.xr_app_huawei"
+        minSdkVersion MIN_SDK_VERSION_XR
+        targetSdkVersion TARGET_SDK_VERSION
+        versionCode 1
+        versionName "3.2.0.6"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-frtti -fexceptions -std=c++1y -DANDROID_NDK_BUILD=1"
+                targets 'lark_xr_huawei'
+
+                arguments "-DANDROID_STL=c++_shared"
+            }
+            ndk {
+                abiFilters 'arm64-v8a'
+            }
+            ndkBuild {
+                abiFilters 'arm64-v8a'
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            def base = "../"
+            def lib_prex = "lib/android/"
+            // let gradle pack the shared library into apk
+            jniLibs.srcDirs = [
+            ]
+            jni {
+                srcDirs 'src/main/jni', 'src/main/cpp'
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
+    compileOptions {
+        sourceCompatibility JAVA_VERSION
+        targetCompatibility JAVA_VERSION
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs', '../lark_xr'
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+//            def date = new Date().format("mmss");
+            def build = 1
+            def abi = "all";
+            if (output.filters[0] != null) {
+                abi = output.filters[0].identifier
+            }
+            def type = "quest";
+
+            outputFileName =  "lark-xr-" +
+                    defaultConfig.versionName + "-build-" +
+                    build + "-" + type + "-beta-" + abi + ".apk"
+        }
+    }
+
+    packagingOptions {
+/*        pickFirst "lib/arm64-v8a/libglm.so"
+        pickFirst "lib/armeabi-v7a/libglm.so"
+
+        pickFirst "lib/arm64-v8a/libPocoFoundation.so"
+        pickFirst "lib/armeabi-v7a/libPocoFoundation.so"*/
+        pickFirst "lib/arm64-v8a/libglm.so"
+        pickFirst "lib/armeabi-v7a/libglm.so"
+        pickFirst "lib/arm64-v8a/libPocoFoundation.so"
+        pickFirst "lib/armeabi-v7a/libPocoFoundation.so"
+        pickFirst "lib/arm64-v8a/libprotobuf.so"
+        pickFirst "lib/armeabi-v7a/libprotobuf.so"
+        pickFirst "lib/arm64-v8a/libc++_shared.so"
+        pickFirst "lib/armeabi-v7a/libc++_shared.so"
+    }
+
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.+'
+    implementation project(':lib_pxygl')
+    implementation project(':lib_xr_common_ui')
+    implementation(name: 'larkxr-kit-3.2.0.1-build-1', ext: 'aar')
+    implementation(name: 'lark-core-kit-3.2.0.0-build-1', ext: 'aar')
+
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'com.alibaba:fastjson:1.2.44'
+}

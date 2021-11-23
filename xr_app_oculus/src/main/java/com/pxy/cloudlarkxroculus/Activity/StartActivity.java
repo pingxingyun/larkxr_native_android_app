@@ -1,5 +1,6 @@
 package com.pxy.cloudlarkxroculus.Activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,7 +14,7 @@ import com.bumptech.glide.Glide;
 import com.pxy.cloudlarkxroculus.R;
 import com.pxy.cloudlarkxroculus.UI.Fastclick;
 
-public class StartActivity extends AppCompatActivity {
+public class StartActivity extends Activity {
     private ImageView logo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

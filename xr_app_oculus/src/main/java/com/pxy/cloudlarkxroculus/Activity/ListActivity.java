@@ -1,8 +1,7 @@
 package com.pxy.cloudlarkxroculus.Activity;
 
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -94,7 +93,7 @@ public class ListActivity extends Activity {
     private RadioGroup StreamType;
     private RadioButton larkStreamType_UDP, larkStreamType_TCP, larkStreamType_THROTTLED_UDP;
     //socket链接
-    private ImSocketChannel imSocketChannel;
+    private static ImSocketChannel imSocketChannel;
     //getrunmode接口开关
     private Boolean stoprunmode = false;
     //翻页请求
@@ -125,7 +124,7 @@ public class ListActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        BaseApplication.getInstance().setmHandler(handler);
+
         setContentView(R.layout.activity_list);
         FindViewById();
 
@@ -165,7 +164,7 @@ public class ListActivity extends Activity {
 
     private void Init() {
         config = Config.readFromCache(this);
-
+        BaseApplication.getInstance().setmHandler(handler);
         SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
         boolean list3Dbool = sp.getBoolean(SETTING_LIST_3D, false);
         list3D.setChecked(list3Dbool);
@@ -335,6 +334,7 @@ public class ListActivity extends Activity {
             Config.saveToCache(ListActivity.this, config);
             if (list3D.isChecked()) {
                 GoMainActivity(ListActivity.this, null);
+
             }
         });
 
@@ -622,7 +622,13 @@ public class ListActivity extends Activity {
             clientLifeManager = new ClientLifeManager(this);
         }
         if (imSocketChannel == null) {
+            Log.e("imSocketChannel","isnull");
             imSocketChannel = new ImSocketChannel(socketChannelObserver, ListActivity.this);
+        }else {
+                if (imSocketChannel.isConnected()) {
+                    imSocketChannel.close();
+                }
+                imSocketChannel.connect();
         }
         if (getAppliList == null) {
             getAppliList = new GetAppliList(new GetAppliList.Callback() {
@@ -781,19 +787,19 @@ public class ListActivity extends Activity {
         handler.sendMessageDelayed(message, time);
     }
 
-    @Override
+/*    @Override
     protected void onStart() {
         super.onStart();
         if (clientLifeManager != null) {
             clientLifeManager.ClientOnline();
         }
         if (imSocketChannel != null) {
-            if (!imSocketChannel.isConnected()) {
-                imSocketChannel.connect();
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
             }
-            imSocketChannel.sendKeepAlive();
+            imSocketChannel.connect();
         }
-    }
+    }*/
 
     @Override
     protected void onPause() {
@@ -805,11 +811,11 @@ public class ListActivity extends Activity {
         if (clientLifeManager != null) {
             clientLifeManager.ClientOffline();
         }
-        /*if (imSocketChannel != null) {
+        if (imSocketChannel != null) {
             if (imSocketChannel.isConnected()) {
                 imSocketChannel.close();
             }
-        }*/
+        }
     }
 
     @Override
@@ -826,12 +832,12 @@ public class ListActivity extends Activity {
             clientLifeManager.ClientOnline();
         }
         if (imSocketChannel != null) {
-            if (!imSocketChannel.isConnected()) {
-                imSocketChannel.connect();
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
             }
-            imSocketChannel.sendKeepAlive();
+            imSocketChannel.connect();
         }
-        Init();
+        //Init();
     }
 
     @Override
@@ -850,42 +856,46 @@ public class ListActivity extends Activity {
      * 隐藏输入面板
      *
      * @param activity
-     * @return true 成功隐藏面板，false 没有隐藏面板或者没有面板可以隐藏
      */
-    public static boolean hideSoftInputFromWindow(Activity activity) {
+    public static void hideSoftInputFromWindow(Activity activity) {
         if (activity != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
-                return imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
             }
         }
-        return false;
     }
 
-    private SocketChannelObserver socketChannelObserver = new SocketChannelObserver() {
+    private final SocketChannelObserver socketChannelObserver = new SocketChannelObserver() {
         @Override
         public void onOpen() {
-            Log.e(TAG, "onOpen");
+            Log.e("socketChannelObserver", "onOpen");
         }
 
         @Override
         public void onClose() {
-            Log.e(TAG, "onClose");
+            Log.e("socketChannelObserver", "onClose");
         }
 
         @Override
         public void onError(String s) {
-            Log.e(TAG, "onError:" + s);
+            Log.e("socketChannelObserver", "onError:" + s);
+            if (imSocketChannel != null) {
+                if (imSocketChannel.isConnected()) {
+                    imSocketChannel.close();
+                }
+                imSocketChannel.connect();
+            }
         }
 
         @Override
         public void onMessage(byte[] bytes) {
-            Log.e(TAG, "onMessagebyt:" + bytes.toString());
+            Log.e("socketChannelObserver", "onMessagebyt:" + bytes.toString());
         }
 
         @Override
         public void onMessage(String s) {
-            Log.e(TAG, "onMessagestr:" + s);
+            Log.e("socketChannelObserver", "onMessagestr:" + s);
             try {
                 JSONObject jsonObject = new JSONObject(s);
                 switch (jsonObject.optString("type")) {
@@ -899,7 +909,8 @@ public class ListActivity extends Activity {
                         if (clientLifeManager != null) {
                             clientLifeManager.ClientOnline();
                         }
-                        GoMainActivity(ListActivity.this,jsonObject.optString("appliId"));
+                        if (!getTopActivity(ListActivity.this).equals(MainActivity.class.getName()))
+                            GoMainActivity(ListActivity.this,jsonObject.optString("appliId"));
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
@@ -925,7 +936,7 @@ public class ListActivity extends Activity {
             Log.e("GoMainActivity", appid);
             intent.putExtra("appid", appid);
         }else {
-            //finish();
+            intent.putExtra("appid", "");
             Log.e("GoMainActivity", "justGo");
         }
 /*        Intent extraIntent = new Intent("android.intent.action.MAIN");
@@ -1015,5 +1026,15 @@ public class ListActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.e("listkeyCode", keyCode + "");
         return super.onKeyDown(keyCode, event);
+    }
+
+    public String getTopActivity(Context context) {
+        android.app.ActivityManager manager = (android.app.ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
+
+        if (runningTaskInfos != null) {
+            return (runningTaskInfos.get(0).topActivity.getClassName());
+        } else
+            return null;
     }
 }

@@ -25,6 +25,7 @@ import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.cloudlarkxrpico.Activity.BaseApplication;
+import com.pxy.larkcore.Util;
 
 import java.io.File;
 
@@ -102,7 +103,9 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
         nativeInit(getResources().getAssets(), s1, s2);
 
-        BaseApplication.getInstance().setmHandler(handler);
+        if (!getIntent().getStringExtra("appid").isEmpty()) {
+            BaseApplication.getInstance().setmHandler(handler);
+        }
 
         CrashHandler.getInstance().init(this);
 
@@ -118,7 +121,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
         // shoud init vr system before vr started.
         xrSystem = new XrSystem();
-        xrSystem.init(this);
+        xrSystem.init(this, Util.getLocalMacAddress(this));
 
         Log.d(TAG, "on create nativeApplication " + nativeApplication + " native instance " + nativeApplicationInstance());
 
@@ -187,6 +190,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
         //System.exit(0);
         //startActivity(new Intent(MainActivity.this, ListActivity.class));
         if (nativeApplication != 0) {
+            //nativeOnRenderDestory(nativeApplication);
             nativeReleaseApplication(nativeApplication);
             nativeApplication = 0;
         }
@@ -367,7 +371,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            Log.d(TAG, "msg:"+msg.what);
+            Log.e("BaseHandler", "msg:"+msg.what);
             if (msg.what==4){
                 //startActivity(new Intent(MainActivity.this,ListActivity.class));
                finish();
