@@ -15,8 +15,8 @@ set(third_party_base_dir ${project_base_dir}/third_party)
 include(${project_base_dir}/cmake/android_third_party.cmake)
 
 # build native_app_glue as a static lib
-add_library(native_app_glue STATIC
-        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+#[[add_library(native_app_glue STATIC
+        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)]]
 
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
@@ -29,23 +29,30 @@ set(src_dir ${CMAKE_CURRENT_SOURCE_DIR})
 # source files
 set(src_files
         ${src_dir}/main.cpp
+        ${src_dir}/xr_demo.cpp
+        ${src_dir}/egl_environment.cpp
+        ${src_dir}/gl_function_ext.cpp
+        ${src_dir}/model.cpp
+        ${src_dir}/xr_demo.cpp
+        ${src_dir}/texture.cpp
         # render and base use.
-#[[        ${src_dir}/ovr_application.cpp
-        ${src_dir}/ovr_egl.cpp
-        ${src_dir}/egl_utils.cpp
-        ${src_dir}/ovr_scene.cpp
-        ${src_dir}/ovr_scene_local.cpp
-        ${src_dir}/ovr_scene_cloud.cpp
-        ${src_dir}/ovr_frame_buffer.cpp]]
+
         ${common_files}
         )
 
 # header files
 set(header_files
- #[[       ${src_dir}/ovr_application.h
-        ${src_dir}/ovr_egl.h
-        ${src_dir}/egl_utils.h
-        ${src_dir}/ovr_utils.h]]
+        ${src_dir}/xr_demo.h
+        ${src_dir}/egl_environment.h
+        ${src_dir}/gl_function_ext.h
+        ${src_dir}/openxr/openxr.h
+        ${src_dir}/openxr/openxr_platform.h
+        ${src_dir}/openxr/openxr_platform_defines.h
+        ${src_dir}/xr_demo.h
+        ${src_dir}/texture.h
+
+        ${src_dir}/shader.h
+        ${src_dir}/model.h
         )
 
 add_definitions(-D_GLM_ENABLE_EXPERIMENTAL)

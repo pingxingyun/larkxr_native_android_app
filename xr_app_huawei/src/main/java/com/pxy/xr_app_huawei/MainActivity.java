@@ -3,6 +3,7 @@ package com.pxy.xr_app_huawei;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
@@ -12,16 +13,21 @@ import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.larkcore.Util;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private static final String TAG = "HuaweiMainAcitvity";
-
+    private long exitTime = 0;
+    private Context mContext = null;
     static {
         System.loadLibrary("lark_xr_huawei");
         System.loadLibrary("lark_pxygl");
@@ -30,9 +36,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //nativeInit();
         CrashHandler.getInstance().init(this);
-
+        mContext = this;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);// 设置全屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -68,5 +73,37 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    //private native void nativeInit();
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.i(TAG, "onKeyDown");
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Toast.makeText(getApplicationContext(), "press again to exit", Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+                System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void surfaceCreated(@NonNull SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+        nativeInit(width, height, 0, mContext, holder.getSurface());
+    }
+
+    @Override
+    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+
+    }
+
+    public static native void nativeInit(int width, int height, int tex, Context act, Surface sf);
 }
