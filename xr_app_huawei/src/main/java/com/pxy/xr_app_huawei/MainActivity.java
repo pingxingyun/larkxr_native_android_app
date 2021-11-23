@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        nativeInit();
+        //nativeInit();
         CrashHandler.getInstance().init(this);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -68,5 +68,5 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private native void nativeInit();
+    //private native void nativeInit();
 }
