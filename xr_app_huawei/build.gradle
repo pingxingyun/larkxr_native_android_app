@@ -76,7 +76,7 @@ android {
             if (output.filters[0] != null) {
                 abi = output.filters[0].identifier
             }
-            def type = "quest";
+            def type = "huawei";
 
             outputFileName =  "lark-xr-" +
                     defaultConfig.versionName + "-build-" +
@@ -85,11 +85,10 @@ android {
     }
 
     packagingOptions {
-/*        pickFirst "lib/arm64-v8a/libglm.so"
+        pickFirst "lib/arm64-v8a/libglm.so"
         pickFirst "lib/armeabi-v7a/libglm.so"
-
         pickFirst "lib/arm64-v8a/libPocoFoundation.so"
-        pickFirst "lib/armeabi-v7a/libPocoFoundation.so"*/
+        pickFirst "lib/armeabi-v7a/libPocoFoundation.so"
         pickFirst "lib/arm64-v8a/libglm.so"
         pickFirst "lib/armeabi-v7a/libglm.so"
         pickFirst "lib/arm64-v8a/libPocoFoundation.so"

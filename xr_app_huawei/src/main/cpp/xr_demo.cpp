@@ -1251,7 +1251,6 @@ void XrDemo::DestroyActions()
         XrResult retxrDestroyAct = xrDestroyAction(m_XrAction[i]);
         // LOGI("retxrDestroyAct:%d",retxrDestroyAct);
     }
-
     XrResult retxrDestroyActSet = xrDestroyActionSet(m_actionSet);
     //LOGI("retxrDestroyActSet:%d",retxrDestroyActSet);
 }
