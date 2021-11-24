@@ -28,7 +28,7 @@ set(src_dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 # source files
 set(src_files
-        ${src_dir}/main.cpp
+#        ${src_dir}/main.cpp
         ${src_dir}/xr_demo.cpp
         ${src_dir}/egl_environment.cpp
         ${src_dir}/gl_function_ext.cpp
@@ -36,7 +36,6 @@ set(src_files
         ${src_dir}/xr_demo.cpp
         ${src_dir}/texture.cpp
         # render and base use.
-
         ${common_files}
         )
 
