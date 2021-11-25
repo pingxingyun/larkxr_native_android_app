@@ -724,7 +724,7 @@ void XrDemo::ProcessEvents(bool *exitRenderLoop, bool *sessionRunning) {
 
 void XrDemo::PollActions() {
     {
-        const XrActiveActionSet activeActionSet{m_actionSet, reinterpret_cast<XrPath>(LRSpace[0])};
+        const XrActiveActionSet activeActionSet{m_actionSet, LRSpace[0]};
         XrActionsSyncInfo syncInfo{XR_TYPE_ACTIONS_SYNC_INFO};
         syncInfo.countActiveActionSets = 1;
         syncInfo.activeActionSets = &activeActionSet;
