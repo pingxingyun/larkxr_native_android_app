@@ -63,6 +63,13 @@ public:
     double GetSeconds();
     double GetNanos();
 
+    // hw decoder callback textrue.
+    virtual void OnMediaReady() override;
+    virtual void OnMediaReady(int nativeTexture) override;
+    virtual void OnMediaReady(int nativeTextureLeft, int nativeTextureRight) override;
+    virtual void RequestTrackingInfo() override;
+    virtual void OnTrackingFrame(const larkxrTrackingFrame& trackingFrame) override;
+
 public:
     bool Run();
     void XrDemoBeginSession();

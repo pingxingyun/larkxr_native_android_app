@@ -85,10 +85,10 @@ void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeInit(JNIEnv *jni, jclass cl
         jobject g_act = jni->NewGlobalRef(act);
 
         gApp = new XrDemo(_vm, g_act);
-
-        gApp->setSurface(jni, surface);
+        gApp->InitGLGraphics();
+    /*    gApp->setSurface(jni, surface);
         gApp->initSkyboxMethod(jni);
-        gApp->start();
+        gApp->start();*/
     } else {
         LOGI("resume vr");
         g_AppState = ON_RESUME;
@@ -127,10 +127,6 @@ XrDemo::XrDemo(JavaVM *_vm, jobject act) :
     mJvm = _vm;
     mInstanceLossState = false;
     mInstanceLossStateTime = 0.0;
-
-    xr_client_ = std::make_shared<lark::XRClient>();
-    xr_client_->Init(_vm);
-    xr_client_->RegisterObserver(this);
 }
 
 XrDemo::~XrDemo() {
@@ -163,7 +159,32 @@ void XrDemo::InitGLGraphics() {
     //Step2 App init
     LOGI("App init sksk");
 
-    mSkyboxShader.build();
+    xr_client_ = std::make_shared<lark::XRClient>();
+    xr_client_->Init(mJvm);
+    xr_client_->RegisterObserver(this);
+
+    // 初始化客户端接入凭证
+    LOGE("初始化客户端接入凭证");
+    InitCertificate();
+#ifdef LARK_SDK_SECRET
+    // 初始化 cloudlark sdk
+    std::string timestamp = utils::GetTimestampMillStr();
+    std::string signature = utils::GetSignature(LARK_SDK_ID, LARK_SDK_SECRET, timestamp);
+    if (!xr_client_->InitSdkAuthorization(LARK_SDK_ID, signature, timestamp)) {
+        LOGV("init sdk auth faild %d %s", xr_client_->last_error_code(),
+             xr_client_->last_error_message().c_str());
+        Navigation::ShowToast(xr_client_->last_error_message());
+    }
+#else
+    if (!xr_client_->InitSdkAuthorization(LARK_SDK_ID)) {
+                        LOGV("init sdk auth faild %d %s", xr_client_->last_error_code(), xr_client_->last_error_message().c_str());
+                        Navigation::ShowToast(xr_client_->last_error_message());
+                    }
+#endif
+
+    xr_client_->SetServerAddr("192.168.31.15",8181);
+    xr_client_->EnterAppli("756846918545440768");
+/*    mSkyboxShader.build();
     mSkyboxShader.use();
     mSkyboxShader.setInt("Texture0", 0);
 
@@ -175,7 +196,7 @@ void XrDemo::InitGLGraphics() {
     mSkyboxShader.setIntCubeName("u_cameraPos");
 
     mSkyboxModel.buildCube();
-    mSkyboxTexture.build();
+    mSkyboxTexture.build();*/
 }
 
 void XrDemo::DeInitGLGraphics() {
@@ -1196,7 +1217,6 @@ bool XrDemo::initEGLSurface() {
 
 void XrDemo::initSkyboxMethod(JNIEnv *jni) {
     mSkyboxTexture.initJavaMethod(jni, mJvm, mActivity);
-
 }
 
 void XrDemo::start() {
@@ -1288,28 +1308,11 @@ bool XrDemo::InitVR(android_app *app) {
     // WARING jin verions dif AttachCurrentThread param different.
     mJvm->AttachCurrentThread(&Env, nullptr);
     mActivity = app->activity->clazz;
+
     LOGE("初始化环境");
+    LOGE("InitVR");
     // 初始化环境。
     Context::Init(app->activity);
-    // 初始化客户端接入凭证
-    LOGE("初始化客户端接入凭证");
-    InitCertificate();
-#ifdef LARK_SDK_SECRET
-    // 初始化 cloudlark sdk
-    std::string timestamp = utils::GetTimestampMillStr();
-    std::string signature = utils::GetSignature(LARK_SDK_ID, LARK_SDK_SECRET, timestamp);
-    if (!xr_client_->InitSdkAuthorization(LARK_SDK_ID, signature, timestamp)) {
-        LOGV("init sdk auth faild %d %s", xr_client_->last_error_code(),
-             xr_client_->last_error_message().c_str());
-        Navigation::ShowToast(xr_client_->last_error_message());
-    }
-#else
-    if (!xr_client_->InitSdkAuthorization(LARK_SDK_ID)) {
-                        LOGV("init sdk auth faild %d %s", xr_client_->last_error_code(), xr_client_->last_error_message().c_str());
-                        Navigation::ShowToast(xr_client_->last_error_message());
-                    }
-#endif
-
     return true;
 }
 
@@ -1356,6 +1359,7 @@ void XrDemo::EnterAppli(const string &appId) {
     LOGENTRY();
     if (xr_client_) {
         xr_client_->EnterAppli(appId);
+        //xr_client_->EnterAppli(appId);
     }
 }
 
@@ -1364,5 +1368,32 @@ void XrDemo::CloseAppli() {
     if (xr_client_) {
         xr_client_->Close();
     }
+}
+
+void XrDemo::OnMediaReady(int nativeTextrure) {
+    LOGENTRY();
+    LOGE("OnMediaReady+Na");
+}
+
+void XrDemo::OnMediaReady(int nativeTextureLeft, int nativeTextureRight) {
+    LOGENTRY();
+    LOGE("OnMediaReady+L+R");
+}
+
+void XrDemo::OnMediaReady() {
+    LOGE("OnMediaReady");
+}
+
+void XrDemo::RequestTrackingInfo() {
+    LOGE("RequestTrackingInfo");
+    larkxrTrackingDevicePairFrame_ frame=larkxrTrackingDevicePairFrame_();
+    xr_client_->SendDevicePair(frame);
+}
+
+void XrDemo::OnTrackingFrame(const larkxrTrackingFrame &trackingFrame) {
+    LOGE("OnTrackingFrame");
+    Application::OnTrackingFrame(trackingFrame);
+
+
 }
 
