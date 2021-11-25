@@ -762,7 +762,7 @@ typedef struct XrActionStatePose {
 
 typedef struct XrActiveActionSet {
     XrActionSet    actionSet;
-    XrPath         subactionPath;
+    XrSpace_T *subactionPath;
 } XrActiveActionSet;
 
 typedef struct XrActionsSyncInfo {

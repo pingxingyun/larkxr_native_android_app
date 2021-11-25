@@ -16,10 +16,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.huawei.hvr.LibUpdateClient;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.larkcore.Util;
@@ -28,6 +30,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private static final String TAG = "HuaweiMainAcitvity";
     private long exitTime = 0;
     private Context mContext = null;
+    private SurfaceView mView;
+
     static {
         System.loadLibrary("lark_xr_huawei");
         System.loadLibrary("lark_pxygl");
@@ -37,11 +41,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        CrashHandler.getInstance().init(this);
         mContext = this;
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);// 设置全屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        mView = new SurfaceView(this);
+        setContentView(mView);
+
+        mView.getHolder().addCallback(this);
+        //getDir();
+        new LibUpdateClient(this).runUpdate();
+        System.loadLibrary("xrdemo");
+
+        CrashHandler.getInstance().init(this);
 
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -54,8 +68,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             connectivityManager.registerNetworkCallback(request, mNetworkCallback);
         }
 
-        xrSystem = new XrSystem();
-        xrSystem.init(this, Util.getLocalMacAddress(this));
+      /*  xrSystem = new XrSystem();
+        xrSystem.init(this, Util.getLocalMacAddress(this));*/
     }
 
     private ConnectivityManager.NetworkCallback mNetworkCallback = new ConnectivityManager.NetworkCallback() {
