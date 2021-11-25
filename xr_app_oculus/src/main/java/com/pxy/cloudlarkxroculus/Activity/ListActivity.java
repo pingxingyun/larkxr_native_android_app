@@ -175,6 +175,20 @@ public class ListActivity extends Activity {
             serverBeanList = JSON.parseArray(sp.getString(SETTING_SERVER, ""), ServerBean.class);
             mServerIp = "http://" + serverBeanList.get(0).getIp() + ":" + serverBeanList.get(0).getPort();
             useHttps = serverBeanList.get(0).getUse_https();
+
+            ListActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!config.serverIp.isEmpty()) {
+                        inputIp.setText(config.serverIp+"");
+                        inputPort.setText(config.serverPort+"");
+                    } else {
+                        inputIp.setText(serverBeanList.get(0).getIp());
+                        inputPort.setText(serverBeanList.get(0).getPort());
+                    }
+                }
+            });
+
             Log.e("getmessage", "init");
             setIp(serverBeanList, 0);
         } else {
@@ -186,6 +200,8 @@ public class ListActivity extends Activity {
         ListActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+
                 switch (config.quickConfigLevel) {
                     case Config.QuickConfigLevel_Manual: {
                         QuickConfigLevel.check(R.id.QuickConfigLevel_Manual);
@@ -598,8 +614,8 @@ public class ListActivity extends Activity {
 
     private void setIp(List<ServerBean> list, int index) {
         ServerBean serverBean = list.get(index);
-        inputIp.setText(serverBean.getIp());
-        inputPort.setText(serverBean.getPort());
+        /*inputIp.setText(serverBean.getIp());
+        inputPort.setText(serverBean.getPort());*/
 
         config.serverIp = serverBean.getIp();
         config.serverPort = Integer.parseInt(serverBean.getPort());
@@ -622,13 +638,13 @@ public class ListActivity extends Activity {
             clientLifeManager = new ClientLifeManager(this);
         }
         if (imSocketChannel == null) {
-            Log.e("imSocketChannel","isnull");
+            Log.e("imSocketChannel", "isnull");
             imSocketChannel = new ImSocketChannel(socketChannelObserver, ListActivity.this);
-        }else {
-                if (imSocketChannel.isConnected()) {
-                    imSocketChannel.close();
-                }
-                imSocketChannel.connect();
+        } else {
+            if (imSocketChannel.isConnected()) {
+                imSocketChannel.close();
+            }
+            imSocketChannel.connect();
         }
         if (getAppliList == null) {
             getAppliList = new GetAppliList(new GetAppliList.Callback() {
@@ -910,12 +926,12 @@ public class ListActivity extends Activity {
                             clientLifeManager.ClientOnline();
                         }
                         if (!getTopActivity(ListActivity.this).equals(MainActivity.class.getName()))
-                            GoMainActivity(ListActivity.this,jsonObject.optString("appliId"));
+                            GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
-                        Message message=new Message();
-                        message.what=4;
+                        Message message = new Message();
+                        message.what = 4;
                         BaseApplication.getInstance().getmHandler().sendMessage(message);
                         break;
                     }
@@ -935,7 +951,7 @@ public class ListActivity extends Activity {
         if (appid != null) {
             Log.e("GoMainActivity", appid);
             intent.putExtra("appid", appid);
-        }else {
+        } else {
             intent.putExtra("appid", "");
             Log.e("GoMainActivity", "justGo");
         }

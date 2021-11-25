@@ -21,12 +21,11 @@ Texture::~Texture()
 
 }
 
-
 void Texture::initJavaMethod(JNIEnv* jni, JavaVM* jvm, jobject activity)
 {
     mJvm = jvm;
     LOGI("findClassAndMethod");
-    static const char *surfaceTexClassName = "com/huawei/hvrsdk/nativedemo/BitmapDecoder";
+    static const char *surfaceTexClassName = "com/pxy/xr_app_huawei/BitmapDecoder";
     const jclass cls = jni->FindClass(surfaceTexClassName);
     if (cls == 0)
     {

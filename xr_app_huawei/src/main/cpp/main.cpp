@@ -9,6 +9,7 @@
 #include <build_config.h>
 #include <log.h>
 #include "xr_demo.h"
+#include <jni.h>
 
 /*// JNI 入口函数必须定义
 void android_main( struct android_app * app ) {

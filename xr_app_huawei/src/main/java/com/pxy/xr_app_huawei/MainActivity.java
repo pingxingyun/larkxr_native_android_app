@@ -36,6 +36,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         CrashHandler.getInstance().init(this);
         mContext = this;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -97,6 +98,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+        Log.e("surfaceChanged","nativeInit");
         nativeInit(width, height, 0, mContext, holder.getSurface());
     }
 
