@@ -15,11 +15,6 @@ set(third_party_base_dir ${project_base_dir}/third_party)
 include(${project_base_dir}/cmake/android_third_party.cmake)
 
 # build native_app_glue as a static lib
-#[[add_library(native_app_glue STATIC
-        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)]]
-#set(lark_xr_der ${PROJECT_SOURCE_DIR}/../../../../lark_xr)
-#[[add_library(libxr_loader STATIC
-        "${PROJECT_SOURCE_DIR}/../../../../lark_xr/libxr_loader.so")]]
 add_library(libxr_loader SHARED IMPORTED)
 set_target_properties(libxr_loader PROPERTIES IMPORTED_LOCATION
         "${PROJECT_SOURCE_DIR}/../../../../third_party/huawei/lib/android/${CMAKE_ANDROID_ARCH_ABI}/libxr_loader.so")
@@ -41,6 +36,7 @@ set(src_files
         ${src_dir}/model.cpp
         ${src_dir}/xr_demo.cpp
         ${src_dir}/texture.cpp
+
         # render and base use.
         ${common_files}
         )
@@ -61,6 +57,7 @@ set(header_files
         ${src_dir}/logger.h
 
         ${src_dir}/matrix_functions.h
+
 
         )
 

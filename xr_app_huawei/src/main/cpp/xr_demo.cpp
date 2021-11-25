@@ -5,10 +5,14 @@
 #include "egl_environment.h"
 #include <time.h>
 #include <string.h>
+#include <log.h>
 #include <string>
 #include <ctime>
 #include <thread>
 #include <cmath>
+#include <ui/navigation.h>
+#include "utils.h"
+#include "env_context.h"
 //#include "windows.h"
 
 
@@ -123,6 +127,10 @@ XrDemo::XrDemo(JavaVM *_vm, jobject act) :
     mJvm = _vm;
     mInstanceLossState = false;
     mInstanceLossStateTime = 0.0;
+
+    xr_client_ = std::make_shared<lark::XRClient>();
+    xr_client_->Init(_vm);
+    xr_client_->RegisterObserver(this);
 }
 
 XrDemo::~XrDemo() {
@@ -168,7 +176,6 @@ void XrDemo::InitGLGraphics() {
 
     mSkyboxModel.buildCube();
     mSkyboxTexture.build();
-
 }
 
 void XrDemo::DeInitGLGraphics() {
@@ -243,7 +250,6 @@ void XrDemo::CreateInstance() {
     XrInstanceProperties instanceProperties{XR_TYPE_INSTANCE_PROPERTIES};
     xrGetInstanceProperties(mInstance, &instanceProperties);
     LOGI("after demo xrGetInstanceProperties");
-
 }
 
 void XrDemo::CreateActions() {
@@ -1239,3 +1245,124 @@ double XrDemo::GetNanos() {
 
     return result;
 }
+
+void XrDemo::OnResume() {
+    LOGV("onResume()");
+    LOGV("    APP_CMD_RESUME");
+    if (xr_client_) {
+        xr_client_->OnResume();
+    }
+}
+
+void XrDemo::OnPause() {
+    LOGV("onPause()");
+    LOGV("    APP_CMD_PAUSE");
+    if (xr_client_) {
+        xr_client_->OnPause();
+    }
+}
+
+void XrDemo::OnInitWindow(ANativeWindow *window) {
+    LOGV("surfaceCreated()");
+    LOGV("    APP_CMD_INIT_WINDOW");
+    native_window_ = window;
+    if (xr_client_) {
+        xr_client_->OnCreated();
+    }
+}
+
+void XrDemo::OnDestory() {
+    LOGV("onDestroy()");
+    LOGV("    APP_CMD_DESTROY");
+    native_window_ = nullptr;
+    if (xr_client_) {
+        xr_client_->OnDestory();
+    }
+}
+
+bool XrDemo::InitVR(android_app *app) {
+    LOGENTRY();
+    mJvm = app->activity->vm;
+    Env = app->activity->env;
+    // TODO
+    // WARING jin verions dif AttachCurrentThread param different.
+    mJvm->AttachCurrentThread(&Env, nullptr);
+    mActivity = app->activity->clazz;
+    LOGE("初始化环境");
+    // 初始化环境。
+    Context::Init(app->activity);
+    // 初始化客户端接入凭证
+    LOGE("初始化客户端接入凭证");
+    InitCertificate();
+#ifdef LARK_SDK_SECRET
+    // 初始化 cloudlark sdk
+    std::string timestamp = utils::GetTimestampMillStr();
+    std::string signature = utils::GetSignature(LARK_SDK_ID, LARK_SDK_SECRET, timestamp);
+    if (!xr_client_->InitSdkAuthorization(LARK_SDK_ID, signature, timestamp)) {
+        LOGV("init sdk auth faild %d %s", xr_client_->last_error_code(),
+             xr_client_->last_error_message().c_str());
+        Navigation::ShowToast(xr_client_->last_error_message());
+    }
+#else
+    if (!xr_client_->InitSdkAuthorization(LARK_SDK_ID)) {
+                        LOGV("init sdk auth faild %d %s", xr_client_->last_error_code(), xr_client_->last_error_message().c_str());
+                        Navigation::ShowToast(xr_client_->last_error_message());
+                    }
+#endif
+
+    return true;
+}
+
+void XrDemo::InitJava() {
+
+}
+
+bool XrDemo::InitGL() {
+    return false;
+}
+
+void XrDemo::ShutdownVR() {
+    LOGENTRY();
+    // 清理环境
+    Context::Reset();
+
+    if (mJvm) {
+        mJvm->DetachCurrentThread();
+    }
+}
+
+void XrDemo::ShutdownGL() {
+    LOGENTRY();
+    // release cloudlark
+    if (xr_client_) {
+        xr_client_->UnRegisterObserver();
+        xr_client_->Release();
+    }
+
+    // reset all state.
+    Input::ResetInput();
+    Navigation::ClearToast();
+}
+
+void XrDemo::HandleVrModeChange() {
+
+}
+
+bool XrDemo::OnUpdate() {
+    return false;
+}
+
+void XrDemo::EnterAppli(const string &appId) {
+    LOGENTRY();
+    if (xr_client_) {
+        xr_client_->EnterAppli(appId);
+    }
+}
+
+void XrDemo::CloseAppli() {
+    LOGENTRY();
+    if (xr_client_) {
+        xr_client_->Close();
+    }
+}
+

@@ -16,14 +16,38 @@
 #include "texture.h"
 #include <thread>
 #include <time.h>
+#include <application.h>
 
 enum AppState{
     ON_RESUME,
     ON_PAUSE,
     ON_DESTROY
 };
-class XrDemo
+class XrDemo : public Application
 {
+public:
+    virtual bool InitVR(android_app* app) override;
+    virtual bool InitVR() override { return false; };
+    virtual void InitJava() override;
+    virtual bool InitGL() override;
+    virtual void ShutdownVR() override;
+    virtual void ShutdownGL() override;
+
+    //  callback from android native activity.
+    virtual void HandleVrModeChange() override;
+    virtual bool OnUpdate() override;
+    // 进入应用
+    virtual void EnterAppli(const std::string& appId) override;
+    virtual void CloseAppli() override;
+
+    ANativeWindow *		native_window_ = nullptr;
+public:
+    // andoird lifecycle
+    void OnResume();
+    void OnPause();
+    void OnInitWindow(ANativeWindow * window);
+    void OnDestory();
+
 public:
 
     XrDemo(JavaVM* _vm, jobject act);
@@ -40,7 +64,6 @@ public:
     double GetNanos();
 
 public:
-
     bool Run();
     void XrDemoBeginSession();
 
@@ -98,6 +121,7 @@ public:
     //Jvm & Activity
     jobject mActivity;
     JavaVM* mJvm;
+    JNIEnv*	Env;
 
     //Native window surface
     ANativeWindow* mNativeWindow;
