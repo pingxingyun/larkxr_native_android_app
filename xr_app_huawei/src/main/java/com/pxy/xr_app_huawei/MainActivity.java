@@ -16,23 +16,30 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.huawei.hvr.LibUpdateClient;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.larkcore.Util;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private static final String TAG = "HuaweiMainAcitvity";
-    private long exitTime = 0;
-    private Context mContext = null;
     static {
         System.loadLibrary("lark_xr_huawei");
         System.loadLibrary("lark_pxygl");
     }
+
+    private long exitTime = 0;
+    private Context mContext = null;
+    // lark xr system
     private XrSystem xrSystem = null;
+    // render surface
+    private SurfaceView mView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +63,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         xrSystem = new XrSystem();
         xrSystem.init(this, Util.getLocalMacAddress(this));
+
+        mView = new SurfaceView(this);
+        setContentView(mView);
+
+        mView.getHolder().addCallback(this);
+        //getDir();
+        new LibUpdateClient(this).runUpdate();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy");
+        super.onDestroy();
+        nativeDestroy();
     }
 
     private ConnectivityManager.NetworkCallback mNetworkCallback = new ConnectivityManager.NetworkCallback() {
@@ -104,8 +125,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-
+        uninit();
     }
 
     public static native void nativeInit(int width, int height, int tex, Context act, Surface sf);
+    public static native void uninit();
+    public static native void nativeDestroy();
 }

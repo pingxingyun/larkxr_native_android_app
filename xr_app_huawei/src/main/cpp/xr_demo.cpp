@@ -1,4 +1,3 @@
-#include "../../../../../../../Android/sdk/ndk/21.0.6113669/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__bit_reference"
 #include "xr_demo.h"
 #include "matrix_functions.h"
 #include "gl_function_ext.h"
@@ -94,19 +93,7 @@ void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeInit(JNIEnv *jni, jclass cl
     }
 }
 
-void Java_com_huawei_hvrsdk_nativedemo_GL2JNILib_nativeDestroy(JNIEnv *jni, jclass clazz) {
-    LOGI("vr nativeOnDestroy");
-    g_AppState = ON_DESTROY;
-    if (nullptr != gApp) {
-        gApp->stop();
-
-        delete gApp;
-        gApp = nullptr;
-    }
-    LOGI("uninit vr nativeOnDestroy end");
-}
-
-void Java_com_huawei_hvrsdk_nativedemo_GL2JNILib_uninit(JNIEnv *jni, jclass clazz) {
+void Java_com_pxy_xr_1app_1huawei_MainActivity_uninit(JNIEnv *env, jclass clazz) {
     LOGI("in uninit");
     if (gApp == nullptr) {
         LOGI("gApp == nullptr");
@@ -117,6 +104,17 @@ void Java_com_huawei_hvrsdk_nativedemo_GL2JNILib_uninit(JNIEnv *jni, jclass claz
     LOGI("out uninit");
 }
 
+void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeDestroy(JNIEnv *env, jclass clazz) {
+    LOGI("vr nativeOnDestroy");
+    g_AppState = ON_DESTROY;
+    if (nullptr != gApp) {
+        gApp->stop();
+
+        delete gApp;
+        gApp = nullptr;
+    }
+    LOGI("uninit vr nativeOnDestroy end");
+}
 }
 
 XrDemo::XrDemo(JavaVM *_vm, jobject act) :

@@ -22,7 +22,7 @@ include(${project_base_dir}/cmake/android_third_party.cmake)
         "${PROJECT_SOURCE_DIR}/../../../../lark_xr/libxr_loader.so")]]
 add_library(libxr_loader SHARED IMPORTED)
 set_target_properties(libxr_loader PROPERTIES IMPORTED_LOCATION
-        "${PROJECT_SOURCE_DIR}/../../../../lark_xr/libxr_loader.so")
+        "${PROJECT_SOURCE_DIR}/../../../../third_party/huawei/lib/android/${CMAKE_ANDROID_ARCH_ABI}/libxr_loader.so")
 
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
@@ -86,11 +86,9 @@ target_include_directories(lark_xr_huawei PRIVATE
         ${project_base_dir}/lib_xr_common_ui/src/main/cpp
         # lib xr
         ${project_base_dir}/lark_xr/include
-        ${third_party_base_dir}/ovr/include
         ${third_party_base_dir}/freetype/include/
         ${third_party_base_dir}/glm/include/
         ${third_party_base_dir}/assimp/include/
-        #        ${third_party_base_dir}/poco/include/
         )
 
 find_library( # Sets the name of the path variable.
@@ -108,8 +106,6 @@ target_link_libraries( # Specifies the target library.
         # clang 注意顺序
         EGL
         GLESv3
-        # ovr api
-        lib_ovr_api
         # ndk media codec
         mediandk
         OpenMAXAL
