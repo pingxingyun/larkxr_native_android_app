@@ -1390,7 +1390,8 @@ void XrDemo::OnMediaReady() {
 
 void XrDemo::RequestTrackingInfo() {
     //LOGE("RequestTrackingInfo");
-    larkxrTrackingDevicePairFrame_ frame=larkxrTrackingDevicePairFrame_();
+    larkxrTrackingDevicePairFrame frame= {};
+    frame.devicePair.hmdPose.isConnected = true;
     xr_client_->SendDevicePair(frame);
 }
 
