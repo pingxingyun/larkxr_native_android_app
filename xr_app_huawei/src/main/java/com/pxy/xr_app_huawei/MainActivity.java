@@ -44,6 +44,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         CrashHandler.getInstance().init(this);
         mContext = this;
         requestWindowFeature(Window.FEATURE_NO_TITLE);

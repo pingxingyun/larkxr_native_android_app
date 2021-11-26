@@ -49,8 +49,7 @@ public:
     void OnDestory();
 
 public:
-
-    XrDemo(JavaVM* _vm, jobject act);
+    XrDemo(JavaVM* _vm, jobject act,JNIEnv* _Env);
 	~XrDemo();
 
     //Set Native window surface

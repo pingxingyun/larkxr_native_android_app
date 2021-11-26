@@ -15,6 +15,7 @@ public:
     Texture();
     ~Texture();
     void initJavaMethod(JNIEnv* jni, JavaVM* jvm, jobject activity);
+    void initLarkMethod(JNIEnv* jni, JavaVM* jvm, jobject activity);
     void build();
     void unBuild();
 public:

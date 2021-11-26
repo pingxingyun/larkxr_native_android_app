@@ -43,7 +43,6 @@
         android:name="wave.feature.handtracking"
         android:required="true" />
     <application
-        android:name=".Activity.BaseApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
@@ -51,14 +50,6 @@
         tools:ignore="GoogleAppIndexingWarning"
         android:requestLegacyExternalStorage="true"
         tools:replace="android:theme">
-
-        <activity
-            android:name=".Activity.ListActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask"
-            android:screenOrientation="landscape">
-
-        </activity>
 
         <activity
             android:name="com.htc.vr.sdk.VRNativeActivity"

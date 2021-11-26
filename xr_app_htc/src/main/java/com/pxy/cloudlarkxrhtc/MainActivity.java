@@ -1,7 +1,6 @@
 package com.pxy.cloudlarkxrhtc;
 
 import com.htc.vr.sdk.VRActivity;
-import com.pxy.cloudlarkxrhtc.Activity.BaseApplication;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 

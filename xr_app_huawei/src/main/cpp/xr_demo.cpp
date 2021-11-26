@@ -74,23 +74,22 @@ extern "C" {
 void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeInit(JNIEnv *jni, jclass clazz, jint x, jint y,
                                                           jint texid, jobject act,
                                                           jobject surface) {
-    LOGI("init vr nativeOnCreate");
+    //LOGI("init vr nativeOnCreate");
     if (nullptr == gApp) {
         LOGI("init vr");
         JavaVM *_vm = nullptr;
         jint ret = jni->GetJavaVM(&_vm);
-
-        LOGI("Create global ref");
+        //LOGI("Create global ref");
 
         jobject g_act = jni->NewGlobalRef(act);
 
-        gApp = new XrDemo(_vm, g_act);
-        gApp->InitGLGraphics();
-    /*    gApp->setSurface(jni, surface);
+        gApp = new XrDemo(_vm, g_act,jni);
+        //gApp->InitGLGraphics();
+        gApp->setSurface(jni, surface);
         gApp->initSkyboxMethod(jni);
-        gApp->start();*/
+        gApp->start();
     } else {
-        LOGI("resume vr");
+        //LOGI("resume vr");
         g_AppState = ON_RESUME;
         gApp->setSurface(jni, surface);
         stateBegeinSession = true;
@@ -98,18 +97,18 @@ void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeInit(JNIEnv *jni, jclass cl
 }
 
 void Java_com_pxy_xr_1app_1huawei_MainActivity_uninit(JNIEnv *env, jclass clazz) {
-    LOGI("in uninit");
+    //LOGI("in uninit");
     if (gApp == nullptr) {
-        LOGI("gApp == nullptr");
+        //LOGI("gApp == nullptr");
         return;
     }
     g_AppState = ON_PAUSE;
     xrRequestExitSession(gApp->mSession);
-    LOGI("out uninit");
+    //LOGI("out uninit");
 }
 
 void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeDestroy(JNIEnv *env, jclass clazz) {
-    LOGI("vr nativeOnDestroy");
+    //LOGI("vr nativeOnDestroy");
     g_AppState = ON_DESTROY;
     if (nullptr != gApp) {
         gApp->stop();
@@ -117,14 +116,15 @@ void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeDestroy(JNIEnv *env, jclass
         delete gApp;
         gApp = nullptr;
     }
-    LOGI("uninit vr nativeOnDestroy end");
+    //LOGI("uninit vr nativeOnDestroy end");
 }
 }
 
-XrDemo::XrDemo(JavaVM *_vm, jobject act) :
+XrDemo::XrDemo(JavaVM *_vm, jobject act,JNIEnv*	_Env) :
         mNativeWindow(nullptr) {
     mActivity = act;
     mJvm = _vm;
+    Env = _Env;
     mInstanceLossState = false;
     mInstanceLossStateTime = 0.0;
 }
@@ -141,7 +141,7 @@ void XrDemo::XrDemoBeginSession() {
     XrSessionBeginInfo sessionBeginInfo{XR_TYPE_SESSION_BEGIN_INFO};
     sessionBeginInfo.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; //XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO
     XrResult retxrBeginSession = xrBeginSession(gApp->mSession, &sessionBeginInfo);
-    LOGI("retxrBeginSession :%d", retxrBeginSession);
+    //LOGI("retxrBeginSession :%d", retxrBeginSession);
     sessionRunning = true;
 }
 
@@ -149,7 +149,7 @@ void XrDemo::XrDemoBeginSession() {
 void XrDemo::InitGLGraphics() {
 
     //Step1 Setup Egl Environment
-    LOGI("Setup Egl Environment");
+    //LOGI("Setup Egl Environment");
     //glm::mat4 Model = glm::mat4(1.0f);
 
     initEGLEnvironment(mDisplay, mConfig, mContext);
@@ -157,7 +157,7 @@ void XrDemo::InitGLGraphics() {
 
     initGLExtFunctionPointer();
     //Step2 App init
-    LOGI("App init sksk");
+    //LOGI("App init sksk");
 
     xr_client_ = std::make_shared<lark::XRClient>();
     xr_client_->Init(mJvm);
@@ -182,9 +182,11 @@ void XrDemo::InitGLGraphics() {
                     }
 #endif
 
-    xr_client_->SetServerAddr("192.168.31.15",8181);
-    xr_client_->EnterAppli("756846918545440768");
-/*    mSkyboxShader.build();
+    xr_client_->SetServerAddr("192.168.31.10",8181);
+    //xr_client_->EnterAppli("756846918545440768");
+    xr_client_->EnterAppli("913759007280201728");
+
+    mSkyboxShader.build();
     mSkyboxShader.use();
     mSkyboxShader.setInt("Texture0", 0);
 
@@ -196,28 +198,28 @@ void XrDemo::InitGLGraphics() {
     mSkyboxShader.setIntCubeName("u_cameraPos");
 
     mSkyboxModel.buildCube();
-    mSkyboxTexture.build();*/
+    mSkyboxTexture.build();
 }
 
 void XrDemo::DeInitGLGraphics() {
-    LOGI("onThreadExit");
+    //LOGI("onThreadExit");
     mSkyboxShader.unBuild();
-    LOGI("mSkyboxShader.unBuild()");
+    //LOGI("mSkyboxShader.unBuild()");
 
     mSkyboxModel.unBuild();
-    LOGI("mSkyboxModel.unBuild()");
+    //LOGI("mSkyboxModel.unBuild()");
 
     mSkyboxTexture.unBuild();
-    LOGI("mSkyboxTexture.unBuild()");
+    //LOGI("mSkyboxTexture.unBuild()");
 
     mSkyboxShader.unBuildCube();
-    LOGI("mSkyboxShader.unBuildCube()");
+    //LOGI("mSkyboxShader.unBuildCube()");
 
     mSkyboxModel.unBuildCube();
-    LOGI("mSkyboxModel.unBuild()");
+    //LOGI("mSkyboxModel.unBuild()");
 
     mSkyboxTexture.unBuild();
-    LOGI("mSkyboxTexture.unBuild()");
+    //LOGI("mSkyboxTexture.unBuild()");
 
     //DeinitEGLEnvironment(mDisplay, mConfig, mContext);
 
@@ -225,31 +227,31 @@ void XrDemo::DeInitGLGraphics() {
 }
 
 void XrDemo::CreateInstance() {
-    LOGI("XrEnumerate");
+    //LOGI("XrEnumerate");
     uint32_t apiLayerPropCount;
     int ret = xrEnumerateApiLayerProperties(0, &apiLayerPropCount, nullptr);
-    LOGI("EnumerateApiLayerProperties %d", ret);
+    //LOGI("EnumerateApiLayerProperties %d", ret);
     std::vector<XrApiLayerProperties> apiProperties;
     apiProperties.resize(apiLayerPropCount, {XR_TYPE_API_LAYER_PROPERTIES});
     ret = xrEnumerateApiLayerProperties(apiLayerPropCount, &apiLayerPropCount,
                                         apiProperties.data());
-    LOGI("EnumerateApiLayerProperties 2 %d", ret);
+    //LOGI("EnumerateApiLayerProperties 2 %d", ret);
     //return;
 
     uint32_t insExtensionCount;
     ret = xrEnumerateInstanceExtensionProperties(nullptr, 0, &insExtensionCount, nullptr);
     //return;
-    LOGI("EnumerateInstanceExtensionProperties %d", ret);
+    //LOGI("EnumerateInstanceExtensionProperties %d", ret);
     std::vector<XrExtensionProperties> extProperties;
     extProperties.resize(insExtensionCount, {XR_TYPE_EXTENSION_PROPERTIES});
     xrEnumerateInstanceExtensionProperties(nullptr, insExtensionCount, &insExtensionCount,
                                            extProperties.data());
-    LOGI("extProperties.size():%d", extProperties.size());
+    //LOGI("extProperties.size():%d", extProperties.size());
     for (int i = 0; i < extProperties.size(); i++) {
-        LOGI("ExtProps: %s %d", extProperties[i].extensionName, extProperties[i].extensionVersion);
+        //LOGI("ExtProps: %s %d", extProperties[i].extensionName, extProperties[i].extensionVersion);
     }
 
-    LOGI("XrCreateInstance");
+    //LOGI("XrCreateInstance");
     XrInstanceCreateInfoAndroidKHR createInfoAndroid{XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR};
     createInfoAndroid.applicationActivity = (void *) mActivity;
     createInfoAndroid.applicationVM = (void *) mJvm;
@@ -264,18 +266,18 @@ void XrDemo::CreateInstance() {
     strcpy(instanceCreateInfo.applicationInfo.applicationName, "HelloXR");
     instanceCreateInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
     ret = xrCreateInstance(&instanceCreateInfo, &mInstance);
-    LOGI("xrCreateInstance %d", ret);
+    //LOGI("xrCreateInstance %d", ret);
     //return;
     //Test instanceProperties
-    LOGI("before xrGetInstanceProperties");
+    //LOGI("before xrGetInstanceProperties");
     XrInstanceProperties instanceProperties{XR_TYPE_INSTANCE_PROPERTIES};
     xrGetInstanceProperties(mInstance, &instanceProperties);
-    LOGI("after demo xrGetInstanceProperties");
+    //LOGI("after demo xrGetInstanceProperties");
 }
 
 void XrDemo::CreateActions() {
     // add .
-    LOGI("In CreateActions");
+    //LOGI("In CreateActions");
     // Create an action set.
     {
         LOGW("Create an action set_1");
@@ -462,7 +464,7 @@ void XrDemo::CreateActions() {
         suggestedBindings.suggestedBindings = bindings.data();
         suggestedBindings.countSuggestedBindings = (uint32_t) bindings.size();
         XrResult ret_xrSuggest = xrSuggestInteractionProfileBindings(mInstance, &suggestedBindings);
-        LOGI("ret_xrSuggest:%d", ret_xrSuggest);
+        //LOGI("ret_xrSuggest:%d", ret_xrSuggest);
 
     }
 
@@ -480,13 +482,14 @@ void XrDemo::CreateActions() {
         actionSpaceInfo.poseInActionSpace.position.y = 0.0;
         actionSpaceInfo.poseInActionSpace.position.z = 0.0;
         actionSpaceInfo.subactionPath = LRPath[0];
+
         XrResult ret_xrCreateActionSpace_0 = xrCreateActionSpace(mSession, &actionSpaceInfo,
                                                                  &LRSpace[0]);
-        //LOGI("ret_xrCreateActionSpace_0:%d",ret_xrCreateActionSpace_0);
+        ////LOGI("ret_xrCreateActionSpace_0:%d",ret_xrCreateActionSpace_0);
         actionSpaceInfo.subactionPath = LRPath[1];
         XrResult ret_xrCreateActionSpace_1 = xrCreateActionSpace(mSession, &actionSpaceInfo,
                                                                  &LRSpace[1]);
-        //LOGI("ret_xrCreateActionSpace_1:%d",ret_xrCreateActionSpace_1);
+        ////LOGI("ret_xrCreateActionSpace_1:%d",ret_xrCreateActionSpace_1);
     }
 
 
@@ -497,7 +500,7 @@ void XrDemo::CreateActions() {
         attachInfo.countActionSets = 1;
         attachInfo.actionSets = &m_actionSet;
         XrResult ret_xrAttach = xrAttachSessionActionSets(mSession, &attachInfo);
-        LOGI("ret_xrAttach:%d", ret_xrAttach);
+        //LOGI("ret_xrAttach:%d", ret_xrAttach);
     }
 
 
@@ -508,7 +511,7 @@ void XrDemo::CreateActions() {
         XrInteractionProfileState interactionProfile{XR_TYPE_INTERACTION_PROFILE_STATE};
         XrResult ret_xrGetCurrent = xrGetCurrentInteractionProfile(mSession, LRPath[0],
                                                                    &interactionProfile);
-        LOGI("ret_xrGetCurrent:%d", ret_xrGetCurrent);
+        //LOGI("ret_xrGetCurrent:%d", ret_xrGetCurrent);
 
         //xrPathToString
         interactionProfilepath = interactionProfile.interactionProfile;
@@ -517,7 +520,7 @@ void XrDemo::CreateActions() {
         std::string pathStr(pathCount, '\0');
         xrPathToString(mInstance, interactionProfilepath, pathCount, &pathCount, &pathStr.front());
         pathStr.resize(pathCount - 1);
-        LOGI("ret interactionProfilepath pathStr: %s", &pathStr.front());
+        //LOGI("ret interactionProfilepath pathStr: %s", &pathStr.front());
     }
 
 
@@ -545,14 +548,14 @@ void XrDemo::InitializeSession() {
                                   viewConfigTypes.data());
 
 
-    LOGI("XrGetViewConfigProps");
+    //LOGI("XrGetViewConfigProps");
     XrViewConfigurationType viewConfigType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; //XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO
     XrViewConfigurationProperties viewConfigProperties{XR_TYPE_VIEW_CONFIGURATION_PROPERTIES};
     int ret = xrGetViewConfigurationProperties(mInstance, mSystemId, viewConfigType,
                                                &viewConfigProperties);
-    LOGI("xrGetViewConfigurationProperties ret:%d", ret);
+    //LOGI("xrGetViewConfigurationProperties ret:%d", ret);
 
-    LOGI("XrEnumViewConfigViews");
+    //LOGI("XrEnumViewConfigViews");
     uint32_t viewCount;
     std::vector<XrViewConfigurationView> viewConfigViews;
     ret = xrEnumerateViewConfigurationViews(mInstance, mSystemId, viewConfigType, 0, &viewCount,
@@ -561,10 +564,10 @@ void XrDemo::InitializeSession() {
     viewConfigViews.resize(viewCount, {XR_TYPE_VIEW_CONFIGURATION_VIEW});
     ret = xrEnumerateViewConfigurationViews(mInstance, mSystemId, viewConfigType, viewCount,
                                             &viewCount, viewConfigViews.data());
-    LOGI("xrEnumerateViewConfigurationViews ret:%d", ret);
-    LOGI("viewCount:%d", viewCount);
+    //LOGI("xrEnumerateViewConfigurationViews ret:%d", ret);
+    //LOGI("viewCount:%d", viewCount);
 
-    LOGI("XrEnumBlendModes");
+    //LOGI("XrEnumBlendModes");
     uint32_t blendModeCount;
     xrEnumerateEnvironmentBlendModes(mInstance, mSystemId, viewConfigType, 0, &blendModeCount,
                                      nullptr);
@@ -573,20 +576,20 @@ void XrDemo::InitializeSession() {
     xrEnumerateEnvironmentBlendModes(mInstance, mSystemId, viewConfigType, blendModeCount,
                                      &blendModeCount, blendModes.data());
 
-    LOGI("XrGetOpenGLESGraphicsRequirementsKHR");
+    //LOGI("XrGetOpenGLESGraphicsRequirementsKHR");
     XrGraphicsRequirementsOpenGLESKHR graphicsRequirements{
             XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR};
     xrGetOpenGLESGraphicsRequirementsKHR(mInstance, mSystemId, &graphicsRequirements);
 
     InitGLGraphics();
-    LOGI("XrGraphicsBindingOpenGLESAndroidKHR");
+    //LOGI("XrGraphicsBindingOpenGLESAndroidKHR");
     XrGraphicsBindingOpenGLESAndroidKHR graphicBindingsGLES{
             XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR};
     graphicBindingsGLES.next = nullptr;
     graphicBindingsGLES.display = mDisplay;
     graphicBindingsGLES.config = mConfig;
     graphicBindingsGLES.context = mContext;
-    LOGI("XrCreateSession");
+    //LOGI("XrCreateSession");
     XrSessionCreateInfo sessionCreateInfo{XR_TYPE_SESSION_CREATE_INFO};
     sessionCreateInfo.next = (const void *) &graphicBindingsGLES;
     sessionCreateInfo.systemId = mSystemId;
@@ -595,7 +598,7 @@ void XrDemo::InitializeSession() {
     //CreateActions
     CreateActions();
 
-    LOGI("XrEnumSwapchainFormats");
+    //LOGI("XrEnumSwapchainFormats");
     uint32_t formatCount;
     xrEnumerateSwapchainFormats(mSession, 0, &formatCount, nullptr);
 
@@ -603,7 +606,7 @@ void XrDemo::InitializeSession() {
     xrEnumerateSwapchainFormats(mSession, formatCount, &formatCount, swapchainFormats.data());
 
 
-    LOGI("XrCreateSwapchain xrEnumerateSwapchainImages");
+    //LOGI("XrCreateSwapchain xrEnumerateSwapchainImages");
     mSwapchains.resize(viewCount);
     mSwapchainsImageArray.resize(viewCount);
     for (int i = 0; i < viewCount; i++) {
@@ -632,7 +635,7 @@ void XrDemo::InitializeSession() {
         xrEnumerateSwapchainImages(mSwapchains[i], imageCount, &imageCount, swapchainImageBase);
         mSwapchainsImageArray[i] = swapchainImages;
     }
-    LOGI("XrEnumRefAppSpace");
+    //LOGI("XrEnumRefAppSpace");
     uint32_t refSpaceCount;
     xrEnumerateReferenceSpaces(mSession, 0, &refSpaceCount, nullptr);
 
@@ -643,7 +646,7 @@ void XrDemo::InitializeSession() {
     XrExtent2Df bounds;
     xrGetReferenceSpaceBoundsRect(mSession, XR_REFERENCE_SPACE_TYPE_LOCAL, &bounds);
 
-    LOGI("XrCreateAppSpace");
+    //LOGI("XrCreateAppSpace");
     XrReferenceSpaceCreateInfo referenceSpaceCreateInfo{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
     referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
     referenceSpaceCreateInfo.poseInReferenceSpace = {{0.0f, 0.0f, 0.0f, 1.0f},
@@ -653,30 +656,30 @@ void XrDemo::InitializeSession() {
 
 
 void XrDemo::ProcessEvents(bool *exitRenderLoop, bool *sessionRunning) {
-    LOGI("In ProcessEvents");
+    ////LOGI("In ProcessEvents");
     *exitRenderLoop = false;
 
     XrEventDataBuffer buffer{XR_TYPE_EVENT_DATA_BUFFER};
     XrEventDataBaseHeader *header = reinterpret_cast<XrEventDataBaseHeader *>(&buffer);
 
     if (mInstanceLossState == true && (GetSeconds() - mStart) >= mInstanceLossStateTime) {
-        LOGI("*exitRenderLoop = true");
+        //LOGI("*exitRenderLoop = true");
         *exitRenderLoop = true;
     }
 
     // Process all pending messages.
     while (xrPollEvent(mInstance, &buffer) != XR_EVENT_UNAVAILABLE) {
-        LOGI("xrPollEvent(mInstance, &buffer) != XR_EVENT_UNAVAILABLE");
+        //LOGI("xrPollEvent(mInstance, &buffer) != XR_EVENT_UNAVAILABLE");
         switch (header->type) {
             case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: {
-                LOGI("XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING exitRenderLoop = true");
+                //LOGI("XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING exitRenderLoop = true");
                 const auto stateInstanceEvent = *reinterpret_cast<const XrEventDataInstanceLossPending *>(header);
                 if (stateInstanceEvent.lossTime > 0) {
                     mStart = GetSeconds();
-                    LOGI("mStart: %f", mStart);
+                    //LOGI("mStart: %f", mStart);
                     mInstanceLossState = true;
                     mInstanceLossStateTime = (double) (stateInstanceEvent.lossTime / 1000000000);
-                    LOGI("mInstanceLossStateTime: %f", mInstanceLossStateTime);
+                    //LOGI("mInstanceLossStateTime: %f", mInstanceLossStateTime);
                     return;
                 }
 
@@ -684,48 +687,48 @@ void XrDemo::ProcessEvents(bool *exitRenderLoop, bool *sessionRunning) {
                 return;
             }
             case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED: {
-                LOGI("XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED");
+                //LOGI("XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED");
                 XrSessionState sessionState{XR_SESSION_STATE_UNKNOWN};
                 const auto stateEvent = *reinterpret_cast<const XrEventDataSessionStateChanged *>(header);
                 sessionState = stateEvent.state;
                 switch (sessionState) {
                     case XR_SESSION_STATE_READY: {
-                        LOGI("XR_SESSION_STATE_READY");
+                        //LOGI("XR_SESSION_STATE_READY");
                         XrSessionBeginInfo sessionBeginInfo{XR_TYPE_SESSION_BEGIN_INFO};
                         sessionBeginInfo.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; //XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO
 
                         XrResult retxrBeginSessSw = xrBeginSession(mSession, &sessionBeginInfo);
-                        LOGI("retxrBeginSessSw: %d", retxrBeginSessSw);
+                        //LOGI("retxrBeginSessSw: %d", retxrBeginSessSw);
                         *sessionRunning = true;
                         break;
                     }
                     case XR_SESSION_STATE_STOPPING: {
-                        LOGI("XR_SESSION_STATE_STOPPING");
+                        //LOGI("XR_SESSION_STATE_STOPPING");
                         *sessionRunning = false;
                         XrResult retxrEndSession = xrEndSession(mSession);
-                        LOGI("retxrEndSession: %d", retxrEndSession);
+                        //LOGI("retxrEndSession: %d", retxrEndSession);
                         stateEndSession = true;
                         break;
                     }
                     case XR_SESSION_STATE_EXITING: {
-                        LOGI("XR_SESSION_STATE_EXITING");
+                        //LOGI("XR_SESSION_STATE_EXITING");
                         if (g_AppState == ON_DESTROY) {
-                            LOGI("destroy");
+                            //LOGI("destroy");
                             *exitRenderLoop = true;
                         } else { //destroy
-                            LOGI("g_AppState: %d", g_AppState);
+                            //LOGI("g_AppState: %d", g_AppState);
                             *exitRenderLoop = false;
                         }
                         break;
                     }
                     case XR_SESSION_STATE_LOSS_PENDING: {
                         // Poll for a new systemId
-                        LOGI("XR_SESSION_STATE_LOSS_PENDING exitRenderLoop = true");
+                        //LOGI("XR_SESSION_STATE_LOSS_PENDING exitRenderLoop = true");
                         *exitRenderLoop = true;
                         break;
                     }
                     default: {
-                        LOGI("default");
+                        //LOGI("default");
                         break;
                     }
 
@@ -733,15 +736,15 @@ void XrDemo::ProcessEvents(bool *exitRenderLoop, bool *sessionRunning) {
                 break;
             }
             case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING: {
-                LOGI("XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING");
+                //LOGI("XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING");
                 break;
             }
             case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED: {
-                LOGI("XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED");
+                //LOGI("XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED");
                 break;
             }
             default: {
-                LOGI("Ignoring event type %d", header->type);
+                //LOGI("Ignoring event type %d", header->type);
                 break;
             }
         }
@@ -768,14 +771,14 @@ void XrDemo::PollActions() {
         getInfo_home.action = m_XrAction[0];
         getInfo_home.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_home, &Home);
-        LOGI("ID: %d Trigger_Home Home.currentSate:%d", i, Home.currentState);
+        ////LOGI("ID: %d Trigger_Home Home.currentSate:%d", i, Home.currentState);
 
         XrActionStateFloat Trigger{XR_TYPE_ACTION_STATE_FLOAT};
         XrActionStateGetInfo getInfo_trigger{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_trigger.action = m_XrAction[1];
         getInfo_trigger.subactionPath = subactionLRPath;
         xrGetActionStateFloat(mSession, &getInfo_trigger, &Trigger);
-        LOGI("ID: %d Trigger.currentState:%f", i, Trigger.currentState);
+        ////LOGI("ID: %d Trigger.currentState:%f", i, Trigger.currentState);
 
 
         XrActionStateVector2f TrackpadValue{XR_TYPE_ACTION_STATE_VECTOR2F};
@@ -783,8 +786,8 @@ void XrDemo::PollActions() {
         getInfo_v2.action = m_XrAction[2];
         getInfo_v2.subactionPath = subactionLRPath;
         xrGetActionStateVector2f(mSession, &getInfo_v2, &TrackpadValue);
-        LOGI("ID: %d TrackpadValue.currentState:%f , %f", i, TrackpadValue.currentState.x,
-             TrackpadValue.currentState.y);
+        ////LOGI("ID: %d TrackpadValue.currentState:%f , %f", i, TrackpadValue.currentState.x,
+        //     TrackpadValue.currentState.y);
 
 
         XrActionStatePose PoseState{XR_TYPE_ACTION_STATE_POSE};
@@ -792,7 +795,7 @@ void XrDemo::PollActions() {
         getInfo_p.action = m_XrAction[3];
         getInfo_p.subactionPath = subactionLRPath;
         xrGetActionStatePose(mSession, &getInfo_p, &PoseState);
-        LOGI("PoseState.isActive:%d", PoseState.isActive);
+        ////LOGI("PoseState.isActive:%d", PoseState.isActive);
 
 
         XrHapticVibration vibration{XR_TYPE_HAPTIC_VIBRATION};
@@ -809,7 +812,7 @@ void XrDemo::PollActions() {
         getInfo_back.action = m_XrAction[5];
         getInfo_back.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_back, &Back);
-        LOGI("ID: %d Back.currentSate:%d", i, Back.currentState);
+        ////LOGI("ID: %d Back.currentSate:%d", i, Back.currentState);
 
 
         XrActionStateBoolean Volume_up{XR_TYPE_ACTION_STATE_BOOLEAN};
@@ -817,21 +820,21 @@ void XrDemo::PollActions() {
         getInfo_volume_up.action = m_XrAction[6];
         getInfo_volume_up.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_volume_up, &Volume_up);
-        LOGI("ID: %d Volume_up.currentSate:%d", i, Volume_up.currentState);
+        ////LOGI("ID: %d Volume_up.currentSate:%d", i, Volume_up.currentState);
 
         XrActionStateBoolean Volume_down{XR_TYPE_ACTION_STATE_BOOLEAN};
         XrActionStateGetInfo getInfo_volume_down{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_volume_down.action = m_XrAction[7];
         getInfo_volume_down.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_volume_down, &Volume_down);
-        LOGI("ID: %d Volume_down.currentSate:%d", i, Volume_down.currentState);
+        ////LOGI("ID: %d Volume_down.currentSate:%d", i, Volume_down.currentState);
 
         XrActionStateBoolean Trackpad_click{XR_TYPE_ACTION_STATE_BOOLEAN};
         XrActionStateGetInfo getInfo_trackpad_click{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_trackpad_click.action = m_XrAction[8];
         getInfo_trackpad_click.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_trackpad_click, &Trackpad_click);
-        LOGI("ID: %d Trackpad_click.currentSate:%d", i, Trackpad_click.currentState);
+        ////LOGI("ID: %d Trackpad_click.currentSate:%d", i, Trackpad_click.currentState);
 
 
         XrActionStateBoolean Trigger_click{XR_TYPE_ACTION_STATE_BOOLEAN};
@@ -839,7 +842,7 @@ void XrDemo::PollActions() {
         getInfo_trigger_click.action = m_XrAction[9];
         getInfo_trigger_click.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_trigger_click, &Trigger_click);
-        LOGI("ID: %d Trigger_Home Trigger_click.currentSate:%d", i, Trigger_click.currentState);
+        ////LOGI("ID: %d Trigger_Home Trigger_click.currentSate:%d", i, Trigger_click.currentState);
 
 
         XrActionStateBoolean Trackpad_touch{XR_TYPE_ACTION_STATE_BOOLEAN};
@@ -847,14 +850,14 @@ void XrDemo::PollActions() {
         getInfo_trackpad_touch.action = m_XrAction[10];
         getInfo_trackpad_touch.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_trackpad_touch, &Trackpad_touch);
-        LOGI("ID: %d Trackpad_touch.currentSate:%d", i, Trackpad_touch.currentState);
+        ////LOGI("ID: %d Trackpad_touch.currentSate:%d", i, Trackpad_touch.currentState);
 
         XrActionStateFloat Trackpad_X_Value{XR_TYPE_ACTION_STATE_FLOAT};
         XrActionStateGetInfo getInfo_trackpad_X_Value{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_trackpad_X_Value.action = m_XrAction[11];
         getInfo_trackpad_X_Value.subactionPath = subactionLRPath;
         xrGetActionStateFloat(mSession, &getInfo_trackpad_X_Value, &Trackpad_X_Value);
-        LOGI("ID: %d Trackpad_X_Value.currentState:%f", i, Trackpad_X_Value.currentState);
+        ////LOGI("ID: %d Trackpad_X_Value.currentState:%f", i, Trackpad_X_Value.currentState);
 
 
         XrActionStateFloat Trackpad_Y_Value{XR_TYPE_ACTION_STATE_FLOAT};
@@ -862,7 +865,7 @@ void XrDemo::PollActions() {
         getInfo_trackpad_Y_Value.action = m_XrAction[12];
         getInfo_trackpad_Y_Value.subactionPath = subactionLRPath;
         xrGetActionStateFloat(mSession, &getInfo_trackpad_Y_Value, &Trackpad_Y_Value);
-        LOGI("ID: %d Trackpad_Y_Value.currentState:%f", i, Trackpad_Y_Value.currentState);
+        ////LOGI("ID: %d Trackpad_Y_Value.currentState:%f", i, Trackpad_Y_Value.currentState);
 
         //xrStopHapticFeedback
         XrHapticActionInfo hapticActionInfoStop{XR_TYPE_HAPTIC_ACTION_INFO};
@@ -892,14 +895,14 @@ void XrDemo::PollActions() {
         std::string pathStrX(pathCountX, '\0');
         xrPathToString(mInstance, pathsxx[0], pathCountX, &pathCountX, &pathStrX.front());
         pathStrX.resize(pathCountX - 1);
-        LOGI(" pathStrX: %s", &pathStrX.front());
+        //LOGI(" pathStrX: %s", &pathStrX.front());
 
         uint32_t pathCountXX;
         xrPathToString(mInstance, pathsxx[1], 0, &pathCountXX, nullptr);
         std::string pathStrXX(pathCountXX, '\0');
         xrPathToString(mInstance, pathsxx[1], pathCountXX, &pathCountXX, &pathStrXX.front());
         pathStrXX.resize(pathCountXX - 1);
-        LOGI(" pathStrXX: %s", &pathStrXX.front());
+        //LOGI(" pathStrXX: %s", &pathStrXX.front());
 
 
         std::string sourceName0, sourceName1;
@@ -919,7 +922,7 @@ void XrDemo::PollActions() {
         xrGetInputSourceLocalizedName(mSession, &nameInfo, uint32_t(grabSource0.size()),
                                       &nameInfoSize0, grabSource0.data());
         sourceName0 += std::string(grabSource0.begin(), grabSource0.end());
-        LOGI(" sourceName0:%s", sourceName0.c_str());
+        //LOGI(" sourceName0:%s", sourceName0.c_str());
 
         nameInfo.sourcePath = pathsxx[1];
         uint32_t nameInfoSize1 = 0;
@@ -929,7 +932,7 @@ void XrDemo::PollActions() {
         xrGetInputSourceLocalizedName(mSession, &nameInfo, uint32_t(grabSource1.size()),
                                       &nameInfoSize1, grabSource1.data());
         sourceName1 += std::string(grabSource1.begin(), grabSource1.end());
-        LOGI(" sourceName1:%s", sourceName1.c_str());
+        //LOGI(" sourceName1:%s", sourceName1.c_str());
     }
 
 
@@ -947,24 +950,23 @@ bool XrDemo::Run() {
         ProcessEvents(&exitRenderLoop, &sessionRunning);
         if (stateBegeinSession == true && stateEndSession == true) {
             initEGLSurface();
-            LOGI("stateBegeinSession == true && stateEndSession == true");
+            //LOGI("stateBegeinSession == true && stateEndSession == true");
             XrDemoBeginSession();
             stateBegeinSession = false;
             stateEndSession = false;
         }
         if (exitRenderLoop) {
-            LOGI("exitRenderLoop");
+            //LOGI("exitRenderLoop");
             break;
         }
 
-        //LOGI("sessionRunning : %d",sessionRunning);
+        ////LOGI("sessionRunning : %d",sessionRunning);
         if (sessionRunning) {
             PollActions();
             RenderFrame();
-
             //mRender = 1;
         } else {
-            LOGI("session not Running");
+           // //LOGI("session not Running");
             // Throttle loop since xrWaitFrame won't be called.
             timespec total_time;
             timespec left_time;
@@ -983,7 +985,7 @@ bool XrDemo::Run() {
 }
 
 void XrDemo::DeInitializeSession() {
-    LOGI("DeInitializeSession");
+    //LOGI("DeInitializeSession");
     xrDestroySession(mSession);
     xrDestroySpace(mAppSpace);
     //add
@@ -996,7 +998,7 @@ void XrDemo::DeInitializeSession() {
 }
 
 void XrDemo::DestroyInstance() {
-    LOGI("DestroyInstance()");
+    //LOGI("DestroyInstance()");
     xrDestroyInstance(mInstance);
 }
 
@@ -1029,7 +1031,7 @@ void XrDemo::RenderFrame() {
     frameEndInfo.layerCount = (uint32_t) layers.size();
     frameEndInfo.layers = layers.data();
     int ret = xrEndFrame(mSession, &frameEndInfo);
-    LOGI("xrEndFrame ret:%d", ret);
+    //LOGI("xrEndFrame ret:%d", ret);
 
 }
 
@@ -1050,20 +1052,20 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
 
     xrLocateViews(mSession, &viewLocateInfo, &viewState, viewCapacityInput, &viewCountOutput,
                   mViews.data());
-    LOGI("after xrLocateViews viewCountOutput:%d", viewCountOutput);
+    ////LOGI("after xrLocateViews viewCountOutput:%d", viewCountOutput);
 
     //add
     XrSpaceLocation spaceLocation_l{XR_TYPE_SPACE_LOCATION};
     xrLocateSpace(LRSpace[0], mAppSpace, predictedDisplayTime, &spaceLocation_l);
-    LOGI("spaceLocation_l_position:%f,%f,%f", spaceLocation_l.pose.position.x,
-         spaceLocation_l.pose.position.y, spaceLocation_l.pose.position.z);
-    LOGI("spaceLocation_l_orientation:%f,%f,%f,%f", spaceLocation_l.pose.orientation.x,
-         spaceLocation_l.pose.orientation.y, spaceLocation_l.pose.orientation.z,
-         spaceLocation_l.pose.orientation.w);
+    //LOGI("spaceLocation_l_position:%f,%f,%f", spaceLocation_l.pose.position.x,
+    //     spaceLocation_l.pose.position.y, spaceLocation_l.pose.position.z);
+    //LOGI("spaceLocation_l_orientation:%f,%f,%f,%f", spaceLocation_l.pose.orientation.x,
+    //     spaceLocation_l.pose.orientation.y, spaceLocation_l.pose.orientation.z,
+    //     spaceLocation_l.pose.orientation.w);
     //XrSpaceLocation spaceLocation_r{XR_TYPE_SPACE_LOCATION};
     //xrLocateSpace(LRSpace[1], mAppSpace, predictedDisplayTime, &spaceLocation_r);
-    //LOGI("spaceLocation_r_position:%f,%f,%f",spaceLocation_r.pose.position.x,spaceLocation_r.pose.position.y,spaceLocation_r.pose.position.z);
-    //LOGI("spaceLocation_r_orientation:%f,%f,%f,%f",spaceLocation_r.pose.orientation.x,spaceLocation_r.pose.orientation.y,spaceLocation_r.pose.orientation.z,spaceLocation_r.pose.orientation.w);
+    ////LOGI("spaceLocation_r_position:%f,%f,%f",spaceLocation_r.pose.position.x,spaceLocation_r.pose.position.y,spaceLocation_r.pose.position.z);
+    ////LOGI("spaceLocation_r_orientation:%f,%f,%f,%f",spaceLocation_r.pose.orientation.x,spaceLocation_r.pose.orientation.y,spaceLocation_r.pose.orientation.z,spaceLocation_r.pose.orientation.w);
 
     Quaternion qTemp;
     qTemp.x = spaceLocation_l.pose.orientation.x;
@@ -1074,7 +1076,7 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
     EulerAngles angles;
     angles = ToEulerAngles(qTemp);
     //参考OpenXR aim  grip 坐标系的规定 向右为+X  向上为+Y 向后为+Z
-    LOGI("angles roll:%f, pitch:%f, yaw:%f", angles.roll, angles.pitch, angles.yaw);
+    //LOGI("angles roll:%f, pitch:%f, yaw:%f", angles.roll, angles.pitch, angles.yaw);
 
     //2. Prepare LayerViews
 
@@ -1083,7 +1085,7 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
 
 
     //3. Swapchain
-    LOGI("viewCountOutput:%d", viewCountOutput);
+    //LOGI("viewCountOutput:%d", viewCountOutput);
     for (int i = 0; i < viewCountOutput; i++)   //viewCountOutput ==> 1
     {
         //3.1 Acquire Image
@@ -1099,11 +1101,11 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
         //3.3 Prepare LayerViews
         projectionLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW};
         projectionLayerViews[i].pose = mViews[i].pose;
-        LOGI("i = %d : pose xyz:%f,%f,%f", i, mViews[i].pose.position.x, mViews[i].pose.position.y,
-             mViews[i].pose.position.z);
-        LOGI("i = %d : pose orientation:%f,%f,%f,%f", i, mViews[i].pose.orientation.x,
-             mViews[i].pose.orientation.y, mViews[i].pose.orientation.z,
-             mViews[i].pose.orientation.w);
+        //LOGI("i = %d : pose xyz:%f,%f,%f", i, mViews[i].pose.position.x, mViews[i].pose.position.y,
+        //     mViews[i].pose.position.z);
+        //LOGI("i = %d : pose orientation:%f,%f,%f,%f", i, mViews[i].pose.orientation.x,
+        //     mViews[i].pose.orientation.y, mViews[i].pose.orientation.z,
+        //     mViews[i].pose.orientation.w);
         projectionLayerViews[i].fov = mViews[i].fov;
         projectionLayerViews[i].subImage.swapchain = mSwapchains[i];
         projectionLayerViews[i].subImage.imageRect.offset = {0, 0};
@@ -1113,11 +1115,9 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
         //3.4 >>>Graphic Render>>>
         renderView(projectionLayerViews[i], swapchainImage, spaceLocation_l.pose);    //1st Render
 
-
         //3.5 Release Image
         XrSwapchainImageReleaseInfo releaseInfo{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
         xrReleaseSwapchainImage(mSwapchains[i], &releaseInfo);
-
     }
 
     //4. Make Layer
@@ -1125,7 +1125,7 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
     layer.layerFlags = 0;
     layer.space = mAppSpace;
     layer.viewCount = (uint32_t) projectionLayerViews.size();
-    LOGI("layer.viewCount:%d", layer.viewCount);
+    //LOGI("layer.viewCount:%d", layer.viewCount);
     layer.views = projectionLayerViews.data();
 }
 
@@ -1187,10 +1187,8 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
 
     mSkyboxModel.drawCube();
 
-
     mSkyboxShader.unUse();
     mSkyboxShader.unUseCube();
-
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -1200,7 +1198,7 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
 void XrDemo::setSurface(JNIEnv *jni, jobject surface) {
     if (surface != nullptr) {
         mNativeWindow = ANativeWindow_fromSurface(jni, surface);
-        LOGI("setSurface %p", mNativeWindow);
+        //LOGI("setSurface %p", mNativeWindow);
     }
 }
 
@@ -1209,7 +1207,7 @@ bool XrDemo::initEGLSurface() {
     EGLSurface windowSurface = eglCreateWindowSurface(mDisplay, mConfig, mNativeWindow, attribs);
 
     if (eglMakeCurrent(mDisplay, windowSurface, windowSurface, mContext) == EGL_FALSE) {
-        LOGI("eglMakeCurrent failed: %s", getEglErrorChars());
+        //LOGI("eglMakeCurrent failed: %s", getEglErrorChars());
         return false;
     }
     return true;
@@ -1220,7 +1218,7 @@ void XrDemo::initSkyboxMethod(JNIEnv *jni) {
 }
 
 void XrDemo::start() {
-    LOGI("Creating render thread");
+    //LOGI("Creating render thread");
     pthread_create(&_threadId, nullptr, threadStartCallback, this);
 }
 
@@ -1239,13 +1237,13 @@ void *XrDemo::threadStartCallback(void *myself) {
 
 
 void XrDemo::DestroyActions() {
-    LOGI("DestroyActions");
+    //LOGI("DestroyActions");
     for (int i = 0; i < 13; i++) {
         XrResult retxrDestroyAct = xrDestroyAction(m_XrAction[i]);
-        // LOGI("retxrDestroyAct:%d",retxrDestroyAct);
+        // //LOGI("retxrDestroyAct:%d",retxrDestroyAct);
     }
     XrResult retxrDestroyActSet = xrDestroyActionSet(m_actionSet);
-    //LOGI("retxrDestroyActSet:%d",retxrDestroyActSet);
+    ////LOGI("retxrDestroyActSet:%d",retxrDestroyActSet);
 }
 
 double XrDemo::GetSeconds() {
@@ -1265,6 +1263,8 @@ double XrDemo::GetNanos() {
 
     return result;
 }
+
+//-----------lark_xr------------//
 
 void XrDemo::OnResume() {
     LOGV("onResume()");
@@ -1373,11 +1373,15 @@ void XrDemo::CloseAppli() {
 void XrDemo::OnMediaReady(int nativeTextrure) {
     LOGENTRY();
     LOGE("OnMediaReady+Na");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, nativeTextrure);
 }
 
 void XrDemo::OnMediaReady(int nativeTextureLeft, int nativeTextureRight) {
     LOGENTRY();
     LOGE("OnMediaReady+L+R");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, nativeTextureLeft);
 }
 
 void XrDemo::OnMediaReady() {
@@ -1385,7 +1389,7 @@ void XrDemo::OnMediaReady() {
 }
 
 void XrDemo::RequestTrackingInfo() {
-    LOGE("RequestTrackingInfo");
+    //LOGE("RequestTrackingInfo");
     larkxrTrackingDevicePairFrame_ frame=larkxrTrackingDevicePairFrame_();
     xr_client_->SendDevicePair(frame);
 }
@@ -1393,7 +1397,6 @@ void XrDemo::RequestTrackingInfo() {
 void XrDemo::OnTrackingFrame(const larkxrTrackingFrame &trackingFrame) {
     LOGE("OnTrackingFrame");
     Application::OnTrackingFrame(trackingFrame);
-
 
 }
 

@@ -147,7 +147,7 @@ public:
 
     void useCube()
     {
-        LOGI("shader useCube");
+        //LOGI("shader useCube");
         glUseProgram(IDCube);
     }
 
@@ -158,7 +158,7 @@ public:
 
     void unUseCube()
     {
-        LOGI("shader unUseCube");
+       // LOGI("shader unUseCube");
         glUseProgram(0);
     }
 
@@ -186,7 +186,7 @@ public:
 
     void setMat4Cube(const char* name, const float* mat) const
     {
-        LOGI("shader setMat4Cube");
+      //  LOGI("shader setMat4Cube");
         glUniformMatrix4fv(glGetUniformLocation(IDCube, name), 1, GL_FALSE, mat);
     }
 

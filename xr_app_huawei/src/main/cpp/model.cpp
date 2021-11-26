@@ -45,7 +45,7 @@ void Model::unBuildCube()
 }
 void Model::draw() const
 {
-    LOGI("Model::draw()");
+    //LOGI("Model::draw()");
     glBindVertexArrayOESEXT(mVAO);
 
     glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT, nullptr);
@@ -56,7 +56,7 @@ void Model::draw() const
 
 void Model::drawCube() const
 {
-    LOGI("Model::drawCube()");
+    //LOGI("Model::drawCube()");
     glBindVertexArrayOESEXT(mVAOCube);
 
     glDrawElements(GL_TRIANGLES, mIndicesCube.size(), GL_UNSIGNED_SHORT, nullptr);

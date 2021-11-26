@@ -23,8 +23,6 @@ import com.psmart.vrlib.PicovrSDK;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
-import com.pxy.cloudlarkxrpico.Activity.BaseApplication;
-import com.pxy.cloudlarkxrpico.Activity.ListActivity;
 
 import java.io.File;
 
@@ -100,8 +98,6 @@ public class MainActivity extends VRActivity implements RenderInterface {
         }
 
         nativeInit(getResources().getAssets(), s1, s2);
-
-        BaseApplication.getInstance().setmHandler(handler);
 
         CrashHandler.getInstance().init(this);
 

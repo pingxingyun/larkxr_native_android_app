@@ -56,7 +56,7 @@ void PvrSceneLocal::InitGl(int eyeBufferWidth, int eyeBufferHeight) {
 
     // navigation.
     navigation_ = std::make_shared<Navigation>();
-    navigation_->SetSupport2DUI();
+    //navigation_->SetSupport2DUI();
     PvrScene::AddObject(navigation_);
 
 //    test_obj_.reset();

@@ -136,7 +136,7 @@ void OvrApplication::ShutdownGL() {
 
     // reset all state.
     Input::ResetInput();
-    Navigation::ClearToast();
+   // Navigation::ClearToastEnterAppli();
 
     scene_local_->ShutdownGL();
     scene_local_.reset();

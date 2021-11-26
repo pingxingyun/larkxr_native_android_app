@@ -64,6 +64,48 @@ void Texture::initJavaMethod(JNIEnv* jni, JavaVM* jvm, jobject activity)
     LOGI( "initJavaMethod ok" );
 }
 
+void Texture::initLarkMethod(JNIEnv* jni, JavaVM* jvm, jobject activity)
+{
+    mJvm = jvm;
+    LOGI("findClassAndMethod");
+    static const char *surfaceTexClassName = "com/pxy/xr_app_huawei/BitmapDecoder";
+    const jclass cls = jni->FindClass(surfaceTexClassName);
+    if (cls == 0)
+    {
+        LOGE("can not find surfaceClass(%s)", surfaceTexClassName);
+        return;
+    }
+
+    const jmethodID constructMethodId = jni->GetMethodID(cls, "<init>", "(Landroid/content/Context;)V");
+    if (constructMethodId == 0)
+    {
+        LOGE("couldn't get constructMethodId ");
+        jni->DeleteLocalRef(cls);
+        return;
+    }
+
+    jobject obj = jni->NewObject( cls, constructMethodId, activity);
+    if ( obj == 0 )
+    {
+        LOGE( "NewObject() failed" );
+
+        jni->DeleteLocalRef( cls );
+        return;
+    }
+    mGClass = jni->NewGlobalRef( obj );
+    if ( mGClass == 0 )
+    {
+        LOGE( "NewGlobalRef() failed" );
+        jni->DeleteLocalRef( obj );
+        jni->DeleteLocalRef( cls );
+        return;
+    }
+
+    mGetTexidMethodId = jni->GetMethodID( cls, "getCubeTexid", "()I" );
+    mGetTexidMethodIdCube = jni->GetMethodID( cls, "getCubeTexidCube", "()I" );
+    jni->DeleteLocalRef( cls );
+    LOGI( "initJavaMethod ok" );
+}
 
 void Texture::build()
 {
