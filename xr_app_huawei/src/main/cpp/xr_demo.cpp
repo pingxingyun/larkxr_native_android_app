@@ -182,11 +182,12 @@ void XrDemo::InitGLGraphics() {
                     }
 #endif
 
-    xr_client_->SetServerAddr("192.168.31.10",8181);
-    //xr_client_->EnterAppli("756846918545440768");
-    xr_client_->EnterAppli("913759007280201728");
+    xr_client_->SetServerAddr("192.168.31.15",8181);
+    xr_client_->EnterAppli("756846918545440768");
+    //xr_client_->EnterAppli("913759007280201728");
+    rect_render_ = std::make_shared<RectTexture>();
 
-    mSkyboxShader.build();
+   mSkyboxShader.build();
     mSkyboxShader.use();
     mSkyboxShader.setInt("Texture0", 0);
 
@@ -1190,9 +1191,11 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     mSkyboxShader.unUse();
     mSkyboxShader.unUseCube();
 
+    //mark
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-
+    rect_render_->DrawMultiview(glm::mat4(), glm::mat4());
+    //rect_render_->Draw(lark::Object::EYE_LEFT,glm::mat4(), glm::mat4());
 }
 
 void XrDemo::setSurface(JNIEnv *jni, jobject surface) {
@@ -1313,6 +1316,7 @@ bool XrDemo::InitVR(android_app *app) {
     LOGE("InitVR");
     // 初始化环境。
     Context::Init(app->activity);
+
     return true;
 }
 
@@ -1373,15 +1377,16 @@ void XrDemo::CloseAppli() {
 void XrDemo::OnMediaReady(int nativeTextrure) {
     LOGENTRY();
     LOGE("OnMediaReady+Na");
+    nativeTextrureFromMedia=nativeTextrure;
+    rect_render_->SetMutiviewModeTexture(nativeTextrure);
+    LOGE("glActiveTexture");
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, nativeTextrure);
+    glBindTexture(GL_TEXTURE_2D, nativeTextrureFromMedia);
 }
 
 void XrDemo::OnMediaReady(int nativeTextureLeft, int nativeTextureRight) {
     LOGENTRY();
     LOGE("OnMediaReady+L+R");
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, nativeTextureLeft);
 }
 
 void XrDemo::OnMediaReady() {
@@ -1396,8 +1401,7 @@ void XrDemo::RequestTrackingInfo() {
 }
 
 void XrDemo::OnTrackingFrame(const larkxrTrackingFrame &trackingFrame) {
-    LOGE("OnTrackingFrame");
+    //LOGE("OnTrackingFrame");
     Application::OnTrackingFrame(trackingFrame);
-
 }
 

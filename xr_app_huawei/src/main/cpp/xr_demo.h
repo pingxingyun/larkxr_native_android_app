@@ -17,6 +17,7 @@
 #include <thread>
 #include <time.h>
 #include <application.h>
+#include <rect_texture.h>
 
 enum AppState{
     ON_RESUME,
@@ -41,6 +42,8 @@ public:
     virtual void CloseAppli() override;
 
     ANativeWindow *		native_window_ = nullptr;
+    int nativeTextrureFromMedia;
+    std::shared_ptr<RectTexture> rect_render_ = nullptr;
 public:
     // andoird lifecycle
     void OnResume();
@@ -144,8 +147,6 @@ public:
     //Instance State
     bool mInstanceLossState;
     double mInstanceLossStateTime;
-
-
 private:
 
     static void* threadStartCallback(void *myself);
