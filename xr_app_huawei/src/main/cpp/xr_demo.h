@@ -43,6 +43,8 @@ public:
 
     ANativeWindow *		native_window_ = nullptr;
     int nativeTextrureFromMedia;
+    int nativeTextrureFromMediaLeft;
+    int nativeTextrureFromMediaRight;
     std::shared_ptr<RectTexture> rect_render_ = nullptr;
 public:
     // andoird lifecycle

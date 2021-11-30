@@ -186,6 +186,7 @@ void XrDemo::InitGLGraphics() {
     xr_client_->EnterAppli("756846918545440768");
     //xr_client_->EnterAppli("913759007280201728");
     rect_render_ = std::make_shared<RectTexture>();
+    lark::XRConfig::use_multiview = false;
 
    mSkyboxShader.build();
     mSkyboxShader.use();
@@ -1177,7 +1178,6 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     mSkyboxShader.setMat4("view", &eyeViewMatrix.m[0][0]);
     mSkyboxModel.draw();
 
-
     glActiveTexture(GL_TEXTURE0);
     //glBindTexture(GL_TEXTURE_2D, mSkyboxTexture.mTextureIdCube);
     mSkyboxShader.useCube();
@@ -1194,8 +1194,24 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     //mark
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    rect_render_->DrawMultiview(glm::mat4(), glm::mat4());
-    //rect_render_->Draw(lark::Object::EYE_LEFT,glm::mat4(), glm::mat4());
+    //rect_render_->DrawMultiview(glm::mat4(), glm::mat4());
+    rect_render_->DrawStereo(lark::Object::EYE_LEFT,glm::mat4(), glm::mat4());
+    rect_render_->DrawStereo(lark::Object::EYE_RIGHT,glm::mat4(), glm::mat4());
+
+    larkxrTrackingDevicePairFrame frame= {};
+    frame.devicePair.hmdPose.isConnected = true;
+
+    frame.devicePair.hmdPose.position.x=layerView.pose.position.x;
+    frame.devicePair.hmdPose.position.y=layerView.pose.position.y+1.5;
+    frame.devicePair.hmdPose.position.z=layerView.pose.position.z;
+    LOGE("position.y--%f",layerView.pose.position.y);
+
+    frame.devicePair.hmdPose.rotation.x=layerView.pose.orientation.x;
+    frame.devicePair.hmdPose.rotation.y=layerView.pose.orientation.y;
+    frame.devicePair.hmdPose.rotation.z=layerView.pose.orientation.z;
+    frame.devicePair.hmdPose.rotation.w=layerView.pose.orientation.w;
+
+    xr_client_->SendDevicePair(frame);
 }
 
 void XrDemo::setSurface(JNIEnv *jni, jobject surface) {
@@ -1379,14 +1395,14 @@ void XrDemo::OnMediaReady(int nativeTextrure) {
     LOGE("OnMediaReady+Na");
     nativeTextrureFromMedia=nativeTextrure;
     rect_render_->SetMutiviewModeTexture(nativeTextrure);
-    LOGE("glActiveTexture");
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, nativeTextrureFromMedia);
 }
 
 void XrDemo::OnMediaReady(int nativeTextureLeft, int nativeTextureRight) {
     LOGENTRY();
     LOGE("OnMediaReady+L+R");
+    nativeTextrureFromMediaLeft=nativeTextureLeft;
+    nativeTextrureFromMediaRight=nativeTextureRight;
+    rect_render_->SetStereoTexture(nativeTextureLeft,nativeTextureRight);
 }
 
 void XrDemo::OnMediaReady() {
@@ -1395,9 +1411,10 @@ void XrDemo::OnMediaReady() {
 
 void XrDemo::RequestTrackingInfo() {
     //LOGE("RequestTrackingInfo");
-    larkxrTrackingDevicePairFrame frame= {};
-    frame.devicePair.hmdPose.isConnected = true;
-    xr_client_->SendDevicePair(frame);
+//    larkxrTrackingDevicePairFrame frame= {};
+//    frame.devicePair.hmdPose.isConnected = true;
+//
+//    xr_client_->SendDevicePair(frame);
 }
 
 void XrDemo::OnTrackingFrame(const larkxrTrackingFrame &trackingFrame) {
