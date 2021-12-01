@@ -1467,18 +1467,35 @@ void XrDemo::RequestTrackingInfo() {
             (mTrackingStateS[0].devicePair.hmdPose.rotation.w +
              mTrackingStateS[1].devicePair.hmdPose.rotation.w) / 2;
 
+    frame.devicePair.controllerState[0].pose.isConnected=true;
+    frame.devicePair.controllerState[0].pose.is6Dof= false;
+    frame.devicePair.controllerState[0].pose.isValidPose= true;
+    frame.devicePair.controllerState[0].pose.status= 0;
+
     frame.devicePair.controllerState[0].pose.rotation.x =
             (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.x +
              mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.x) / 2;
+    LOGE("fram%f,%f,%f" ,frame.devicePair.controllerState[0].pose.rotation.x ,
+                    mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.x ,
+                    mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.x);
     frame.devicePair.controllerState[0].pose.rotation.y =
             (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.y +
              mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.y) / 2;
+    LOGE("fram%f,%f,%f" ,frame.devicePair.controllerState[0].pose.rotation.y ,
+         mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.y ,
+         mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.y);
     frame.devicePair.controllerState[0].pose.rotation.z =
             (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.z +
              mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.z) / 2;
+    LOGE("fram%f,%f,%f" ,frame.devicePair.controllerState[0].pose.rotation.z ,
+         mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.z ,
+         mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.z);
     frame.devicePair.controllerState[0].pose.rotation.w =
             (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.w +
              mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.w) / 2;
+    LOGE("%f,%f,%f" ,frame.devicePair.controllerState[0].pose.rotation.w ,
+         mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.w ,
+         mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.w);
 
     xr_client_->SendDevicePair(frame);
 }
