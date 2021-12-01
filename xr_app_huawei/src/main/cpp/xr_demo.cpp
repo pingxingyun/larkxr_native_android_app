@@ -1144,7 +1144,6 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
 void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
                         const XrSwapchainImageBaseHeader *swapchainImage, const XrPosef &ctlPose,
                         int i) {
-
     const uint32_t colorTexture = reinterpret_cast<const XrSwapchainImageOpenGLESKHR *>(swapchainImage)->image;
 
     XrQuaternionf xrquat;
