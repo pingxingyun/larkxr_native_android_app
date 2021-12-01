@@ -1,7 +1,6 @@
 package com.pxy.cloudlarkxroculus;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.ConnectivityManager.NetworkCallback;
@@ -19,7 +18,6 @@ import androidx.annotation.NonNull;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.cloudlarkxroculus.Activity.BaseApplication;
-import com.pxy.cloudlarkxroculus.Activity.ListActivity;
 import com.pxy.larkcore.Util;
 
 public class MainActivity extends android.app.NativeActivity {

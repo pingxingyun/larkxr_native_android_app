@@ -83,7 +83,7 @@ void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeInit(JNIEnv *jni, jclass cl
 
         jobject g_act = jni->NewGlobalRef(act);
 
-        gApp = new XrDemo(_vm, g_act,jni);
+        gApp = new XrDemo(_vm, g_act, jni);
         //gApp->InitGLGraphics();
         gApp->setSurface(jni, surface);
         gApp->initSkyboxMethod(jni);
@@ -120,7 +120,7 @@ void Java_com_pxy_xr_1app_1huawei_MainActivity_nativeDestroy(JNIEnv *env, jclass
 }
 }
 
-XrDemo::XrDemo(JavaVM *_vm, jobject act,JNIEnv*	_Env) :
+XrDemo::XrDemo(JavaVM *_vm, jobject act, JNIEnv *_Env) :
         mNativeWindow(nullptr) {
     mActivity = act;
     mJvm = _vm;
@@ -182,13 +182,16 @@ void XrDemo::InitGLGraphics() {
                     }
 #endif
 
-    xr_client_->SetServerAddr("192.168.31.15",8181);
+    xr_client_->SetServerAddr("192.168.31.15", 8181);
     xr_client_->EnterAppli("756846918545440768");
     //xr_client_->EnterAppli("913759007280201728");
     rect_render_ = std::make_shared<RectTexture>();
     lark::XRConfig::use_multiview = false;
+    lark::XRConfig::fps = 72;
+    lark::XRConfig::render_width = 1920;
+    lark::XRConfig::render_height = 1080;
 
-   mSkyboxShader.build();
+    mSkyboxShader.build();
     mSkyboxShader.use();
     mSkyboxShader.setInt("Texture0", 0);
 
@@ -299,6 +302,7 @@ void XrDemo::CreateActions() {
         // Create an input action for grabbing objects with the left and right hands.
         LOGW("Create an action_1");
         XrActionCreateInfo actionInfo{XR_TYPE_ACTION_CREATE_INFO};
+
         actionInfo.actionType = XR_ACTION_TYPE_BOOLEAN_INPUT;
         strcpy(actionInfo.actionName, "home");
         strcpy(actionInfo.localizedActionName, "Home");
@@ -394,38 +398,37 @@ void XrDemo::CreateActions() {
         actionInfo.subactionPaths = LRPath;
         xrCreateAction(m_actionSet, &actionInfo, &m_XrAction[12]);
 
-
     }
 
+    {
+        xrStringToPath(mInstance, "/user/hand/left/input/home/click", &HomePath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/home/click", &HomePath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/back/click", &BackPath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/back/click", &BackPath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/volume_up/click", &VolumeUpPath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/volume_up/click", &VolumeUpPath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/volume_down/click", &VolumeDownPath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/volume_down/click", &VolumeDownPath[1]);
 
-    xrStringToPath(mInstance, "/user/hand/left/input/home/click", &HomePath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/home/click", &HomePath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/back/click", &BackPath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/back/click", &BackPath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/volume_up/click", &VolumeUpPath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/volume_up/click", &VolumeUpPath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/volume_down/click", &VolumeDownPath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/volume_down/click", &VolumeDownPath[1]);
-
-    xrStringToPath(mInstance, "/user/hand/left/input/trigger/value", &TriggerValuePath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/trigger/value", &TriggerValuePath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/trigger/click", &TriggerClickPath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/trigger/click", &TriggerClickPath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/trackpad/value", &TrackpadValuePath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/trackpad/value", &TrackpadValuePath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/trackpad/x", &TrackpadXValuePath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/trackpad/x", &TrackpadXValuePath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/trackpad/y", &TrackpadYValuePath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/trackpad/y", &TrackpadYValuePath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/trackpad/click", &TrackpadClickPath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/trackpad/click", &TrackpadClickPath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/trackpad/touch", &TrackpadTouchPath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/trackpad/touch", &TrackpadTouchPath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/input/aim/pose", &PoseValuePath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/input/aim/pose", &PoseValuePath[1]);
-    xrStringToPath(mInstance, "/user/hand/left/output/haptic", &HapticPath[0]);
-    xrStringToPath(mInstance, "/user/hand/right/output/haptic", &HapticPath[1]);
-
+        xrStringToPath(mInstance, "/user/hand/left/input/trigger/value", &TriggerValuePath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/trigger/value", &TriggerValuePath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/trigger/click", &TriggerClickPath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/trigger/click", &TriggerClickPath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/trackpad/value", &TrackpadValuePath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/trackpad/value", &TrackpadValuePath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/trackpad/x", &TrackpadXValuePath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/trackpad/x", &TrackpadXValuePath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/trackpad/y", &TrackpadYValuePath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/trackpad/y", &TrackpadYValuePath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/trackpad/click", &TrackpadClickPath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/trackpad/click", &TrackpadClickPath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/trackpad/touch", &TrackpadTouchPath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/trackpad/touch", &TrackpadTouchPath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/input/aim/pose", &PoseValuePath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/input/aim/pose", &PoseValuePath[1]);
+        xrStringToPath(mInstance, "/user/hand/left/output/haptic", &HapticPath[0]);
+        xrStringToPath(mInstance, "/user/hand/right/output/haptic", &HapticPath[1]);
+    }
     // Suggest bindings for KHR Simple.
     {
         LOGW("Suggest bindings for KHR Simple");
@@ -470,28 +473,31 @@ void XrDemo::CreateActions() {
 
     }
 
-
     //xrCreateActionSpace
     {
         //LOGW("xrCreateActionSpace");
         XrActionSpaceCreateInfo actionSpaceInfo{XR_TYPE_ACTION_SPACE_CREATE_INFO};
+        //XrActionSpaceCreateInfo actionSpaceInfo{XR_TYPE_SPACE_LOCATION};
         actionSpaceInfo.action = m_XrAction[3];
         actionSpaceInfo.poseInActionSpace.orientation.x = 0.0;
         actionSpaceInfo.poseInActionSpace.orientation.y = 0.0;
         actionSpaceInfo.poseInActionSpace.orientation.z = 0.0;
         actionSpaceInfo.poseInActionSpace.orientation.w = 1.0;
+
         actionSpaceInfo.poseInActionSpace.position.x = 0.0;
         actionSpaceInfo.poseInActionSpace.position.y = 0.0;
         actionSpaceInfo.poseInActionSpace.position.z = 0.0;
+
         actionSpaceInfo.subactionPath = LRPath[0];
 
         XrResult ret_xrCreateActionSpace_0 = xrCreateActionSpace(mSession, &actionSpaceInfo,
                                                                  &LRSpace[0]);
-        ////LOGI("ret_xrCreateActionSpace_0:%d",ret_xrCreateActionSpace_0);
+        LOGI("ret_xrCreateActionSpace_0:%d", ret_xrCreateActionSpace_0);
+
         actionSpaceInfo.subactionPath = LRPath[1];
         XrResult ret_xrCreateActionSpace_1 = xrCreateActionSpace(mSession, &actionSpaceInfo,
                                                                  &LRSpace[1]);
-        ////LOGI("ret_xrCreateActionSpace_1:%d",ret_xrCreateActionSpace_1);
+        LOGI("ret_xrCreateActionSpace_1:%d", ret_xrCreateActionSpace_1);
     }
 
 
@@ -756,14 +762,12 @@ void XrDemo::ProcessEvents(bool *exitRenderLoop, bool *sessionRunning) {
 
 void XrDemo::PollActions() {
     {
-        const XrActiveActionSet activeActionSet{m_actionSet, LRSpace[0]};
+        const XrActiveActionSet activeActionSet{m_actionSet, LRSpace[1]};
         XrActionsSyncInfo syncInfo{XR_TYPE_ACTIONS_SYNC_INFO};
         syncInfo.countActiveActionSets = 1;
         syncInfo.activeActionSets = &activeActionSet;
         xrSyncActions(mSession, &syncInfo);
-
     }
-
 
     for (int i = 0; i < 1; i++) {
         const XrPath subactionLRPath = LRPath[i];
@@ -797,7 +801,7 @@ void XrDemo::PollActions() {
         getInfo_p.action = m_XrAction[3];
         getInfo_p.subactionPath = subactionLRPath;
         xrGetActionStatePose(mSession, &getInfo_p, &PoseState);
-        ////LOGI("PoseState.isActive:%d", PoseState.isActive);
+        LOGI("PoseState.isActive:%d", PoseState.isActive);
 
 
         XrHapticVibration vibration{XR_TYPE_HAPTIC_VIBRATION};
@@ -968,7 +972,7 @@ bool XrDemo::Run() {
             RenderFrame();
             //mRender = 1;
         } else {
-           // //LOGI("session not Running");
+            // //LOGI("session not Running");
             // Throttle loop since xrWaitFrame won't be called.
             timespec total_time;
             timespec left_time;
@@ -1059,15 +1063,19 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
     //add
     XrSpaceLocation spaceLocation_l{XR_TYPE_SPACE_LOCATION};
     xrLocateSpace(LRSpace[0], mAppSpace, predictedDisplayTime, &spaceLocation_l);
-    //LOGI("spaceLocation_l_position:%f,%f,%f", spaceLocation_l.pose.position.x,
-    //     spaceLocation_l.pose.position.y, spaceLocation_l.pose.position.z);
-    //LOGI("spaceLocation_l_orientation:%f,%f,%f,%f", spaceLocation_l.pose.orientation.x,
-    //     spaceLocation_l.pose.orientation.y, spaceLocation_l.pose.orientation.z,
-    //     spaceLocation_l.pose.orientation.w);
-    //XrSpaceLocation spaceLocation_r{XR_TYPE_SPACE_LOCATION};
-    //xrLocateSpace(LRSpace[1], mAppSpace, predictedDisplayTime, &spaceLocation_r);
-    ////LOGI("spaceLocation_r_position:%f,%f,%f",spaceLocation_r.pose.position.x,spaceLocation_r.pose.position.y,spaceLocation_r.pose.position.z);
-    ////LOGI("spaceLocation_r_orientation:%f,%f,%f,%f",spaceLocation_r.pose.orientation.x,spaceLocation_r.pose.orientation.y,spaceLocation_r.pose.orientation.z,spaceLocation_r.pose.orientation.w);
+    LOGI("spaceLocation_l_position:%f,%f,%f", spaceLocation_l.pose.position.x,
+         spaceLocation_l.pose.position.y, spaceLocation_l.pose.position.z);
+    LOGI("spaceLocation_l_orientation:%f,%f,%f,%f", spaceLocation_l.pose.orientation.x,
+         spaceLocation_l.pose.orientation.y, spaceLocation_l.pose.orientation.z,
+         spaceLocation_l.pose.orientation.w);
+
+    XrSpaceLocation spaceLocation_r{XR_TYPE_SPACE_LOCATION};
+    xrLocateSpace(LRSpace[1], mAppSpace, predictedDisplayTime, &spaceLocation_r);
+    LOGI("spaceLocation_r_position:%f,%f,%f", spaceLocation_r.pose.position.x,
+         spaceLocation_r.pose.position.y, spaceLocation_r.pose.position.z);
+    LOGI("spaceLocation_r_orientation:%f,%f,%f,%f", spaceLocation_r.pose.orientation.x,
+         spaceLocation_r.pose.orientation.y, spaceLocation_r.pose.orientation.z,
+         spaceLocation_r.pose.orientation.w);
 
     Quaternion qTemp;
     qTemp.x = spaceLocation_l.pose.orientation.x;
@@ -1115,7 +1123,8 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
         projectionLayerViews[i].subImage.imageArrayIndex = 0;
         const XrSwapchainImageBaseHeader *const swapchainImage = (XrSwapchainImageBaseHeader *) (&(mSwapchainsImageArray[i][swapchainImageIndex]));
         //3.4 >>>Graphic Render>>>
-        renderView(projectionLayerViews[i], swapchainImage, spaceLocation_l.pose);    //1st Render
+        renderView(projectionLayerViews[i], swapchainImage, spaceLocation_l.pose,
+                   i);    //1st Render
 
         //3.5 Release Image
         XrSwapchainImageReleaseInfo releaseInfo{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
@@ -1133,7 +1142,8 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
 
 
 void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
-                        const XrSwapchainImageBaseHeader *swapchainImage, const XrPosef &ctlPose) {
+                        const XrSwapchainImageBaseHeader *swapchainImage, const XrPosef &ctlPose,
+                        int i) {
 
     const uint32_t colorTexture = reinterpret_cast<const XrSwapchainImageOpenGLESKHR *>(swapchainImage)->image;
 
@@ -1148,12 +1158,20 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     xrvec.y = layerView.pose.position.y;
     xrvec.z = layerView.pose.position.z;
 
-
     XrQuaternionf xrquatCtl;
     xrquatCtl.x = ctlPose.orientation.x;
     xrquatCtl.y = ctlPose.orientation.y;
     xrquatCtl.z = ctlPose.orientation.z;
     xrquatCtl.w = ctlPose.orientation.w;
+
+    LOGE("ctlpX%f", ctlPose.position.x);
+    LOGE("ctlpY%f", ctlPose.position.y);
+    LOGE("ctlpZ%f", ctlPose.position.z);
+
+    LOGE("ctlX%f", ctlPose.orientation.x);
+    LOGE("ctlY%f", ctlPose.orientation.y);
+    LOGE("ctlZ%f", ctlPose.orientation.z);
+    LOGE("ctlZ%f", ctlPose.orientation.w);
 
     XrMatrix4x4f eyeViewMatrix = XrMatrix4x4f_CreateFromQuaternion_4(&xrquat, &xrvec);
     XrMatrix4x4f ctlMatrix = XrMatrix4x4f_CreateFromQuaternion(&xrquatCtl);
@@ -1195,23 +1213,37 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     //rect_render_->DrawMultiview(glm::mat4(), glm::mat4());
-    rect_render_->DrawStereo(lark::Object::EYE_LEFT,glm::mat4(), glm::mat4());
-    rect_render_->DrawStereo(lark::Object::EYE_RIGHT,glm::mat4(), glm::mat4());
 
-    larkxrTrackingDevicePairFrame frame= {};
-    frame.devicePair.hmdPose.isConnected = true;
+    switch (i) {
+        case 0: {
+            rect_render_->DrawStereo(lark::Object::EYE_LEFT, glm::mat4(), glm::mat4());
+            break;
+        }
+        case 1: {
+            rect_render_->DrawStereo(lark::Object::EYE_RIGHT, glm::mat4(), glm::mat4());
+            break;
+        }
+    }
 
-    frame.devicePair.hmdPose.position.x=layerView.pose.position.x;
-    frame.devicePair.hmdPose.position.y=layerView.pose.position.y+1.5;
-    frame.devicePair.hmdPose.position.z=layerView.pose.position.z;
-    LOGE("position.y--%f",layerView.pose.position.y);
+    mTrackingStateS[i].devicePair.hmdPose.isConnected = true;
 
-    frame.devicePair.hmdPose.rotation.x=layerView.pose.orientation.x;
-    frame.devicePair.hmdPose.rotation.y=layerView.pose.orientation.y;
-    frame.devicePair.hmdPose.rotation.z=layerView.pose.orientation.z;
-    frame.devicePair.hmdPose.rotation.w=layerView.pose.orientation.w;
+    mTrackingStateS[i].devicePair.hmdPose.position.x = layerView.pose.position.x;
+    mTrackingStateS[i].devicePair.hmdPose.position.y = layerView.pose.position.y + 1.5;
+    mTrackingStateS[i].devicePair.hmdPose.position.z = layerView.pose.position.z;
 
-    xr_client_->SendDevicePair(frame);
+    mTrackingStateS[i].devicePair.hmdPose.rotation.x = layerView.pose.orientation.x;
+    mTrackingStateS[i].devicePair.hmdPose.rotation.y = layerView.pose.orientation.y;
+    mTrackingStateS[i].devicePair.hmdPose.rotation.z = layerView.pose.orientation.z;
+    mTrackingStateS[i].devicePair.hmdPose.rotation.w = layerView.pose.orientation.w;
+
+    mTrackingStateS[i].devicePair.controllerState[0].pose.position.x = ctlPose.position.x;
+    mTrackingStateS[i].devicePair.controllerState[0].pose.position.y = ctlPose.position.y;
+    mTrackingStateS[i].devicePair.controllerState[0].pose.position.z = ctlPose.position.z;
+
+    mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.x = ctlPose.orientation.x;
+    mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.y = ctlPose.orientation.y;
+    mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.z = ctlPose.orientation.z;
+    mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.w = ctlPose.orientation.w;
 }
 
 void XrDemo::setSurface(JNIEnv *jni, jobject surface) {
@@ -1393,16 +1425,16 @@ void XrDemo::CloseAppli() {
 void XrDemo::OnMediaReady(int nativeTextrure) {
     LOGENTRY();
     LOGE("OnMediaReady+Na");
-    nativeTextrureFromMedia=nativeTextrure;
+    nativeTextrureFromMedia = nativeTextrure;
     rect_render_->SetMutiviewModeTexture(nativeTextrure);
 }
 
 void XrDemo::OnMediaReady(int nativeTextureLeft, int nativeTextureRight) {
     LOGENTRY();
     LOGE("OnMediaReady+L+R");
-    nativeTextrureFromMediaLeft=nativeTextureLeft;
-    nativeTextrureFromMediaRight=nativeTextureRight;
-    rect_render_->SetStereoTexture(nativeTextureLeft,nativeTextureRight);
+    nativeTextrureFromMediaLeft = nativeTextureLeft;
+    nativeTextrureFromMediaRight = nativeTextureRight;
+    rect_render_->SetStereoTexture(nativeTextureLeft, nativeTextureRight);
 }
 
 void XrDemo::OnMediaReady() {
@@ -1411,10 +1443,45 @@ void XrDemo::OnMediaReady() {
 
 void XrDemo::RequestTrackingInfo() {
     //LOGE("RequestTrackingInfo");
-//    larkxrTrackingDevicePairFrame frame= {};
-//    frame.devicePair.hmdPose.isConnected = true;
-//
-//    xr_client_->SendDevicePair(frame);
+    larkxrTrackingDevicePairFrame frame;
+    frame.devicePair.hmdPose.isConnected = true;
+    frame.devicePair.hmdPose.position.x =
+            (mTrackingStateS[0].devicePair.hmdPose.position.x +
+             mTrackingStateS[1].devicePair.hmdPose.position.x) / 2;
+    frame.devicePair.hmdPose.position.y =
+            (mTrackingStateS[0].devicePair.hmdPose.position.y +
+             mTrackingStateS[1].devicePair.hmdPose.position.y) / 2;
+    frame.devicePair.hmdPose.position.z =
+            (mTrackingStateS[0].devicePair.hmdPose.position.z +
+             mTrackingStateS[1].devicePair.hmdPose.position.z) / 2;
+
+    frame.devicePair.hmdPose.rotation.x =
+            (mTrackingStateS[0].devicePair.hmdPose.rotation.x +
+             mTrackingStateS[1].devicePair.hmdPose.rotation.x) / 2;
+    frame.devicePair.hmdPose.rotation.y =
+            (mTrackingStateS[0].devicePair.hmdPose.rotation.y +
+             mTrackingStateS[1].devicePair.hmdPose.rotation.y) / 2;
+    frame.devicePair.hmdPose.rotation.z =
+            (mTrackingStateS[0].devicePair.hmdPose.rotation.z +
+             mTrackingStateS[1].devicePair.hmdPose.rotation.z) / 2;
+    frame.devicePair.hmdPose.rotation.w =
+            (mTrackingStateS[0].devicePair.hmdPose.rotation.w +
+             mTrackingStateS[1].devicePair.hmdPose.rotation.w) / 2;
+
+    frame.devicePair.controllerState[0].pose.rotation.x =
+            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.x +
+             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.x) / 2;
+    frame.devicePair.controllerState[0].pose.rotation.y =
+            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.y +
+             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.y) / 2;
+    frame.devicePair.controllerState[0].pose.rotation.z =
+            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.z +
+             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.z) / 2;
+    frame.devicePair.controllerState[0].pose.rotation.w =
+            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.w +
+             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.w) / 2;
+
+    xr_client_->SendDevicePair(frame);
 }
 
 void XrDemo::OnTrackingFrame(const larkxrTrackingFrame &trackingFrame) {

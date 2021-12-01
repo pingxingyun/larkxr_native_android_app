@@ -618,6 +618,7 @@ public class ListActivity extends Activity {
 
         if (clientLifeManager == null) {
             clientLifeManager = new ClientLifeManager(this);
+            clientLifeManager.ClientOnline();
         }
         if (imSocketChannel == null) {
             Log.e("imSocketChannel", "isnull");
@@ -660,7 +661,6 @@ public class ListActivity extends Activity {
                                 nextPage.setImageResource(R.mipmap.nextpage);
                                 nextPage.setEnabled(true);
                             } else {
-
                                 nextPage.setImageResource(R.mipmap.nextpagefalse);
                                 nextPage.setEnabled(false);
                             }
@@ -706,6 +706,9 @@ public class ListActivity extends Activity {
     }
 
     private void StopApp(Boolean close) {
+        if (config != null) {
+            Config.saveToCache(this, config);
+        }
         if (clientLifeManager != null) {
             clientLifeManager.ClientOffline();
         }
@@ -807,21 +810,14 @@ public class ListActivity extends Activity {
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
-        if (config != null) {
-            Config.saveToCache(this, config);
-        }
-        if (clientLifeManager != null) {
-            clientLifeManager.ClientOffline();
-        }
-        if (imSocketChannel != null && !imSocketChannel.isConnected()) {
-            imSocketChannel.close();
-        }
+        StopApp(false);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+        StopApp(false);
     }
 
     @Override
@@ -902,15 +898,12 @@ public class ListActivity extends Activity {
                 JSONObject jsonObject = new JSONObject(s);
                 switch (jsonObject.optString("type")) {
                     case ImSocketChannel.IM_MESSAGE_TYPE_KEEPALIVE: {
-                        if (clientLifeManager != null) {
+                      /*  if (clientLifeManager != null) {
                             clientLifeManager.ClientOnline();
-                        }
+                        }*/
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_START: {
-                        if (clientLifeManager != null) {
-                            clientLifeManager.ClientOnline();
-                        }
                         if (!getTopActivity(ListActivity.this).equals(MainActivity.class.getName()))
                         GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
                         break;
@@ -991,6 +984,7 @@ public class ListActivity extends Activity {
             Log.e("gerrunmode", getRunModeBean.toString());
             if (getRunModeBean.getCode() == 1000) {
                 if (getRunModeBean.getResult().getRunMode().equals("1")) {
+                    //集中管控模式下
                     selfOnline.setVisibility(View.GONE);
                     SelfOnlineText.setVisibility(View.VISIBLE);
                     /* GoMainActivity(ListActivity.this, getRunModeBean.getResult().getPrimaryClientId());

@@ -46,6 +46,9 @@ public:
     int nativeTextrureFromMediaLeft;
     int nativeTextrureFromMediaRight;
     std::shared_ptr<RectTexture> rect_render_ = nullptr;
+
+    larkxrTrackingDevicePairFrame mTrackingStateS[2]={};
+
 public:
     // andoird lifecycle
     void OnResume();
@@ -95,7 +98,9 @@ public:
 
     void RenderFrame();
     void RenderLayer(XrTime time, XrCompositionLayerProjection& layer);
-    void renderView(const XrCompositionLayerProjectionView& layerView,  const XrSwapchainImageBaseHeader* swapchainImage, const XrPosef& ctlPose);
+    void renderView(const XrCompositionLayerProjectionView &layerView,
+                    const XrSwapchainImageBaseHeader *swapchainImage, const XrPosef &ctlPose,
+                    int i);
     void DeInitializeSession();
     void DestroyActions();
     void DestroyInstance();

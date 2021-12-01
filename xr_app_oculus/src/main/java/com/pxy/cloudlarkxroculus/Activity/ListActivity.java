@@ -93,7 +93,7 @@ public class ListActivity extends Activity {
     private RadioGroup StreamType;
     private RadioButton larkStreamType_UDP, larkStreamType_TCP, larkStreamType_THROTTLED_UDP;
     //socket链接
-    private static ImSocketChannel imSocketChannel;
+    private ImSocketChannel imSocketChannel;
     //getrunmode接口开关
     private Boolean stoprunmode = false;
     //翻页请求
@@ -123,7 +123,6 @@ public class ListActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         setContentView(R.layout.activity_list);
         FindViewById();
@@ -175,21 +174,6 @@ public class ListActivity extends Activity {
             serverBeanList = JSON.parseArray(sp.getString(SETTING_SERVER, ""), ServerBean.class);
             mServerIp = "http://" + serverBeanList.get(0).getIp() + ":" + serverBeanList.get(0).getPort();
             useHttps = serverBeanList.get(0).getUse_https();
-
-            ListActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (!config.serverIp.isEmpty()) {
-                        inputIp.setText(config.serverIp+"");
-                        inputPort.setText(config.serverPort+"");
-                    } else {
-                        inputIp.setText(serverBeanList.get(0).getIp());
-                        inputPort.setText(serverBeanList.get(0).getPort());
-                    }
-                }
-            });
-
-            Log.e("getmessage", "init");
             setIp(serverBeanList, 0);
         } else {
             showSetupIP();
@@ -200,8 +184,6 @@ public class ListActivity extends Activity {
         ListActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
-
                 switch (config.quickConfigLevel) {
                     case Config.QuickConfigLevel_Manual: {
                         QuickConfigLevel.check(R.id.QuickConfigLevel_Manual);
@@ -350,7 +332,7 @@ public class ListActivity extends Activity {
             Config.saveToCache(ListActivity.this, config);
             if (list3D.isChecked()) {
                 GoMainActivity(ListActivity.this, null);
-
+                list3D.setChecked(false);
             }
         });
 
@@ -614,8 +596,8 @@ public class ListActivity extends Activity {
 
     private void setIp(List<ServerBean> list, int index) {
         ServerBean serverBean = list.get(index);
-        /*inputIp.setText(serverBean.getIp());
-        inputPort.setText(serverBean.getPort());*/
+        inputIp.setText(serverBean.getIp());
+        inputPort.setText(serverBean.getPort());
 
         config.serverIp = serverBean.getIp();
         config.serverPort = Integer.parseInt(serverBean.getPort());
@@ -636,16 +618,19 @@ public class ListActivity extends Activity {
 
         if (clientLifeManager == null) {
             clientLifeManager = new ClientLifeManager(this);
+            clientLifeManager.ClientOnline();
         }
         if (imSocketChannel == null) {
             Log.e("imSocketChannel", "isnull");
             imSocketChannel = new ImSocketChannel(socketChannelObserver, ListActivity.this);
         } else {
+            Log.e("imSocketChannel", "notnull");
             if (imSocketChannel.isConnected()) {
                 imSocketChannel.close();
             }
             imSocketChannel.connect();
         }
+
         if (getAppliList == null) {
             getAppliList = new GetAppliList(new GetAppliList.Callback() {
                 @Override
@@ -676,7 +661,6 @@ public class ListActivity extends Activity {
                                 nextPage.setImageResource(R.mipmap.nextpage);
                                 nextPage.setEnabled(true);
                             } else {
-
                                 nextPage.setImageResource(R.mipmap.nextpagefalse);
                                 nextPage.setEnabled(false);
                             }
@@ -722,13 +706,14 @@ public class ListActivity extends Activity {
     }
 
     private void StopApp(Boolean close) {
+        if (config != null) {
+            Config.saveToCache(this, config);
+        }
         if (clientLifeManager != null) {
             clientLifeManager.ClientOffline();
         }
-        if (imSocketChannel != null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.close();
-            }
+        if (imSocketChannel != null && !imSocketChannel.isConnected()) {
+            imSocketChannel.close();
         }
         stoprunmode = close;
         if (close) {
@@ -750,6 +735,7 @@ public class ListActivity extends Activity {
             toastInner("IP不能为空");
             return;
         }
+
         hideSoftInputFromWindow(this);
         setIp.setVisibility(View.GONE);
 
@@ -802,10 +788,12 @@ public class ListActivity extends Activity {
         //message.obj = ToJavaBean.toJavaBean(value,obj);
         handler.sendMessageDelayed(message, time);
     }
+/*
 
-/*    @Override
+    @Override
     protected void onStart() {
         super.onStart();
+        Log.e(TAG, "onstart");
         if (clientLifeManager != null) {
             clientLifeManager.ClientOnline();
         }
@@ -815,29 +803,21 @@ public class ListActivity extends Activity {
             }
             imSocketChannel.connect();
         }
-    }*/
+    }
+*/
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
-        if (config != null) {
-            Config.saveToCache(this, config);
-        }
-        if (clientLifeManager != null) {
-            clientLifeManager.ClientOffline();
-        }
-        if (imSocketChannel != null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.close();
-            }
-        }
+        StopApp(false);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+        StopApp(false);
     }
 
     @Override
@@ -872,14 +852,16 @@ public class ListActivity extends Activity {
      * 隐藏输入面板
      *
      * @param activity
+     * @return true 成功隐藏面板，false 没有隐藏面板或者没有面板可以隐藏
      */
-    public static void hideSoftInputFromWindow(Activity activity) {
+    public static boolean hideSoftInputFromWindow(Activity activity) {
         if (activity != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
-                imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
+                return imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
             }
         }
+        return false;
     }
 
     private final SocketChannelObserver socketChannelObserver = new SocketChannelObserver() {
@@ -911,22 +893,19 @@ public class ListActivity extends Activity {
 
         @Override
         public void onMessage(String s) {
-            Log.e("socketChannelObserver", "onMessagestr:" + s);
+            Log.e(TAG, "onMessagestr:" + s);
             try {
                 JSONObject jsonObject = new JSONObject(s);
                 switch (jsonObject.optString("type")) {
                     case ImSocketChannel.IM_MESSAGE_TYPE_KEEPALIVE: {
-                        if (clientLifeManager != null) {
+                      /*  if (clientLifeManager != null) {
                             clientLifeManager.ClientOnline();
-                        }
+                        }*/
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_START: {
-                        if (clientLifeManager != null) {
-                            clientLifeManager.ClientOnline();
-                        }
                         if (!getTopActivity(ListActivity.this).equals(MainActivity.class.getName()))
-                            GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
+                        GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
@@ -955,13 +934,7 @@ public class ListActivity extends Activity {
             intent.putExtra("appid", "");
             Log.e("GoMainActivity", "justGo");
         }
-/*        Intent extraIntent = new Intent("android.intent.action.MAIN");
-        //Intent extraIntent = new Intent();
-        extraIntent.addCategory("android.intent.category.LAUNCHER");
-        extraIntent.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("intent", extraIntent);*/
         startActivity(intent);
-        //activity.finish();
     }
 
     private void getMessage(Message msg) {
@@ -1011,6 +984,7 @@ public class ListActivity extends Activity {
             Log.e("gerrunmode", getRunModeBean.toString());
             if (getRunModeBean.getCode() == 1000) {
                 if (getRunModeBean.getResult().getRunMode().equals("1")) {
+                    //集中管控模式下
                     selfOnline.setVisibility(View.GONE);
                     SelfOnlineText.setVisibility(View.VISIBLE);
                     /* GoMainActivity(ListActivity.this, getRunModeBean.getResult().getPrimaryClientId());
@@ -1030,6 +1004,7 @@ public class ListActivity extends Activity {
             ListActivity.this.onPause();
             ListActivity.this.onStop();
         }
+
     }
 
     @Override
@@ -1045,7 +1020,7 @@ public class ListActivity extends Activity {
     }
 
     public String getTopActivity(Context context) {
-        android.app.ActivityManager manager = (android.app.ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        ActivityManager manager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
 
         if (runningTaskInfos != null) {
