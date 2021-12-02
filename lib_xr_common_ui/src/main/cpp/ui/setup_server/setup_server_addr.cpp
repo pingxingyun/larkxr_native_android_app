@@ -211,7 +211,10 @@ void SetupServerAddr::onInputModeChange(InputMode mode) {
 
 void SetupServerAddr::getServerAddr() {
     // TODO 服务器地址
+    //server_ip_button_->SetText(utils::StringToWstring(lark::XRClient::GetServerHost()));
+    //label_server_ip_->SetText(utils::StringToWstring("222.128.6.137"));
     server_ip_button_->SetText(utils::StringToWstring(lark::XRClient::GetServerHost()));
+    //server_ip_button_->SetText(utils::StringToWstring("222.128.6.137"));
     uint16_t port = lark::XRClient::GetServerPort();
     std::string s_port = port == 0 ? std::to_string(DEFAULT_PORT) : std::to_string(port);
     server_port_button_->SetText(utils::StringToWstring(s_port));

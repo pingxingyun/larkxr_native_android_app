@@ -762,7 +762,9 @@ void XrDemo::ProcessEvents(bool *exitRenderLoop, bool *sessionRunning) {
 
 void XrDemo::PollActions() {
     {
-        const XrActiveActionSet activeActionSet{m_actionSet, LRSpace[1]};
+        //const XrActiveActionSet activeActionSet{m_actionSet, LRSpace[1]};
+        const XrActiveActionSet activeActionSet{m_actionSet, XR_NULL_PATH};
+
         XrActionsSyncInfo syncInfo{XR_TYPE_ACTIONS_SYNC_INFO};
         syncInfo.countActiveActionSets = 1;
         syncInfo.activeActionSets = &activeActionSet;
@@ -1167,10 +1169,10 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     LOGE("ctlpY%f", ctlPose.position.y);
     LOGE("ctlpZ%f", ctlPose.position.z);
 
-    LOGE("ctlX%f", ctlPose.orientation.x);
-    LOGE("ctlY%f", ctlPose.orientation.y);
-    LOGE("ctlZ%f", ctlPose.orientation.z);
-    LOGE("ctlZ%f", ctlPose.orientation.w);
+    LOGE("ctlOX%f", ctlPose.orientation.x);
+    LOGE("ctlOY%f", ctlPose.orientation.y);
+    LOGE("ctlOZ%f", ctlPose.orientation.z);
+    LOGE("ctlOW%f", ctlPose.orientation.w);
 
     XrMatrix4x4f eyeViewMatrix = XrMatrix4x4f_CreateFromQuaternion_4(&xrquat, &xrvec);
     XrMatrix4x4f ctlMatrix = XrMatrix4x4f_CreateFromQuaternion(&xrquatCtl);
@@ -1240,7 +1242,7 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     mTrackingStateS[i].devicePair.controllerState[0].pose.position.z = ctlPose.position.z;
 
     mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.x = ctlPose.orientation.x;
-    mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.y = ctlPose.orientation.y;
+    mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.y = ctlPose.orientation.y+1.5;
     mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.z = ctlPose.orientation.z;
     mTrackingStateS[i].devicePair.controllerState[0].pose.rotation.w = ctlPose.orientation.w;
 }

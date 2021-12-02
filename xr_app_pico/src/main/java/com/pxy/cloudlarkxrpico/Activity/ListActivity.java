@@ -706,6 +706,7 @@ public class ListActivity extends Activity {
     }
 
     private void StopApp(Boolean close) {
+        Log.e("StopApp","is:"+close);
         if (config != null) {
             Config.saveToCache(this, config);
         }
@@ -845,6 +846,7 @@ public class ListActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy");
         StopApp(false);
     }
 
