@@ -127,6 +127,8 @@ public class ListActivity extends Activity {
         setContentView(R.layout.activity_list);
         FindViewById();
 
+        CloudlarkManager.init(this, CloudlarkManager.APP_TYPE_VR);
+
         SharedPreferences sp = getSharedPreferences("firststap", Context.MODE_PRIVATE);
         if (sp.getBoolean("first", true)) {
             firstrun.setOnClickListener(new View.OnClickListener() {
@@ -178,8 +180,6 @@ public class ListActivity extends Activity {
         } else {
             showSetupIP();
         }
-
-        CloudlarkManager.init(this, CloudlarkManager.APP_TYPE_VR);
 
         ListActivity.this.runOnUiThread(new Runnable() {
             @Override
@@ -703,6 +703,11 @@ public class ListActivity extends Activity {
             });
             getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
         }
+
+        if (clientLifeManager != null) {
+            clientLifeManager.GetHertBeat();
+            setMessage(4, "hert");
+        }
     }
 
     private void StopApp(Boolean close) {
@@ -780,14 +785,6 @@ public class ListActivity extends Activity {
         message.obj = obj;
         //message.obj = ToJavaBean.toJavaBean(value,obj);
         handler.sendMessage(message);
-    }
-
-    private void setMessage(int what, Object obj, long time) {
-        Message message = Message.obtain();
-        message.what = what;
-        message.obj = obj;
-        //message.obj = ToJavaBean.toJavaBean(value,obj);
-        handler.sendMessageDelayed(message, time);
     }
 /*
 
@@ -900,9 +897,6 @@ public class ListActivity extends Activity {
                 JSONObject jsonObject = new JSONObject(s);
                 switch (jsonObject.optString("type")) {
                     case ImSocketChannel.IM_MESSAGE_TYPE_KEEPALIVE: {
-                      /*  if (clientLifeManager != null) {
-                            clientLifeManager.ClientOnline();
-                        }*/
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_START: {
@@ -1005,6 +999,14 @@ public class ListActivity extends Activity {
         } else if (msg.what == 3) {
             ListActivity.this.onPause();
             ListActivity.this.onStop();
+        }else if (msg.what==4){
+            try {
+                Thread.sleep(10*1000);
+                setMessage(4, "heart");
+                Log.e("sendheart","4");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
     }

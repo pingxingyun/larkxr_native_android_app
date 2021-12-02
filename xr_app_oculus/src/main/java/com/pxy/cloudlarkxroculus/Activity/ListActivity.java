@@ -703,6 +703,11 @@ public class ListActivity extends Activity {
             });
             getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
         }
+
+        if (clientLifeManager != null) {
+            clientLifeManager.GetHertBeat();
+            setMessage(4, "hert");
+        }
     }
 
     private void StopApp(Boolean close) {
@@ -1003,6 +1008,14 @@ public class ListActivity extends Activity {
         } else if (msg.what == 3) {
             ListActivity.this.onPause();
             ListActivity.this.onStop();
+        }else if (msg.what==4){
+            try {
+                Thread.sleep(10*1000);
+                setMessage(4, "heart");
+                Log.e("sendheart","4");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
     }

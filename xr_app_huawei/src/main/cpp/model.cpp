@@ -306,8 +306,6 @@ void Model::buildCube()
     mIndicesCube[offest + 4] = 2;
     mIndicesCube[offest + 5] = 1;
 
-
-
     //buildModel;
     glGenVertexArraysOESEXT(1, &mVAOCube);
     glBindVertexArrayOESEXT(mVAOCube);
