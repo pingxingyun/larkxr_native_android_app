@@ -186,7 +186,7 @@ void XrDemo::InitGLGraphics() {
     xr_client_->EnterAppli("756846918545440768");
     rect_render_ = std::make_shared<RectTexture>();
     lark::XRConfig::use_multiview = false;
-    lark::XRConfig::fps = 72;
+    lark::XRConfig::fps = 60;
     lark::XRConfig::render_width = 1920;
     lark::XRConfig::render_height = 1080;
 
@@ -493,10 +493,10 @@ void XrDemo::CreateActions() {
                                                                  &LRSpace[0]);
         LOGI("ret_xrCreateActionSpace_0:%d", ret_xrCreateActionSpace_0);
 
-        actionSpaceInfo.subactionPath = LRPath[1];
+/*        actionSpaceInfo.subactionPath = LRPath[1];
         XrResult ret_xrCreateActionSpace_1 = xrCreateActionSpace(mSession, &actionSpaceInfo,
                                                                  &LRSpace[1]);
-        LOGI("ret_xrCreateActionSpace_1:%d", ret_xrCreateActionSpace_1);
+        LOGI("ret_xrCreateActionSpace_1:%d", ret_xrCreateActionSpace_1);*/
     }
 
 
@@ -761,7 +761,7 @@ void XrDemo::ProcessEvents(bool *exitRenderLoop, bool *sessionRunning) {
 
 void XrDemo::PollActions() {
     {
-        //const XrActiveActionSet activeActionSet{m_actionSet, LRSpace[1]};
+        //const XrActiveActionSet activeActionSet{m_actionSet, LRSpace[0]};
         const XrActiveActionSet activeActionSet{m_actionSet, XR_NULL_PATH};
 
         XrActionsSyncInfo syncInfo{XR_TYPE_ACTIONS_SYNC_INFO};
@@ -772,29 +772,29 @@ void XrDemo::PollActions() {
 
     for (int i = 0; i < 1; i++) {
         const XrPath subactionLRPath = LRPath[i];
+        //const XrPath subactionLRPath = XR_NULL_PATH;
 
         XrActionStateBoolean Home{XR_TYPE_ACTION_STATE_BOOLEAN};
         XrActionStateGetInfo getInfo_home{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_home.action = m_XrAction[0];
         getInfo_home.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_home, &Home);
-        ////LOGI("ID: %d Trigger_Home Home.currentSate:%d", i, Home.currentState);
+        LOGI("ID: %d Trigger_Home Home.currentSate:%d", i, Home.currentState);
 
         XrActionStateFloat Trigger{XR_TYPE_ACTION_STATE_FLOAT};
         XrActionStateGetInfo getInfo_trigger{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_trigger.action = m_XrAction[1];
         getInfo_trigger.subactionPath = subactionLRPath;
         xrGetActionStateFloat(mSession, &getInfo_trigger, &Trigger);
-        ////LOGI("ID: %d Trigger.currentState:%f", i, Trigger.currentState);
-
+        LOGI("ID: %d Trigger.currentState:%f", i, Trigger.currentState);
 
         XrActionStateVector2f TrackpadValue{XR_TYPE_ACTION_STATE_VECTOR2F};
         XrActionStateGetInfo getInfo_v2{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_v2.action = m_XrAction[2];
         getInfo_v2.subactionPath = subactionLRPath;
         xrGetActionStateVector2f(mSession, &getInfo_v2, &TrackpadValue);
-        ////LOGI("ID: %d TrackpadValue.currentState:%f , %f", i, TrackpadValue.currentState.x,
-        //     TrackpadValue.currentState.y);
+        LOGI("ID: %d TrackpadValue.currentState:%f , %f", i, TrackpadValue.currentState.x,
+             TrackpadValue.currentState.y);
 
 
         XrActionStatePose PoseState{XR_TYPE_ACTION_STATE_POSE};
@@ -837,7 +837,7 @@ void XrDemo::PollActions() {
 
         XrActionStateBoolean Trackpad_click{XR_TYPE_ACTION_STATE_BOOLEAN};
         XrActionStateGetInfo getInfo_trackpad_click{XR_TYPE_ACTION_STATE_GET_INFO};
-        getInfo_trackpad_click.action = m_XrAction[8];
+        getInfo_trackpad_click.action =  m_XrAction[8];
         getInfo_trackpad_click.subactionPath = subactionLRPath;
         xrGetActionStateBoolean(mSession, &getInfo_trackpad_click, &Trackpad_click);
         LOGI("ID: %d Trackpad_click.currentSate:%d", i, Trackpad_click.currentState);
@@ -852,7 +852,8 @@ void XrDemo::PollActions() {
 
         if (Trackpad_click.currentState || Trigger_click.currentState) {
             //markclick
-            mTrackingStateS->devicePair.controllerState[0].inputState.triggerValue = 1;
+            mTrackingStateS[0].devicePair.controllerState[0].inputState.triggerValue = 1;
+            mTrackingStateS[1].devicePair.controllerState[0].inputState.triggerValue = 1;
         }
 
         XrActionStateBoolean Trackpad_touch{XR_TYPE_ACTION_STATE_BOOLEAN};
@@ -1129,7 +1130,7 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
         projectionLayerViews[i].fov = mViews[i].fov;
         projectionLayerViews[i].subImage.swapchain = mSwapchains[i];
         projectionLayerViews[i].subImage.imageRect.offset = {0, 0};
-        projectionLayerViews[i].subImage.imageRect.extent = {1080, 1080};
+        projectionLayerViews[i].subImage.imageRect.extent = {1024, 768};
         projectionLayerViews[i].subImage.imageArrayIndex = 0;
         const XrSwapchainImageBaseHeader *const swapchainImage = (XrSwapchainImageBaseHeader *) (&(mSwapchainsImageArray[i][swapchainImageIndex]));
         //3.4 >>>Graphic Render>>>
@@ -1154,7 +1155,7 @@ void XrDemo::RenderLayer(XrTime predictedDisplayTime, XrCompositionLayerProjecti
 void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
                         const XrSwapchainImageBaseHeader *swapchainImage, const XrPosef &ctlPose,
                         int i) {
-    const uint32_t colorTexture = reinterpret_cast<const XrSwapchainImageOpenGLESKHR *>(swapchainImage)->image;
+    /*const uint32_t colorTexture = reinterpret_cast<const XrSwapchainImageOpenGLESKHR *>(swapchainImage)->image;
 
     XrQuaternionf xrquat;
     XrVector3f xrvec;
@@ -1186,9 +1187,9 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
                                                                   tanAngleUp, tanAngleDown, 0.1f,
                                                                   200.0f);  //最远最近距离
     //XrMatrix4x4f projectionMatrix = XrMatrix4x4f_CreateProjection(tanAngleLeft, tanAngleRight, tanAngleUp, tanAngleDown, 0.0f, 0.0f);
-
+    */
     glActiveTexture(GL_TEXTURE0);
-
+    /*
     glBindTexture(GL_TEXTURE_CUBE_MAP, mSkyboxTexture.mTextureId);
 
     mSkyboxShader.use();
@@ -1208,10 +1209,10 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
 
     mSkyboxShader.unUse();
     mSkyboxShader.unUseCube();
-
+    */
     //mark
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
     //rect_render_->DrawMultiview(glm::mat4(), glm::mat4());
 
     switch (i) {
