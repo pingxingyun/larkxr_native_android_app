@@ -184,7 +184,6 @@ void XrDemo::InitGLGraphics() {
 
     xr_client_->SetServerAddr("192.168.31.15", 8181);
     xr_client_->EnterAppli("756846918545440768");
-    //xr_client_->EnterAppli("913759007280201728");
     rect_render_ = std::make_shared<RectTexture>();
     lark::XRConfig::use_multiview = false;
     lark::XRConfig::fps = 72;
@@ -851,9 +850,9 @@ void XrDemo::PollActions() {
         xrGetActionStateBoolean(mSession, &getInfo_trigger_click, &Trigger_click);
         LOGI("ID: %d Trigger_Home Trigger_click.currentSate:%d", i, Trigger_click.currentState);
 
-        if (Trackpad_click.currentState||Trigger_click.currentState){
+        if (Trackpad_click.currentState || Trigger_click.currentState) {
             //markclick
-            mTrackingStateS->devicePair.controllerState[0].inputState.triggerValue=1;
+            mTrackingStateS->devicePair.controllerState[0].inputState.triggerValue = 1;
         }
 
         XrActionStateBoolean Trackpad_touch{XR_TYPE_ACTION_STATE_BOOLEAN};
@@ -1174,15 +1173,6 @@ void XrDemo::renderView(const XrCompositionLayerProjectionView &layerView,
     xrquatCtl.z = ctlPose.orientation.z;
     xrquatCtl.w = ctlPose.orientation.w;
 
-    LOGE("ctlpX%f", ctlPose.position.x);
-    LOGE("ctlpY%f", ctlPose.position.y);
-    LOGE("ctlpZ%f", ctlPose.position.z);
-
-    LOGE("ctlOX%f", ctlPose.orientation.x);
-    LOGE("ctlOY%f", ctlPose.orientation.y);
-    LOGE("ctlOZ%f", ctlPose.orientation.z);
-    LOGE("ctlOW%f", ctlPose.orientation.w);
-
     XrMatrix4x4f eyeViewMatrix = XrMatrix4x4f_CreateFromQuaternion_4(&xrquat, &xrvec);
     XrMatrix4x4f ctlMatrix = XrMatrix4x4f_CreateFromQuaternion(&xrquatCtl);
     XrMatrix4x4f eyeViewOffsetMatrix = XrMatrix4x4f_CreateOffset();
@@ -1451,7 +1441,7 @@ void XrDemo::RequestTrackingInfo() {
              mTrackingStateS[1].devicePair.hmdPose.position.x) / 2;
     frame.devicePair.hmdPose.position.y =
             (mTrackingStateS[0].devicePair.hmdPose.position.y +
-             mTrackingStateS[1].devicePair.hmdPose.position.y) / 2+ 1.5;
+             mTrackingStateS[1].devicePair.hmdPose.position.y) / 2 + 1.5;
     frame.devicePair.hmdPose.position.z =
             (mTrackingStateS[0].devicePair.hmdPose.position.z +
              mTrackingStateS[1].devicePair.hmdPose.position.z) / 2;
@@ -1469,21 +1459,21 @@ void XrDemo::RequestTrackingInfo() {
             (mTrackingStateS[0].devicePair.hmdPose.rotation.w +
              mTrackingStateS[1].devicePair.hmdPose.rotation.w) / 2;
 
-    frame.devicePair.controllerState[0].pose.isConnected=true;
-    frame.devicePair.controllerState[0].pose.is6Dof= false;
-    frame.devicePair.controllerState[0].pose.isValidPose= true;
-    frame.devicePair.controllerState[0].inputState.isConnected= true;
-    frame.devicePair.controllerState[0].pose.status= 0;
+    frame.devicePair.controllerState[0].pose.isConnected = true;
+    frame.devicePair.controllerState[0].pose.is6Dof = false;
+    frame.devicePair.controllerState[0].pose.isValidPose = true;
+    frame.devicePair.controllerState[0].inputState.isConnected = true;
+    frame.devicePair.controllerState[0].pose.status = 0;
 
-    frame.devicePair.controllerState[1].pose.isConnected=true;
-    frame.devicePair.controllerState[1].pose.is6Dof= false;
-    frame.devicePair.controllerState[1].pose.isValidPose= true;
-    frame.devicePair.controllerState[1].inputState.isConnected= true;
-    frame.devicePair.controllerState[1].pose.status= 0;
+    frame.devicePair.controllerState[1].pose.isConnected = true;
+    frame.devicePair.controllerState[1].pose.is6Dof = false;
+    frame.devicePair.controllerState[1].pose.isValidPose = true;
+    frame.devicePair.controllerState[1].inputState.isConnected = true;
+    frame.devicePair.controllerState[1].pose.status = 0;
 
-    frame.devicePair.controllerState[0].pose.position.x =0.2;
-    frame.devicePair.controllerState[0].pose.position.y =1;
-    frame.devicePair.controllerState[0].pose.position.z =-0.2;
+    frame.devicePair.controllerState[0].pose.position.x = 0.2;
+    frame.devicePair.controllerState[0].pose.position.y = 1;
+    frame.devicePair.controllerState[0].pose.position.z = -0.4;
 
     frame.devicePair.controllerState[0].pose.rotation.x =
             mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.x;
@@ -1493,6 +1483,11 @@ void XrDemo::RequestTrackingInfo() {
             mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.z;
     frame.devicePair.controllerState[0].pose.rotation.w =
             mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.w;
+    LOGE("framdevicePair%f-%f-%f-%f",
+         frame.devicePair.controllerState[0].pose.rotation.x,
+         frame.devicePair.controllerState[0].pose.rotation.y,
+         frame.devicePair.controllerState[0].pose.rotation.z,
+         frame.devicePair.controllerState[0].pose.rotation.w);
 /*    frame.devicePair.controllerState[0].pose.rotation.x =
             (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.x +
              mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.x) / 2;
@@ -1506,7 +1501,6 @@ void XrDemo::RequestTrackingInfo() {
     frame.devicePair.controllerState[0].pose.rotation.w =
             (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.w +
              mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.w) / 2;*/
-
     xr_client_->SendDevicePair(frame);
 }
 
