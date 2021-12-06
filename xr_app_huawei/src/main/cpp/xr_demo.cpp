@@ -186,7 +186,7 @@ void XrDemo::InitGLGraphics() {
     xr_client_->EnterAppli("756846918545440768");
     rect_render_ = std::make_shared<RectTexture>();
     lark::XRConfig::use_multiview = false;
-    lark::XRConfig::fps = 60;
+    lark::XRConfig::fps = 72;
     lark::XRConfig::render_width = 1920;
     lark::XRConfig::render_height = 1080;
 
@@ -850,12 +850,13 @@ void XrDemo::PollActions() {
         xrGetActionStateBoolean(mSession, &getInfo_trigger_click, &Trigger_click);
         LOGI("ID: %d Trigger_Home Trigger_click.currentSate:%d", i, Trigger_click.currentState);
 
-        if (Trackpad_click.currentState || Trigger_click.currentState) {
             //markclick
-            mTrackingStateS[0].devicePair.controllerState[0].inputState.triggerValue = 1;
-            mTrackingStateS[1].devicePair.controllerState[0].inputState.triggerValue = 1;
+        if (Trigger_click.currentState||Trigger.currentState||Trackpad_click.currentState) {
+            mTrackingStateS[0].devicePair.controllerState[0].inputState.buttons |=
+                    //LARKXR_BUTTON_FLAG(larkxrInput::larkxr_Input_Trigger_Click);
+                    LARKXR_BUTTON_FLAG(larkxrInput::larkxr_Input_Trigger_Click);
+//            mTrackingStateS[1].devicePair.controllerState[0].inputState.triggerValue = 1.0f;
         }
-
         XrActionStateBoolean Trackpad_touch{XR_TYPE_ACTION_STATE_BOOLEAN};
         XrActionStateGetInfo getInfo_trackpad_touch{XR_TYPE_ACTION_STATE_GET_INFO};
         getInfo_trackpad_touch.action = m_XrAction[10];
@@ -1465,12 +1466,8 @@ void XrDemo::RequestTrackingInfo() {
     frame.devicePair.controllerState[0].pose.isValidPose = true;
     frame.devicePair.controllerState[0].inputState.isConnected = true;
     frame.devicePair.controllerState[0].pose.status = 0;
-
-    frame.devicePair.controllerState[1].pose.isConnected = true;
-    frame.devicePair.controllerState[1].pose.is6Dof = false;
-    frame.devicePair.controllerState[1].pose.isValidPose = true;
-    frame.devicePair.controllerState[1].inputState.isConnected = true;
-    frame.devicePair.controllerState[1].pose.status = 0;
+    frame.devicePair.controllerState[0].pose.device = larkxrDeviceType::Larkxr_Device_Type_Controller_Left;
+    frame.devicePair.controllerState[0].deviceType=larkxrControllerType_::Larkxr_Controller_Left;
 
     frame.devicePair.controllerState[0].pose.position.x = 0.2;
     frame.devicePair.controllerState[0].pose.position.y = 1;
@@ -1489,19 +1486,11 @@ void XrDemo::RequestTrackingInfo() {
          frame.devicePair.controllerState[0].pose.rotation.y,
          frame.devicePair.controllerState[0].pose.rotation.z,
          frame.devicePair.controllerState[0].pose.rotation.w);
-/*    frame.devicePair.controllerState[0].pose.rotation.x =
-            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.x +
-             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.x) / 2;
-    frame.devicePair.controllerState[0].pose.rotation.y =
-            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.y +
-             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.y) / 2;
-         mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.y);
-    frame.devicePair.controllerState[0].pose.rotation.z =
-            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.z +
-             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.z) / 2;
-    frame.devicePair.controllerState[0].pose.rotation.w =
-            (mTrackingStateS[0].devicePair.controllerState[0].pose.rotation.w +
-             mTrackingStateS[1].devicePair.controllerState[0].pose.rotation.w) / 2;*/
+
+    frame.devicePair.controllerState[0].inputState.triggerValue =1.0f;
+    frame.devicePair.controllerState[0].inputState.buttons = mTrackingStateS[0].devicePair.controllerState[0].inputState.buttons;
+    LOGE("triggerValue--%lu",frame.devicePair.controllerState[0].inputState.buttons);
+
     xr_client_->SendDevicePair(frame);
 }
 
