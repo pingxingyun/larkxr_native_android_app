@@ -7,9 +7,11 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="Embedded JDK" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ar_app" />
             <option value="$PROJECT_DIR$/lib_pxygl" />
             <option value="$PROJECT_DIR$/lib_xr_common_ui" />
             <option value="$PROJECT_DIR$/xr_app_htc" />
