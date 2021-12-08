@@ -50,8 +50,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
             }
         });
         Glide.with(context)
-                .load(Base.getServerUrl().getUrl() + data.getPicUrl())
-                .error(R.mipmap.cover_11)
+                //.load(Base.getServerUrl().getUrl() + data.getPicUrl())
+                .load(R.mipmap.cover_11)
                 .into(viewHolder.pic);
         Log.e("url", data.getPicUrl());
     }

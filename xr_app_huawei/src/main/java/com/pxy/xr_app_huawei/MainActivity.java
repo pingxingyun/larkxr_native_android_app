@@ -1,7 +1,6 @@
 package com.pxy.xr_app_huawei;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Context;

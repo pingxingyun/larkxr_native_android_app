@@ -838,7 +838,8 @@ public class ListActivity extends Activity {
             }
             imSocketChannel.connect();
         }
-        //Init();
+
+        Init();
     }
 
     @Override

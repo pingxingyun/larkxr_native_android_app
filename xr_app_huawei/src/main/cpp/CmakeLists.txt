@@ -57,7 +57,6 @@ set(header_files
         ${src_dir}/logger.h
 
         ${src_dir}/matrix_functions.h
-
         )
 
 add_definitions(-D_GLM_ENABLE_EXPERIMENTAL)

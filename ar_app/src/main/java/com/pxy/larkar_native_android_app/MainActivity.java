@@ -6,9 +6,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
@@ -20,40 +18,31 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
 import android.widget.Toast;
 
+import com.pxy.cloudlarkxrkit.XrSystem;
 import com.pxy.larkcore.CloudlarkManager;
 import com.pxy.larkcore.LarkCoreClient;
+import com.pxy.larkcore.Util;
 import com.pxy.larkcore.request.AppListItem;
 import com.pxy.larkcore.request.Base;
 import com.pxy.larkcore.request.EnterAppliInfo;
 import com.pxy.larkcore.request.GetAppliList;
 import com.pxy.larkcore.request.PageInfo;
-import com.pxy.lib_sr.RtcClient;
-import com.pxy.lib_sr.input.AppNotification;
-import com.pxy.lib_sr.render.RtcRender;
-
-import org.webrtc.VideoSink;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class MainActivity extends AppCompatActivity {
-    private String TAG="MainActivity";
+    private static String TAG="ARMainActivity";
     //相机相关
     private List<Surface> surfaceViews=new ArrayList<>();//展示的views
     private GLSurfaceView surfaceView;//用于展示的glview
@@ -65,8 +54,18 @@ public class MainActivity extends AppCompatActivity {
     private SurfaceTexture mSurfaceTexture;
     private CameraDrawer mDrawer;
     //rtc相关
+    private XrSystem xrSystem = null;
     private LarkCoreClient client;
-    private String mServerIp = "222.128.6.137:8585";
+    //private String mServerIp = "222.128.6.137:8585";
+    private String mServerIp = "192.168.31.120:8585";
+    private EnterAppliInfo.Config rtcParams;
+
+    static {
+        Log.i(TAG, "LoadLibrary");
+        System.loadLibrary("ar_app");
+        System.loadLibrary("lark_pxygl");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         FVBI();
         initview();
+        initRtc();
     }
 
     private void FVBI() {
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
             //开启预览
             takePreview();
 
-            initRtc();
+
         }
 
         @Override
@@ -239,11 +239,43 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+/*------------rtc-------------*/
+    private void initRtc(){
+        CloudlarkManager.init(this, CloudlarkManager.APP_TYPE_AR);
+
+        Base.setServerAddr(false, mServerIp);
+
+        xrSystem = new XrSystem();
+        xrSystem.init(this, Util.getLocalMacAddress(this));
+
+        JniInterface.creatNativeApplication(MainActivity.this);
+
+        GetAppliList getAppliList=new GetAppliList(new GetAppliList.Callback() {
+            @Override
+            public void onSuccess(List<AppListItem> list) {
+                AppListItem item=list.get(0);
+                EnterAppliInfo enterAppliInfo=new EnterAppliInfo(new EnterAppliInfoCallback());
+                enterAppliInfo.enterApp(item);
+            }
+
+            @Override
+            public void onPageInfoChange(PageInfo pageInfo) {
+
+            }
+
+            @Override
+            public void onFail(String s) {
+
+            }
+        });
+        getAppliList.getAppliList();
+    }
 
     LarkCoreClient.LarkCoreClientEvents event=new LarkCoreClient.LarkCoreClientEvents() {
         @Override
         public void onChooseAppServerIpFinished(String s) {
             Log.e("LarkCoreClientEventsIP",s);
+            JniInterface.enterapp(rtcParams.appilId);
         }
 
         @Override
@@ -303,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("rtcParams",rtcParams.toString());
                 /*mRtcClient = new RtcClient(rtcParams,renderer,
                         event,MainActivity.this);*/
+            MainActivity.this.rtcParams=rtcParams;
             client=new LarkCoreClient(event);
                 // 开始连接
             client.connect(rtcParams);
@@ -312,32 +345,6 @@ public class MainActivity extends AppCompatActivity {
         public void onFail(String err) {
 
         }
-    }
-
-    private void initRtc(){
-        CloudlarkManager.init(this, CloudlarkManager.APP_TYPE_AR);
-
-        Base.setServerAddr(false, mServerIp);
-
-        GetAppliList getAppliList=new GetAppliList(new GetAppliList.Callback() {
-            @Override
-            public void onSuccess(List<AppListItem> list) {
-                AppListItem item=list.get(0);
-                EnterAppliInfo enterAppliInfo=new EnterAppliInfo(new EnterAppliInfoCallback());
-                enterAppliInfo.enterApp(item);
-            }
-
-            @Override
-            public void onPageInfoChange(PageInfo pageInfo) {
-
-            }
-
-            @Override
-            public void onFail(String s) {
-
-            }
-        });
-        getAppliList.getAppliList();
     }
 
     @Override
