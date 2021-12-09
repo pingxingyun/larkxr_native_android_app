@@ -36,7 +36,7 @@ EnvWrapper::EnvWrapper(JavaVM * vm, JNIEnv * env, bool needAttach) :
         args.version = JNI_VERSION_1_6;
         args.name = &name[0];
         args.group = nullptr;
-        int ret = vm_->AttachCurrentThread(&env, &args);
+        int ret = vm_->AttachCurrentThread(&env_, &args);
         if (ret != 0) {
             LOGV("AttachCurrentThread failed.");
             env_ = nullptr;

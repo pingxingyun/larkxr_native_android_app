@@ -501,10 +501,13 @@ void OvrApplication::OnError(int errCode, const std::string &msg) {
     } else {
         connected_ = false;
         scene_cloud_->OnClose();
-        if (ui_mode() != ApplicationUIMode_Opengles_3D) {
+        if (ui_mode() == ApplicationUIMode_Opengles_3D) {
+            scene_local_->HomePage();
+        } else{
             JniCallbackOnError(errCode, msg);
+            scene_local_->LoadingPage();
         }
-        scene_local_->HomePage();
+
     }
     Navigation::ShowToast(msg);
     if (ovr_ != nullptr && tracking_space_ != VRAPI_TRACKING_SPACE_LOCAL) {

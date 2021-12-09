@@ -7,6 +7,7 @@
 #include <ui/navigation.h>
 #include <lark_xr/xr_config.h>
 #include <EGL/egl.h>
+#include <env_context.h>
 #include "ar_app_application.h"
 
 ar_app_application *arapp = nullptr;
@@ -16,16 +17,19 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_pxy_larkar_1native_1android_1app_JniInterface_creatNativeApplication(JNIEnv *env,
                                                                               jclass clazz,
-                                                                              jobject act) {
+                                                                              jobject act, jobject j_asset_manager) {
 // TODO: implement creatNativeApplication()
     LOGI("init vr");
+    AAssetManager *asset_manager = AAssetManager_fromJava(env, j_asset_manager);
+
     JavaVM *_vm = nullptr;
 //jint ret = jni->GetJavaVM(&_vm);
     env->GetJavaVM(&_vm);
 //LOGI("Create global ref");
     jobject g_act = env->NewGlobalRef(act);
     LOGI("init application");
-    arapp = new ar_app_application(_vm, g_act, env);
+    arapp = new ar_app_application(_vm, g_act, env,asset_manager);
+    arapp->InitBackgroundGL();
 }
 
 extern "C"
@@ -36,18 +40,21 @@ Java_com_pxy_larkar_1native_1android_1app_JniInterface_enterapp(JNIEnv *env, jcl
     if (arapp != nullptr) {
         const char *charappid = env->GetStringUTFChars(appid, 0);
         arapp->EnterAppli(charappid);
-
         arapp->Set2DUIEnterAppliMode(charappid);
         env->ReleaseStringUTFChars(appid, charappid);
     }
 }
 
-ar_app_application::ar_app_application(JavaVM *_vm, jobject act, JNIEnv *_jEnv) {
+ar_app_application::ar_app_application(JavaVM *_vm, jobject act, JNIEnv *_jEnv,AAssetManager* asset_manager)
+        : asset_manager_(asset_manager){
     LOGI("ar_app_application");
     mActivity = act;
     mJvm = _vm;
     Env = _jEnv;
     LOGI("init xr_client_");
+
+
+
     xr_client_->Init(mJvm);
     xr_client_->RegisterObserver(this);
 
@@ -79,6 +86,10 @@ ar_app_application::ar_app_application(JavaVM *_vm, jobject act, JNIEnv *_jEnv) 
 }
 
 ar_app_application::~ar_app_application() = default;
+
+void ar_app_application::InitBackgroundGL() {
+
+}
 
 bool ar_app_application::InitVR(android_app *app) {
     return false;

@@ -14,6 +14,12 @@ add_library(libxr_loader SHARED IMPORTED)
 set_target_properties(libxr_loader PROPERTIES IMPORTED_LOCATION
         "${PROJECT_SOURCE_DIR}/../../../../third_party/huawei/lib/android/${CMAKE_ANDROID_ARCH_ABI}/libxr_loader.so")
 
+# add arcore
+add_library(arcore SHARED IMPORTED)
+set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
+        "${PROJECT_SOURCE_DIR}/../../../../arcore/libraries/include/arcore_c_api.h")
+
+
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -26,7 +32,9 @@ set(src_dir ${CMAKE_CURRENT_SOURCE_DIR})
 set(src_files
 #        ${src_dir}/main.cpp
         ${src_dir}/ar_app_application.cpp
-
+        ${src_dir}/background_renderer.cc
+        ${src_dir}/util.cc
+        ${src_dir}/plane_renderer.cc
         # render and base use.
         ${common_files}
         )
@@ -35,6 +43,10 @@ set(src_files
 set(header_files
 #        ${src_dir}/matrix_functions.h
            ${src_dir}/ar_app_application.h
+           ${src_dir}/background_renderer.h
+           ${src_dir}/plane_renderer.h
+           ${src_dir}/util.h
+           ${src_dir}/glm.h
         )
 
 add_definitions(-D_GLM_ENABLE_EXPERIMENTAL)
@@ -75,7 +87,8 @@ target_link_libraries( # Specifies the target library.
         # native_app_glue
         libxr_loader
         log
-
+        #arcore
+        arcore
         # clang 注意顺序
         EGL
         GLESv3

@@ -4,6 +4,7 @@
 
 #include <rect_texture.h>
 #include <application.h>
+#include <plane_renderer.h>
 
 #ifndef LARKXR_AR_APP_APPLICATION_H
 #define LARKXR_AR_APP_APPLICATION_H
@@ -12,8 +13,9 @@
 
 class ar_app_application : public Application {
 public:
-    ar_app_application(JavaVM *_vm, jobject act, JNIEnv *_Env);
-
+    ar_app_application(JavaVM *_vm, jobject act, JNIEnv *_Env,AAssetManager* asset_manager);
+    AAssetManager* const asset_manager_;
+    PlaneRenderer plane_renderer_;
     jobject mActivity;
     JavaVM* mJvm;
     JNIEnv*	Env;
@@ -30,6 +32,8 @@ public:
     int nativeTextrureFromMediaLeft{};
     int nativeTextrureFromMediaRight{};
     std::shared_ptr<RectTexture> rect_render_ = nullptr;
+
+    void InitBackgroundGL();
 
     virtual bool InitVR(android_app *app) override;
 
@@ -63,6 +67,4 @@ public:
     virtual void OnMediaReady(int nativeTextureLeft, int nativeTextureRight) override;
     virtual void RequestTrackingInfo() override;
     virtual void OnTrackingFrame(const larkxrTrackingFrame& trackingFrame) override;
-
-    bool initEGLSurface();
 };

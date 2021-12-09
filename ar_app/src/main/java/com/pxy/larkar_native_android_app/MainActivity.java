@@ -9,6 +9,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -248,7 +249,8 @@ public class MainActivity extends AppCompatActivity {
         xrSystem = new XrSystem();
         xrSystem.init(this, Util.getLocalMacAddress(this));
 
-        JniInterface.creatNativeApplication(MainActivity.this);
+        JniInterface.assetManager = getAssets();
+        JniInterface.creatNativeApplication(MainActivity.this,getAssets());
 
         GetAppliList getAppliList=new GetAppliList(new GetAppliList.Callback() {
             @Override
