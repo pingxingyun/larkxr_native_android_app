@@ -1,5 +1,6 @@
 package com.pxy.cloudlarkxroculus.Activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -11,7 +12,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,11 +53,14 @@ import com.pxy.larkcore.request.Bean.GetRunModeBean;
 import com.pxy.larkcore.request.GetAppliList;
 import com.pxy.larkcore.request.GetRunMode;
 import com.pxy.larkcore.request.PageInfo;
+import com.pxy.larkcore.request.ScheduleTaskManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ListActivity extends Activity {
@@ -101,7 +104,6 @@ public class ListActivity extends Activity {
     List<AppListItem> applist;
     private int mPage = 1;
     private ImageView lastPage, nextPage;
-
     //关闭app按钮
     private ImageView closeApp;
     //打开菜单
@@ -119,6 +121,7 @@ public class ListActivity extends Activity {
     //animateBanner
     private AnimatBanner animateBanner;
     private LinearLayout list_background;
+    private ScheduleTaskManager s1,s2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -635,12 +638,7 @@ public class ListActivity extends Activity {
             getAppliList = new GetAppliList(new GetAppliList.Callback() {
                 @Override
                 public void onSuccess(List<AppListItem> list) {
-                    try {
-                        Thread.sleep(2000);
-                        setMessage(1, list);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    setMessage(1, list);
                 }
 
                 @Override
@@ -676,7 +674,6 @@ public class ListActivity extends Activity {
                     showSetupIP();*/
                 }
             });
-            getAppliList.getAppliList();
         }
 
         //imSocketChannel.connect();
@@ -684,13 +681,7 @@ public class ListActivity extends Activity {
             getRunMode = new GetRunMode(new GetRunMode.Callback() {
                 @Override
                 public void onSuccess(GetRunModeBean getRunModeBean) {
-                    try {
-                        Thread.sleep(2000);
-                        setMessage(2, getRunModeBean);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
+                    setMessage(2, getRunModeBean);
                 }
 
                 @Override
@@ -701,12 +692,19 @@ public class ListActivity extends Activity {
                     getRunMode = null;*/
                 }
             });
-            getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
         }
 
+        s1=new ScheduleTaskManager(2000);
+        s1.addTask(() -> {
+            getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
+            getAppliList.getAppliList();
+        });
+        s1.startTask();
+
         if (clientLifeManager != null) {
-            clientLifeManager.GetHertBeat();
-            setMessage(4, "hert");
+            s2=new ScheduleTaskManager(10 * 1000);
+            s2.addTask(() -> clientLifeManager.GetHertBeat());
+            s2.startTask();
         }
     }
 
@@ -720,8 +718,20 @@ public class ListActivity extends Activity {
         if (imSocketChannel != null && !imSocketChannel.isConnected()) {
             imSocketChannel.close();
         }
+        if (s1!=null){
+            s1.stopTask();
+        }
+        if (s2!=null){
+            s2.stopTask();
+        }
         stoprunmode = close;
         if (close) {
+            if (s1 != null) {
+                s1.release();
+            }
+            if (s2 != null) {
+                s2.release();
+            }
             System.exit(0);
             Process.killProcess(Process.myPid());
         }
@@ -744,10 +754,17 @@ public class ListActivity extends Activity {
         hideSoftInputFromWindow(this);
         setIp.setVisibility(View.GONE);
 
+        setServerSpinner(inputIp.getText().toString(),inputPort.getText().toString());
+    }
+
+    private void setServerSpinner(String ip,String port){
         ServerBean serverBean = new ServerBean();
-        serverBean.setIp(inputIp.getText().toString());
-        serverBean.setPort(inputPort.getText().toString());
+        serverBean.setIp(ip);
+        serverBean.setPort(port);
         serverBean.setUse_https(false);
+
+        inputIp.setText(ip);
+        inputPort.setText(port);
 
         boolean f = true;
         int index = 0;
@@ -767,13 +784,6 @@ public class ListActivity extends Activity {
         }
     }
 
-    private void getRunMode() {
-        if (stoprunmode) {
-            return;
-        }
-        getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
-    }
-
     private void toastInner(final String msg) {
         runOnUiThread(() -> Toast.makeText(ListActivity.this, msg, Toast.LENGTH_SHORT).show());
     }
@@ -785,31 +795,6 @@ public class ListActivity extends Activity {
         //message.obj = ToJavaBean.toJavaBean(value,obj);
         handler.sendMessage(message);
     }
-
-    private void setMessage(int what, Object obj, long time) {
-        Message message = Message.obtain();
-        message.what = what;
-        message.obj = obj;
-        //message.obj = ToJavaBean.toJavaBean(value,obj);
-        handler.sendMessageDelayed(message, time);
-    }
-/*
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.e(TAG, "onstart");
-        if (clientLifeManager != null) {
-            clientLifeManager.ClientOnline();
-        }
-        if (imSocketChannel != null) {
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.close();
-            }
-            imSocketChannel.connect();
-        }
-    }
-*/
 
     @Override
     protected void onPause() {
@@ -838,8 +823,15 @@ public class ListActivity extends Activity {
             }
             imSocketChannel.connect();
         }
-
-        Init();
+        if (s1!=null){
+            s1.startTask();
+        }
+        if (s2!=null){
+            s2.startTask();
+        }
+        //Init();
+        config=Config.readFromCache(ListActivity.this);
+        setServerSpinner(config.serverIp, String.valueOf(config.serverPort));
     }
 
     @Override
@@ -854,20 +846,13 @@ public class ListActivity extends Activity {
         StopApp(false);
     }
 
-    /**
-     * 隐藏输入面板
-     *
-     * @param activity
-     * @return true 成功隐藏面板，false 没有隐藏面板或者没有面板可以隐藏
-     */
-    public static boolean hideSoftInputFromWindow(Activity activity) {
+    public static void hideSoftInputFromWindow(Activity activity) {
         if (activity != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
-                return imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
             }
         }
-        return false;
     }
 
     private final SocketChannelObserver socketChannelObserver = new SocketChannelObserver() {
@@ -911,7 +896,7 @@ public class ListActivity extends Activity {
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_START: {
                         if (!getTopActivity(ListActivity.this).equals(MainActivity.class.getName()))
-                        GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
+                            GoMainActivity(ListActivity.this, jsonObject.optString("appliId"));
                         break;
                     }
                     case ImSocketChannel.IM_MESSAGE_TYPE_STOP: {
@@ -983,8 +968,6 @@ public class ListActivity extends Activity {
                 }
                 break;
             }
-            Log.e("getmessage", "getapplist");
-            getAppliList.getAppliList();
         } else if (msg.what == 2) {
             GetRunModeBean getRunModeBean = (GetRunModeBean) msg.obj;
             Log.e("gerrunmode", getRunModeBean.toString());
@@ -1002,39 +985,18 @@ public class ListActivity extends Activity {
                     selfOnline.setVisibility(View.VISIBLE);
                     SelfOnlineText.setVisibility(View.GONE);
                 }
-                getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
             } else {
                 toastInner(getRunModeBean.getMessage());
             }
         } else if (msg.what == 3) {
             ListActivity.this.onPause();
             ListActivity.this.onStop();
-        }else if (msg.what==4){
-            try {
-                Thread.sleep(10*1000);
-                setMessage(4, "heart");
-                Log.e("sendheart","4");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
 
     }
 
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent keyEvent) {
-        Log.e("listkeyevent", keyEvent.getAction() + "");
-        return super.dispatchKeyEvent(keyEvent);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.e("listkeyCode", keyCode + "");
-        return super.onKeyDown(keyCode, event);
-    }
-
     public String getTopActivity(Context context) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
 
         if (runningTaskInfos != null) {

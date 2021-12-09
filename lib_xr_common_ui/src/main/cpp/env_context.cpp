@@ -141,8 +141,10 @@ EnvWrapper Context::GetEnv() {
     int stat;
     stat = vm_->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
     if (stat == JNI_EDETACHED) {
+        LOGE("GetEnv:JNI_EDETACHED");
         return EnvWrapper(vm_, env, true);
     } else if (stat == JNI_OK) {
+        LOGE("GetEnv:JNI_OK");
         return EnvWrapper(vm_, env, false);
     } else if (stat == JNI_EVERSION) {
         LOGE("GetEnv: version not supported");

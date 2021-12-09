@@ -92,7 +92,7 @@ public class MainActivity extends android.app.NativeActivity {
     public void onError(int errCode, String msg) {
         // TODO back to 2d applist when error
         Log.e(TAG,errCode+"|"+msg);
-        //switchTo2DAppList();
+        switchTo2DAppList();
     }
 
     public void switchTo2DAppList() {
@@ -103,7 +103,6 @@ public class MainActivity extends android.app.NativeActivity {
         editor.apply();
         finish();
         //startActivity(new Intent(MainActivity.this, ListActivity.class));
-
     }
 
     private NetworkCallback mNetworkCallback = new NetworkCallback() {
