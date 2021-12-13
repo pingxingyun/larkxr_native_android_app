@@ -1,6 +1,7 @@
 package com.pxy.cloudlarkxrpico;
 
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +24,7 @@ import com.psmart.vrlib.PicovrSDK;
 import com.pxy.cloudlarkxrkit.CrashHandler;
 import com.pxy.cloudlarkxrkit.Utils;
 import com.pxy.cloudlarkxrkit.XrSystem;
+import com.pxy.larkcore.Util;
 
 import java.io.File;
 
@@ -30,7 +32,8 @@ import java.io.File;
 public class MainActivity extends VRActivity implements RenderInterface {
 
     private static final String TAG = "pvr_activity_main";
-
+    private static final String SETTING = "pxy_setting";
+    private static final String SETTING_LIST_3D= "list3D";
     private static int HEAD_SETY_TYPE_OTHER = 0;
     private static int HEAD_SETY_TYPE_NEO_2 = 1;
     private static int HEAD_SETY_TYPE_NEO_3 = 2;
@@ -113,7 +116,7 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
         // shoud init vr system before vr started.
         xrSystem = new XrSystem();
-        xrSystem.init(this);
+        xrSystem.init(this, Util.getLocalMacAddress(this));
 
         Log.d(TAG, "on create nativeApplication " + nativeApplication + " native instance " + nativeApplicationInstance());
 
@@ -180,6 +183,12 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
         xrSystem.onDestroy();
         //System.exit(0);
+        //startActivity(new Intent(MainActivity.this, ListActivity.class));
+        if (nativeApplication != 0) {
+            //nativeOnRenderDestory(nativeApplication);
+            nativeReleaseApplication(nativeApplication);
+            nativeApplication = 0;
+        }
     }
 
 
@@ -279,11 +288,11 @@ public class MainActivity extends VRActivity implements RenderInterface {
     public void onRendererShutdown() {
         Log.d(TAG, "onRendererShutdown " + nativeApplication);
         xrSystem.onDestroy();
-        if (nativeApplication != 0) {
+  /*      if (nativeApplication != 0) {
             nativeOnRenderDestory(nativeApplication);
             nativeReleaseApplication(nativeApplication);
             nativeApplication = 0;
-        }
+        }*/
     }
 
     @Override
@@ -331,38 +340,32 @@ public class MainActivity extends VRActivity implements RenderInterface {
     }
 
     @Override
-        protected void onUserLeaveHint() {
+    protected void onUserLeaveHint() {
         Log.e("onUserLeaveHint", "onUserLeaveHint");
         super.onUserLeaveHint();
     }
 
     public void onError(int errCode, String msg) {
         // TODO back to 2d applist when error
+        Log.e(TAG,errCode+"|"+msg);
+        try {
+            Thread.sleep(2000);
+            switchTo2DAppList();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void switchTo2DAppList() {
         Log.d(TAG, "on switchTo2DAppList");
-        return;
         // TODO switch to 2d applist.
-    /*    finish();
-        startActivity(new Intent(MainActivity.this, ListActivity.class));
-        if (nativeApplication != 0) {
-            nativeReleaseApplication(nativeApplication);
-            nativeApplication = 0;
-        }*/
+        //startActivity(new Intent(MainActivity.this, ListActivity.class));
+        SharedPreferences sp = MainActivity.this.getSharedPreferences(SETTING, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean(SETTING_LIST_3D, false);
+        editor.apply();
+        finish();
     }
-
-    Handler handler=new Handler(){
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            Log.d(TAG, "msg:"+msg.what);
-            if (msg.what==4){
-                //startActivity(new Intent(MainActivity.this,ListActivity.class));
-                finish();
-            }
-        }
-    };
 
     // native application
     private native void nativeInit(AssetManager am, String internalDataPath, String externalDataPath);

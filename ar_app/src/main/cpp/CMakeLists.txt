@@ -14,11 +14,12 @@ add_library(libxr_loader SHARED IMPORTED)
 set_target_properties(libxr_loader PROPERTIES IMPORTED_LOCATION
         "${PROJECT_SOURCE_DIR}/../../../../third_party/huawei/lib/android/${CMAKE_ANDROID_ARCH_ABI}/libxr_loader.so")
 
-# add arcore
+# Import the ARCore library.
 add_library(arcore SHARED IMPORTED)
 set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
-        "${PROJECT_SOURCE_DIR}/../../../../arcore/libraries/include/arcore_c_api.h")
-
+        ${ARCORE_LIBPATH}/${ANDROID_ABI}/libarcore_sdk_c.so
+        INTERFACE_INCLUDE_DIRECTORIES ${ARCORE_INCLUDE}
+        )
 
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.

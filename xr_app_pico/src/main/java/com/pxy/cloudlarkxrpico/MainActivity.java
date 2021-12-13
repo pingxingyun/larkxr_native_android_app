@@ -353,7 +353,12 @@ public class MainActivity extends VRActivity implements RenderInterface {
     public void onError(int errCode, String msg) {
         // TODO back to 2d applist when error
         Log.e(TAG,errCode+"|"+msg);
-        switchTo2DAppList();
+        try {
+            Thread.sleep(2000);
+            switchTo2DAppList();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void switchTo2DAppList() {

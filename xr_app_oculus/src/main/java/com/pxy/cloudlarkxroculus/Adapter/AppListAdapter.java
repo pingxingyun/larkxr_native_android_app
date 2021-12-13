@@ -15,7 +15,6 @@ import com.bumptech.glide.Glide;
 import com.pxy.cloudlarkxroculus.Activity.ListActivity;
 import com.pxy.cloudlarkxroculus.R;
 import com.pxy.larkcore.request.AppListItem;
-import com.pxy.larkcore.request.Base;
 
 import java.util.List;
 

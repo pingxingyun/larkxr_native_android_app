@@ -414,6 +414,7 @@ void PvrApplication::OnError(int errCode, const std::string &msg) {
             scene_local_->HomePage();
         } else {
             scene_local_->LoadingPage();
+            JniCallbackOnError(errCode, msg);
         }
     }
     Navigation::ShowToast(msg);

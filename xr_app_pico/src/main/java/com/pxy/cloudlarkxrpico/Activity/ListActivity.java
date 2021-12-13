@@ -94,8 +94,6 @@ public class ListActivity extends Activity {
     private RadioButton larkStreamType_UDP, larkStreamType_TCP, larkStreamType_THROTTLED_UDP;
     //socket链接
     private ImSocketChannel imSocketChannel;
-    //getrunmode接口开关
-    private Boolean stoprunmode = false;
     //翻页请求
     private GetAppliList getAppliList;
     List<AppListItem> applist;
@@ -594,146 +592,6 @@ public class ListActivity extends Activity {
         textViews.get(s).setVisibility(View.VISIBLE);
     }
 
-    private void setIp(List<ServerBean> list, int index) {
-        ServerBean serverBean = list.get(index);
-        inputIp.setText(serverBean.getIp());
-        inputPort.setText(serverBean.getPort());
-
-        config.serverIp = serverBean.getIp();
-        config.serverPort = Integer.parseInt(serverBean.getPort());
-
-        mServerIp = "http://" + serverBean.getIp() + ":" + serverBean.getPort();
-
-        Base.setServerAddr(useHttps, mServerIp);
-
-        list.remove(serverBean);
-        list.add(0, serverBean);
-
-        SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(SETTING_SERVER, String.valueOf(JSON.toJSON(list)));
-  /*      editor.putString(SETTING_SERVER, mServerIp);
-        editor.putBoolean(SETTING_SERVER_USE_HTTPS, false);*/
-        editor.apply();
-
-        if (clientLifeManager == null) {
-            clientLifeManager = new ClientLifeManager(this);
-            clientLifeManager.ClientOnline();
-        }
-        if (imSocketChannel == null) {
-            Log.e("imSocketChannel", "isnull");
-            imSocketChannel = new ImSocketChannel(socketChannelObserver, ListActivity.this);
-        } else {
-            Log.e("imSocketChannel", "notnull");
-            if (imSocketChannel.isConnected()) {
-                imSocketChannel.close();
-            }
-            imSocketChannel.connect();
-        }
-
-        if (getAppliList == null) {
-            getAppliList = new GetAppliList(new GetAppliList.Callback() {
-                @Override
-                public void onSuccess(List<AppListItem> list) {
-                    setMessage(1, list);
-                }
-
-                @Override
-                public void onPageInfoChange(PageInfo pageInfo) {
-                    mPage = pageInfo.getPageNum();
-                    ListActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (pageInfo.hasPreviousPage()) {
-                                lastPage.setImageResource(R.mipmap.lastpage);
-                                lastPage.setEnabled(true);
-                            } else {
-                                lastPage.setImageResource(R.mipmap.lastpagefalse);
-                                lastPage.setEnabled(false);
-                            }
-
-                            if (pageInfo.hasNextPage()) {
-                                nextPage.setImageResource(R.mipmap.nextpage);
-                                nextPage.setEnabled(true);
-                            } else {
-                                nextPage.setImageResource(R.mipmap.nextpagefalse);
-                                nextPage.setEnabled(false);
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onFail(String s) {
-                    Log.e("GetapplistFail", s);
-                    /*toastInner(s);
-                    getAppliList = null;
-                    showSetupIP();*/
-                }
-            });
-        }
-
-        //imSocketChannel.connect();
-        if (getRunMode == null) {
-            getRunMode = new GetRunMode(new GetRunMode.Callback() {
-                @Override
-                public void onSuccess(GetRunModeBean getRunModeBean) {
-                    setMessage(2, getRunModeBean);
-                }
-
-                @Override
-                public void onFail(String s) {
-                    Log.e("getRunModeFaile", s);
-                    /*toastInner(s);
-                    showSetupIP();
-                    getRunMode = null;*/
-                }
-            });
-        }
-
-        s1=new ScheduleTaskManager(2000);
-        s1.addTask(() -> {
-            getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
-            getAppliList.getAppliList();
-        });
-        s1.startTask();
-
-        if (clientLifeManager != null) {
-            s2=new ScheduleTaskManager(10 * 1000);
-            s2.addTask(() -> clientLifeManager.GetHertBeat());
-            s2.startTask();
-        }
-    }
-
-    private void StopApp(Boolean close) {
-        if (config != null) {
-            Config.saveToCache(this, config);
-        }
-        if (clientLifeManager != null) {
-            clientLifeManager.ClientOffline();
-        }
-        if (imSocketChannel != null && !imSocketChannel.isConnected()) {
-            imSocketChannel.close();
-        }
-        if (s1!=null){
-            s1.stopTask();
-        }
-        if (s2!=null){
-            s2.stopTask();
-        }
-        stoprunmode = close;
-        if (close) {
-            if (s1 != null) {
-                s1.release();
-            }
-            if (s2 != null) {
-                s2.release();
-            }
-            System.exit(0);
-            Process.killProcess(Process.myPid());
-        }
-    }
-
     private void showSetupIP() {
         ListActivity.this.runOnUiThread(() -> {
             setIp.setVisibility(View.VISIBLE);
@@ -781,6 +639,108 @@ public class ListActivity extends Activity {
         }
     }
 
+    private void setIp(List<ServerBean> list, int index) {
+        ServerBean serverBean = list.get(index);
+        inputIp.setText(serverBean.getIp());
+        inputPort.setText(serverBean.getPort());
+
+        config.serverIp = serverBean.getIp();
+        config.serverPort = Integer.parseInt(serverBean.getPort());
+
+        mServerIp = "http://" + serverBean.getIp() + ":" + serverBean.getPort();
+
+        Base.setServerAddr(useHttps, mServerIp);
+
+        list.remove(serverBean);
+        list.add(0, serverBean);
+
+        SharedPreferences sp = getSharedPreferences(SETTING, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(SETTING_SERVER, String.valueOf(JSON.toJSON(list)));
+  /*      editor.putString(SETTING_SERVER, mServerIp);
+        editor.putBoolean(SETTING_SERVER_USE_HTTPS, false);*/
+        editor.apply();
+
+        if (imSocketChannel == null) {
+            Log.e("imSocketChannel", "isnull");
+            imSocketChannel = new ImSocketChannel(socketChannelObserver, ListActivity.this);
+            imSocketChannel.connect();
+        }
+
+        s1=new ScheduleTaskManager(3000);
+        if (getRunMode == null) {
+            getRunMode = new GetRunMode(new GetRunMode.Callback() {
+                @Override
+                public void onSuccess(GetRunModeBean getRunModeBean) {
+                    setMessage(2, getRunModeBean);
+                }
+
+                @Override
+                public void onFail(String s) {
+                    Log.e("getRunModeFaile", s);
+                    /*toastInner(s);
+                    showSetupIP();
+                    getRunMode = null;*/
+                }
+            });
+            s1.addTask(() -> {
+                getRunMode.dorequest(Util.getLocalMacAddress(ListActivity.this));
+            });
+        }
+        if (getAppliList == null) {
+            getAppliList = new GetAppliList(new GetAppliList.Callback() {
+                @Override
+                public void onSuccess(List<AppListItem> list) {
+                    setMessage(1, list);
+                }
+
+                @Override
+                public void onPageInfoChange(PageInfo pageInfo) {
+                    mPage = pageInfo.getPageNum();
+                    ListActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (pageInfo.hasPreviousPage()) {
+                                lastPage.setImageResource(R.mipmap.lastpage);
+                                lastPage.setEnabled(true);
+                            } else {
+                                lastPage.setImageResource(R.mipmap.lastpagefalse);
+                                lastPage.setEnabled(false);
+                            }
+
+                            if (pageInfo.hasNextPage()) {
+                                nextPage.setImageResource(R.mipmap.nextpage);
+                                nextPage.setEnabled(true);
+                            } else {
+                                nextPage.setImageResource(R.mipmap.nextpagefalse);
+                                nextPage.setEnabled(false);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onFail(String s) {
+                    Log.e("GetapplistFail", s);
+                    /*toastInner(s);
+                    getAppliList = null;
+                    showSetupIP();*/
+                }
+            });
+            s1.addTask(() -> {
+                getAppliList.getAppliList();
+            });
+        }
+        s2=new ScheduleTaskManager(10 * 1000);
+        if (clientLifeManager == null) {
+            clientLifeManager = new ClientLifeManager(this);
+            clientLifeManager.ClientOnline();
+            s2.addTask(() -> clientLifeManager.GetHertBeat());
+        }
+        s1.startTask();
+        s2.startTask();
+    }
+
     private void toastInner(final String msg) {
         runOnUiThread(() -> Toast.makeText(ListActivity.this, msg, Toast.LENGTH_SHORT).show());
     }
@@ -793,24 +753,55 @@ public class ListActivity extends Activity {
         handler.sendMessage(message);
     }
 
+    private void StopApp(Boolean close) {
+        Log.e("StopApp", String.valueOf(close));
+        if (config != null) {
+            Config.saveToCache(this, config);
+        }
+        if (clientLifeManager != null) {
+            clientLifeManager.ClientOffline();
+        }
+        if (imSocketChannel != null && imSocketChannel.isConnected()) {
+            imSocketChannel.close();
+            Log.e("imSocketChannel","close");
+        }
+        if (s1!=null){
+            s1.stopTask();
+        }
+        if (s2!=null){
+            s2.stopTask();
+        }
+        if (close) {
+            if (s1 != null) {
+                s1.release();
+            }
+            if (s2 != null) {
+                s2.release();
+            }
+            finish();
+           /* System.exit(0);
+            Process.kilProcess(Process.myPid());*/
+        }
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause");
+        Log.e(TAG, "onPause");
         StopApp(false);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d(TAG, "onStop");
+        Log.e(TAG, "onStop");
         StopApp(false);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.d(TAG, "onRestart");
+        Log.e(TAG, "onRestart");
         if (clientLifeManager != null) {
             clientLifeManager.ClientOnline();
         }
@@ -834,13 +825,14 @@ public class ListActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume");
+        Log.e(TAG, "onResume");
     }
 
     @Override
     protected void onDestroy() {
+        Log.e(TAG, "onDestroy");
+        StopApp(true);
         super.onDestroy();
-        StopApp(false);
     }
 
     public static void hideSoftInputFromWindow(Activity activity) {
@@ -927,8 +919,8 @@ public class ListActivity extends Activity {
 
     private void getMessage(Message msg) {
         if (msg.what == 1) {
+            Log.e("getapplist",msg.what+"");
             List<AppListItem> locallist = (List<AppListItem>) msg.obj;
-
             switch (list_show_type_num) {
                 case 0: {
                     animateBanner.setVisibility(View.GONE);
