@@ -6,6 +6,10 @@ buildscript {
         maven { url "https://maven.aliyun.com/repository/google" }
         maven { url "https://maven.aliyun.com/repository/jcenter" }
         maven { url "https://maven.aliyun.com/repository/central" }
+        google()
+        jcenter()
+        // 配置HMS Core SDK的Maven仓地址。
+        maven {url 'https://developer.huawei.com/repo/'}
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
@@ -22,10 +26,14 @@ allprojects {
         maven { url "https://maven.aliyun.com/repository/google" }
         maven { url "https://maven.aliyun.com/repository/jcenter" }
         maven { url "https://maven.aliyun.com/repository/central" }
+        google()
+        jcenter()
+        // 配置HMS Core SDK的Maven仓地址。
         maven {
             // assign your wavevr local respository
             url "$rootDir/repo"
         }
+        maven {url 'https://developer.huawei.com/repo/'}
     }
 }
 

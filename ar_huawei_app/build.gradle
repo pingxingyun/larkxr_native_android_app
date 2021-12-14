@@ -1,30 +1,26 @@
 plugins {
     id 'com.android.application'
 }
-def arcore_libpath = "${buildDir}/arcore-native"
 
 android {
-    compileSdk 30
+    compileSdkVersion 30
 
     defaultConfig {
-        applicationId "com.pxy.larkar_native_android_app"
-        minSdk 28
-        targetSdk 30
+        applicationId "com.pxy.ar_huawei_app"
+        minSdkVersion 28
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         externalNativeBuild {
-            cmake {
+ /*           cmake {
                 cppFlags "-frtti -fexceptions -std=c++1y -DANDROID_NDK_BUILD=1"
-                targets 'ar_app'
+                targets 'ar_huawei_app'
 
-                arguments "-DANDROID_STL=c++_shared",
-                "-DARCORE_LIBPATH=${arcore_libpath}/jni",
-                "-DARCORE_INCLUDE=${project.rootDir}/arcore/libraries/include",
-                "-DGLM_INCLUDE=${project.rootDir}/arcore/libraries/glm"
-            }
+                arguments "-DANDROID_STL=c++_shared"
+            }*/
             ndk {
                 abiFilters 'arm64-v8a'
             }
@@ -32,13 +28,9 @@ android {
                 abiFilters 'arm64-v8a'
             }
         }
+
     }
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.10.2"
-        }
-    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -63,6 +55,8 @@ android {
         pickFirst "lib/armeabi-v7a/libprotobuf.so"
         pickFirst "lib/arm64-v8a/libc++_shared.so"
         pickFirst "lib/armeabi-v7a/libc++_shared.so"
+        pickFirst "lib/arm64-v8a/liblark_xr.so"
+        pickFirst "lib/arm64-v8a/liblark_pxygl.so"
     }
 }
 
@@ -78,21 +72,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.13'
+    implementation 'de.javagl:obj:0.3.0'
 
-    implementation 'com.google.ar:core:1.23.0'
-}
-
-task extractNativeLibraries() {
-    // Always extract, this insures the native libs are updated if the version changes.
-    outputs.upToDateWhen { false }
-    doFirst {
-        configurations.natives.files.each { f ->
-            copy {
-                from zipTree(f)
-                into arcore_libpath
-                include "jni/**/*"
-            }
-        }
-    }
+    implementation 'com.huawei.hms:arenginesdk:3.5.0.4'
 }
