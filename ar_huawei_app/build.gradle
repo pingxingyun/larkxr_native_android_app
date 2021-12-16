@@ -2,6 +2,10 @@ plugins {
     id 'com.android.application'
 }
 
+def arengine_libpath = "${projectDir}/src/main/jniLibs/"
+// Create a configuration to mark which aars to extract .so files from
+configurations { natives }
+
 android {
     compileSdkVersion 30
 
@@ -15,12 +19,13 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         externalNativeBuild {
- /*           cmake {
+            cmake {
                 cppFlags "-frtti -fexceptions -std=c++1y -DANDROID_NDK_BUILD=1"
                 targets 'ar_huawei_app'
 
-                arguments "-DANDROID_STL=c++_shared"
-            }*/
+                arguments "-DANDROID_STL=c++_shared",
+                        "-DARENGINE_LIBPATH=${arengine_libpath}/jni"
+            }
             ndk {
                 abiFilters 'arm64-v8a'
             }
@@ -29,6 +34,12 @@ android {
             }
         }
 
+    }
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
     }
 
     buildTypes {
@@ -65,15 +76,36 @@ dependencies {
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
 
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation 'com.squareup.okhttp3:okhttp:3.12.13'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
     implementation 'de.javagl:obj:0.3.0'
 
     implementation 'com.huawei.hms:arenginesdk:3.5.0.4'
+}
+
+// Extracts the shared libraries from aars in the natives configuration.
+// This is done so that NDK builds can access these libraries.
+task extractNativeLibrariesArEngine() {
+    outputs.upToDateWhen { false }
+    doFirst {
+        configurations.natives.files.each { f ->
+            copy {
+                from zipTree(f)
+                into arengine_libpath
+                include "jni/**/*"
+            }
+        }
+    }
+}
+
+tasks.whenTaskAdded {
+    task-> if (task.name.contains("external") && !task.name.contains("Clean")) {
+        task.dependsOn(extractNativeLibrariesArEngine)
+    }
 }

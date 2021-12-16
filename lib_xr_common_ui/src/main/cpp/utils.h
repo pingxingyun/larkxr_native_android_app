@@ -17,6 +17,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "application.h"
 
+#ifndef CHECK
+#define CHECK(condition)                                                   \
+    if (!(condition)) {                                                      \
+        LOGE("*** CHECK FAILED at %d: %s", __LINE__, #condition); \
+        abort();                                                               \
+    }
+#endif
+
 // Return micro second.  Should always positive because now is bigger.
 #define timeval_subtract(now, last) \
     ((now.tv_sec - last.tv_sec) * 1000000LL + now.tv_usec - last.tv_usec)

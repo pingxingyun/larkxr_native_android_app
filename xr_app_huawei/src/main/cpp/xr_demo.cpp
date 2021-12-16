@@ -134,7 +134,6 @@ XrDemo::~XrDemo() {
         ANativeWindow_release(mNativeWindow);
         mNativeWindow = nullptr;
     }
-
 }
 
 void XrDemo::XrDemoBeginSession() {
@@ -181,7 +180,6 @@ void XrDemo::InitGLGraphics() {
                         Navigation::ShowToast(xr_client_->last_error_message());
                     }
 #endif
-
     xr_client_->SetServerAddr("192.168.31.15", 8181);
     xr_client_->EnterAppli("756846918545440768");
     rect_render_ = std::make_shared<RectTexture>();
@@ -1253,7 +1251,6 @@ void XrDemo::setSurface(JNIEnv *jni, jobject surface) {
 bool XrDemo::initEGLSurface() {
     const EGLint attribs[] = {EGL_NONE};
     EGLSurface windowSurface = eglCreateWindowSurface(mDisplay, mConfig, mNativeWindow, attribs);
-
     if (eglMakeCurrent(mDisplay, windowSurface, windowSurface, mContext) == EGL_FALSE) {
         //LOGI("eglMakeCurrent failed: %s", getEglErrorChars());
         return false;

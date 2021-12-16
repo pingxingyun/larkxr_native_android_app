@@ -172,7 +172,10 @@ bool PvrApplication::InitGL(int eyeWidth, int eyeHeight) {
     // call resume on init gl
     // gl not ready on resume call. must call here
     if (xr_client_) {
+        LOGE("sleep");
+        sleep(1);
         xr_client_->OnResume();
+        LOGE("sleepover");
     }
 
     LOGV("pre appid ========== %s", appli_id_from_2d_ui_.c_str());
@@ -399,6 +402,7 @@ void PvrApplication::OnClose(int code) {
 
 void PvrApplication::OnError(int errCode, const std::string &msg) {
     LOGE("on xr client error %d; msg %s;", errCode, msg.c_str());
+    Navigation::ShowToast(msg);
     if (errCode == LK_API_ENTERAPPLI_FAILED) {
         // enter applifailed.
         if (ui_mode() == ApplicationUIMode_Opengles_3D) {
@@ -413,11 +417,10 @@ void PvrApplication::OnError(int errCode, const std::string &msg) {
         if (ui_mode() == ApplicationUIMode_Opengles_3D) {
             scene_local_->HomePage();
         } else {
-            scene_local_->LoadingPage();
             JniCallbackOnError(errCode, msg);
+            scene_local_->LoadingPage();
         }
     }
-    Navigation::ShowToast(msg);
     ResetTracking(pvr::PvrTrackingOrigin_EyeLevel);
 }
 

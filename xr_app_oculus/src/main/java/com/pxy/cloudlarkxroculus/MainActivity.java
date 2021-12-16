@@ -93,7 +93,7 @@ public class MainActivity extends android.app.NativeActivity {
         // TODO back to 2d applist when error
         Log.e(TAG,errCode+"|"+msg);
         try {
-            Thread.sleep(2000);
+            Thread.sleep(3000);
             switchTo2DAppList();
         } catch (InterruptedException e) {
             e.printStackTrace();

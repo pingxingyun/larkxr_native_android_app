@@ -40,7 +40,9 @@ void Application::CloseAppli() {
 
 void Application::SetServerAddr(const std::string &ip, uint16_t port) {
     if (xr_client_) {
+        xr_client_->OnPause();
         xr_client_->SetServerAddr(ip, port);
+        xr_client_->OnResume();
     }
 }
 

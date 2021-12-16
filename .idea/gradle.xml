@@ -11,7 +11,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/ar_app" />
             <option value="$PROJECT_DIR$/ar_huawei_app" />
             <option value="$PROJECT_DIR$/lib_pxygl" />
             <option value="$PROJECT_DIR$/lib_xr_common_ui" />

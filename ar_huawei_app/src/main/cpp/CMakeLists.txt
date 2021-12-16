@@ -14,8 +14,11 @@ add_library(libxr_loader SHARED IMPORTED)
 set_target_properties(libxr_loader PROPERTIES IMPORTED_LOCATION
         "${PROJECT_SOURCE_DIR}/../../../../third_party/huawei/lib/android/${CMAKE_ANDROID_ARCH_ABI}/libxr_loader.so")
 
-# Export ANativeActivity_onCreate(),
-# Refer to: https://github.com/android-ndk/ndk/issues/381.
+#huawei_arengine_ndk
+add_library(huawei_arengine_ndk SHARED IMPORTED)
+set_target_properties(huawei_arengine_ndk PROPERTIES IMPORTED_LOCATION
+        "${ARENGINE_LIBPATH}/${ANDROID_ABI}/libhuawei_arengine_ndk.so")
+
 set(CMAKE_SHARED_LINKER_FLAGS
         "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
@@ -24,15 +27,29 @@ set(src_dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 # source files
 set(src_files
-#        ${src_dir}/main.cpp
+        ${src_dir}/Ar_Demo.cpp
+        ${src_dir}/jni_interface.cc
+        ${src_dir}/util.cpp
+        ${src_dir}/rendering/world_background_renderer.cpp
+        ${src_dir}/rendering/world_point_cloud_renderer.cpp
+        ${src_dir}/rendering/world_render_manager.cpp
+        ${src_dir}/rendering/world_object_renderer.cpp
+        ${src_dir}/rendering/world_plane_renderer.cpp
         # render and base use.
         ${common_files}
         )
 
 # header files
 set(header_files
-#        ${src_dir}/matrix_functions.h
-
+        ${src_dir}/Ar_Demo.h
+        ${src_dir}/jni_interface.h
+        ${src_dir}/util.h
+        ${src_dir}/huawei_arengine_interface.h
+        ${src_dir}/rendering/world_background_renderer.h
+        ${src_dir}/rendering/world_point_cloud_renderer.h
+        ${src_dir}/rendering/world_render_manager.h
+        ${src_dir}/rendering/world_object_renderer.h
+        ${src_dir}/rendering/world_plane_renderer.h
         )
 
 add_definitions(-D_GLM_ENABLE_EXPERIMENTAL)
@@ -68,6 +85,7 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         ar_huawei_app
+#        cloudxr-lib
         android
         jnigraphics
         # native_app_glue
@@ -77,6 +95,8 @@ target_link_libraries( # Specifies the target library.
         EGL
         GLESv3
         # ndk media codec
+        huawei_arengine_ndk
+
         mediandk
         OpenMAXAL
 

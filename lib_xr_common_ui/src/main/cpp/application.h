@@ -104,6 +104,7 @@ protected:
 
     // xrclient
     std::shared_ptr<lark::XRClient> xr_client_ = nullptr;
+
     //
     bool connected_ = false;
 

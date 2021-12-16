@@ -41,7 +41,7 @@ public:
     virtual void EnterAppli(const std::string& appId) override;
     virtual void CloseAppli() override;
 
-    ANativeWindow *		native_window_ = nullptr;
+    ANativeWindow *	native_window_ = nullptr;
     int nativeTextrureFromMedia;
     int nativeTextrureFromMediaLeft;
     int nativeTextrureFromMediaRight;

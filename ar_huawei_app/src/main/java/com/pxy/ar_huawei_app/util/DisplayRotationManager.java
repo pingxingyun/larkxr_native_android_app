@@ -25,13 +25,13 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
-import com.huawei.hiar.ARSession;
+import com.pxy.ar_huawei_app.JniInterface;
 
 /**
  * Device rotation manager, which is used by the demo to adapt to device rotations
  *
  * @author HW
- * @since 2020-03-20
+ * @since 2020-09-20
  */
 public class DisplayRotationManager implements DisplayListener {
     private static final String TAG = DisplayRotationManager.class.getSimpleName();
@@ -47,7 +47,7 @@ public class DisplayRotationManager implements DisplayListener {
     private int mViewPy;
 
     /**
-     * Construct DisplayRotationManage with the context.
+     * Use the context to construct DisplayRotationManage.
      *
      * @param context Context.
      */
@@ -62,7 +62,7 @@ public class DisplayRotationManager implements DisplayListener {
     }
 
     /**
-     * Register a listener on display changes. This method can be called when onResume is called for an activity.
+     * Register a listener on display changes. Call this method when onResume is called.
      */
     public void registerDisplayListener() {
         DisplayManager systemService = mContext.getSystemService(DisplayManager.class);
@@ -72,7 +72,7 @@ public class DisplayRotationManager implements DisplayListener {
     }
 
     /**
-     * Deregister a listener on display changes. This method can be called when onPause is called for an activity.
+     * Unregister the listener on display changes. Call this method when onPause is called.
      */
     public void unregisterDisplayListener() {
         DisplayManager systemService = mContext.getSystemService(DisplayManager.class);
@@ -82,12 +82,12 @@ public class DisplayRotationManager implements DisplayListener {
     }
 
     /**
-     * When a device is rotated, the viewfinder size and whether the device is rotated
-     * should be updated to correctly display the geometric information returned by the
-     * AR Engine. This method should be called when onSurfaceChanged.
+     * When the device is rotated, the size of the viewfinder and whether the viewfinder is rotated need
+	 * to be updated to correctly display the geometric information returned by AR Engine.
+     * Call this method onSurfaceChanged.
      *
-     * @param width Width of the surface updated by the device.
-     * @param height Height of the surface updated by the device.
+     * @param width Set the width of the updated surface.
+     * @param height Set the height of the updated surface.
      */
     public void updateViewportRotation(int width, int height) {
         mViewPx = width;
@@ -98,7 +98,7 @@ public class DisplayRotationManager implements DisplayListener {
     /**
      * Check whether the current device is rotated.
      *
-     * @return The device rotation result.
+     * @return Device rotation result.
      */
     public boolean getDeviceRotation() {
         return mIsDeviceRotation;
@@ -106,18 +106,19 @@ public class DisplayRotationManager implements DisplayListener {
 
     /**
      * If the device is rotated, update the device window of the current ARSession.
-     * This method can be called when onDrawFrame is called.
+     * Call this method when calling onDrawFrame.
      *
-     * @param session {@link ARSession} object.
+     * @param nativeApplication nativeApplication
      */
-    public void updateArSessionDisplayGeometry(ARSession session) {
+    public void updateArSessionDisplayGeometry(long nativeApplication) {
         int displayRotation = 0;
         if (mDisplay != null) {
             displayRotation = mDisplay.getRotation();
         } else {
             Log.e(TAG, "updateArSessionDisplayGeometry mDisplay null!");
         }
-        session.setDisplayGeometry(displayRotation, mViewPx, mViewPy);
+
+        JniInterface.onDisplayGeometryChanged(nativeApplication, displayRotation, mViewPx, mViewPy);
         mIsDeviceRotation = false;
     }
 

@@ -363,6 +363,7 @@ void OvrApplication::OnResume() {
     LOGV( "    APP_CMD_RESUME" );
     resumed_ = true;
     if (xr_client_) {
+        sleep(1);
         xr_client_->OnResume();
     }
 }
@@ -490,6 +491,7 @@ void OvrApplication::OnClose(int code) {
 
 void OvrApplication::OnError(int errCode, const std::string &msg) {
     LOGE("on xr client error %d; msg %s;", errCode, msg.c_str());
+    Navigation::ShowToast(msg);
     if (errCode == LK_API_ENTERAPPLI_FAILED) {
         // enter applifailed.
         if (ui_mode() == ApplicationUIMode_Opengles_3D) {
@@ -509,7 +511,6 @@ void OvrApplication::OnError(int errCode, const std::string &msg) {
         }
 
     }
-    Navigation::ShowToast(msg);
     if (ovr_ != nullptr && tracking_space_ != VRAPI_TRACKING_SPACE_LOCAL) {
         vrapi_SetTrackingSpace(ovr_, VRAPI_TRACKING_SPACE_LOCAL);
         tracking_space_ = VRAPI_TRACKING_SPACE_LOCAL;

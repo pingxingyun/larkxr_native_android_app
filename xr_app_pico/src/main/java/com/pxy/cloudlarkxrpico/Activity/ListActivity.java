@@ -605,6 +605,12 @@ public class ListActivity extends Activity {
             toastInner("IP不能为空");
             return;
         }
+        if (clientLifeManager!=null) {
+            clientLifeManager.ClientOffline();
+        }
+        if (rec.getAdapter()!=null) {
+            rec.setAdapter(null);
+        }
 
         hideSoftInputFromWindow(this);
         setIp.setVisibility(View.GONE);
@@ -640,6 +646,9 @@ public class ListActivity extends Activity {
     }
 
     private void setIp(List<ServerBean> list, int index) {
+        if (clientLifeManager != null) {
+            clientLifeManager.ClientOffline();
+        }
         ServerBean serverBean = list.get(index);
         inputIp.setText(serverBean.getIp());
         inputPort.setText(serverBean.getPort());
@@ -734,9 +743,9 @@ public class ListActivity extends Activity {
         s2=new ScheduleTaskManager(10 * 1000);
         if (clientLifeManager == null) {
             clientLifeManager = new ClientLifeManager(this);
-            clientLifeManager.ClientOnline();
             s2.addTask(() -> clientLifeManager.GetHertBeat());
         }
+        clientLifeManager.ClientOnline();
         s1.startTask();
         s2.startTask();
     }
@@ -795,7 +804,7 @@ public class ListActivity extends Activity {
     protected void onStop() {
         super.onStop();
         Log.e(TAG, "onStop");
-        StopApp(false);
+        //StopApp(false);
     }
 
     @Override
