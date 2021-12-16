@@ -70,18 +70,25 @@ namespace gWorldAr {
         mUniformColor = glGetUniformLocation(mShaderProgram, "color");
         mAttriVertices = glGetAttribLocation(mShaderProgram, "vertex");
 
+        // 生成纹理
         glGenTextures(1, &textureId);
+        // 绑定当前纹理，开始纹理的设置
         glBindTexture(GL_TEXTURE_2D, textureId);
+        // 设置纹理的显示方式，拉伸平铺之类的
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        // 从 asset 里面载入图片
+        // 实际调用了 java JniInterface 里面的 loadImage 和 loadTexture
+        // 先用 loadImage 加载到 Bitmap 然后用 loadTexture 将 Bitmap 绑定到当前纹理 GLUtils.texImage2D(target, 0, bitmap, 0);
         if (!util::LoadPngFromAssetManager(GL_TEXTURE_2D, "trigrid.png")) {
             LOGE("Could not load png texture for planes.");
         }
 
         glGenerateMipmap(GL_TEXTURE_2D);
+        // 当我纹理用完了，通知 opengl 设置为空纹理
         glBindTexture(GL_TEXTURE_2D, 0);
 
 
