@@ -88,17 +88,17 @@ namespace gWorldAr {
         }
 
         glGenerateMipmap(GL_TEXTURE_2D);
-        // 当我纹理用完了，通知 opengl 设置为空纹理
+        // 当纹理用完了，通知 opengl 设置为空纹理
         glBindTexture(GL_TEXTURE_2D, 0);
 
-
+        //ptr->DrawMultiview(glm::mat4(), glm::mat4());
         //util::CheckGlError("WorldPlaneRenderer::InitializeBackGroundGlContent()");
     }
 
     void WorldPlaneRenderer::Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat,
                                   const HwArSession *session,
                                   const HwArPlane *plane, const glm::vec3 &color,
-                                  std::shared_ptr<RectTexture> ptr)
+                                  const std::shared_ptr<RectTexture>& ptr)
     {
         if (!mShaderProgram) {
             LOGE("mShaderProgram is null.");
