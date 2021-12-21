@@ -101,5 +101,5 @@ dependencies {
 
     implementation(name: 'svrApi-release', ext: 'aar')
     implementation(name:'xdevice-api', ext:'aar')
-    implementation(name: 'larkxr-kit-3.2.0.1-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.2-build-1', ext: 'aar')
 }

@@ -101,5 +101,5 @@ dependencies {
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
 
-    implementation(name: 'larkxr-kit-3.2.0.1-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.2-build-1', ext: 'aar')
 }

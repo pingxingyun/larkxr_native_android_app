@@ -10,6 +10,8 @@
 #include "lark_xr/lark_xr.h"
 #ifdef WIN32
 #include <d3d11.h>
+#elif __ANDROID__
+#include "jni.h"
 #endif
 
 #if defined( __cplusplus )
@@ -50,6 +52,11 @@ extern "C" {
 
 #ifdef __ANDROID__
 void LARK_XR_API larkxr_InitContext(JavaVM *vm);
+
+// should call InitGLShareContext/ReleaseGLShareContext
+void LARK_XR_API larkxr_InitContextWithoutGl(JavaVM *vm);
+void LARK_XR_API larkxr_InitGLShareContext();
+void LARK_XR_API larkxr_ReleaseGLShareContext();
 #else
 void LARK_XR_API larkxr_InitContext();
 void LARK_XR_API larkxr_InitContextDebug(bool is_debug, const char* log_path);
