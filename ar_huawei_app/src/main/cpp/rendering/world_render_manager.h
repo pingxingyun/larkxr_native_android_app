@@ -43,7 +43,6 @@ namespace gWorldAr {
 
         // Initialize the OpenGL status, including the background, virtual object, point cloud, and plane drawing.
         // @param assetManager Wrapper of the bottom native implementation.
-        void Initialize(AAssetManager *assetManager);
 
         // The manager, including the background, virtual object, point cloud, and plane drawing.
         // @param arSession Implement the session function.
@@ -92,7 +91,8 @@ namespace gWorldAr {
         bool HasDetectedPlanes();
 
         void Initialize();
-
+        //void Initialize(const Ar_Demo& gApp);
+//        void Initialize(AAssetManager *assetManager);
 
     private:
         int32_t mPlaneCount = 0;

@@ -57,6 +57,7 @@
             <meta-data
                 android:name="pvr.display.orientation"
                 android:value="180" />
+
         </activity>
 
     </application>

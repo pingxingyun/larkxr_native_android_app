@@ -103,8 +103,10 @@ public class MainActivity extends VRActivity implements RenderInterface {
 
         nativeInit(getResources().getAssets(), s1, s2);
 
-        if (!getIntent().getStringExtra("appid").isEmpty()) {
-            BaseApplication.getInstance().setmHandler(handler);
+        if (getIntent().getStringExtra("appid")!=null) {
+            if (!getIntent().getStringExtra("appid").isEmpty()) {
+                BaseApplication.getInstance().setmHandler(handler);
+            }
         }
 
         CrashHandler.getInstance().init(this);

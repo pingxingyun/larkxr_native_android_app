@@ -45,16 +45,17 @@ namespace gWorldAr {
         // @param color Color configuration of a plane.
         void
         Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat, const HwArSession *session,
-             const HwArPlane *plane, const glm::vec3 &color, const std::shared_ptr<RectTexture>& ptr);
+             const HwArPlane *plane, const glm::vec3 &color,
+             const std::shared_ptr<RectTexture> &ptr);
+
+        glm::quat normalVec = glm::vec3(0.0f);
 
     private:
-
         void UpdateForPlane(const HwArSession *session, const HwArPlane *plane);
 
         std::vector<glm::vec3> vertices;
         std::vector<GLushort> triangles;
         glm::mat4 modelMat = glm::mat4(1.0f);
-        glm::quat normalVec = glm::vec3(0.0f);
         //trigrid纹理
         GLuint textureId;
 

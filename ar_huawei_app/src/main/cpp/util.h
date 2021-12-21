@@ -30,6 +30,7 @@
 #include <utils.h>
 
 #include "huawei_arengine_interface.h"
+#include "Ar_Demo.h"
 
 #ifndef LOGI
 #define LOGI(...) \
@@ -111,7 +112,7 @@ namespace gWorldAr {
                                           const HwArAnchor *arAnchor,
                                           glm::mat4 *outModelMat);
 
-        glm::quat GetPlaneNormal(const HwArSession &arSession, const HwArPose &planePose);
+        glm::vec3 GetPlaneNormal(const HwArSession &arSession, const HwArPose &planePose);
 
         // 计算从照相机到平面的法线距离，给定平面的y轴应平行于平面的法线.
         // 例如平面的中心位置或命中测试位置
@@ -134,6 +135,7 @@ namespace gWorldAr {
                          std::vector<GLfloat> &outNormals,
                          std::vector<GLfloat> &outUv,
                          std::vector<GLushort> &outIndices);
+
     }
 }
 #endif

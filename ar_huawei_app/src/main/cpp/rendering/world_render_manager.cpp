@@ -24,7 +24,7 @@
 #include "Ar_Demo.h"
 
 namespace gWorldAr {
-    void WorldRenderManager::Initialize(AAssetManager *assetManager)
+/*    void WorldRenderManager::Initialize(AAssetManager *assetManager)
     {
         LOGI("WorldRenderManager-----Initialize() start.");
         mBackgroundRenderer.InitializeBackGroundGlContent();
@@ -32,10 +32,13 @@ namespace gWorldAr {
         mObjectRenderer.InitializeObjectGlContent(assetManager, "AR_logo.obj", "AR_logo.png");
         mPlaneRenderer.InitializePlaneGlContent();
         LOGI("WorldRenderManager-----Initialize() end.");
-    }
+    }*/
 
+    //void WorldRenderManager::Initialize(const Ar_Demo& gApp)
     void WorldRenderManager::Initialize()
     {
+//        App=pDemo;
+
         LOGI("WorldRenderManager-----Initialize() start.");
         mBackgroundRenderer.InitializeBackGroundGlContent();
         mPointCloudRenderer.InitializePointCloudGlContent();
@@ -231,4 +234,5 @@ namespace gWorldAr {
     {
         return mPlaneCount > 0;
     }
+
 }

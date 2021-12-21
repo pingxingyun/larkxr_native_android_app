@@ -87,7 +87,7 @@ Java_com_pxy_ar_1huawei_1app_JniInterface_createNativeApplication(JNIEnv *env, j
     auto *app = new Ar_Demo(_vm, g_act, env);
     if (app == nullptr)
         return 0; // can't do anything more if failed construction.
-    app->Init(); // do we need a return value?
+    app->Init(app); // do we need a return value?
 
     return jptr(app);
 }
