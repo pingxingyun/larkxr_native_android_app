@@ -119,6 +119,7 @@ public class DisplayRotationManager implements DisplayListener {
         }
 
         JniInterface.onDisplayGeometryChanged(nativeApplication, displayRotation, mViewPx, mViewPy);
+
         mIsDeviceRotation = false;
     }
 

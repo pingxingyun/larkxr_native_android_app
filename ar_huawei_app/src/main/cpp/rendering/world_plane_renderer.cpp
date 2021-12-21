@@ -98,7 +98,7 @@ namespace gWorldAr {
     void WorldPlaneRenderer::Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat,
                                   const HwArSession *session,
                                   const HwArPlane *plane, const glm::vec3 &color,
-                                  const std::shared_ptr<RectTexture>& ptr)
+                                  const std::shared_ptr<RectTexture> &ptr)
     {
         if (!mShaderProgram) {
             LOGE("mShaderProgram is null.");
@@ -122,6 +122,7 @@ namespace gWorldAr {
         glUniform3f(mUniformNormalVec, normalVec.x, normalVec.y, normalVec.z);
         glUniform3f(mUniformColor, color.x, color.y, color.z);
 
+
         glEnableVertexAttribArray(mAttriVertices);
 
         // When the GL vertex attribute is a pointer, the number of vertices is 3.
@@ -134,14 +135,17 @@ namespace gWorldAr {
         glUseProgram(0);
         glDepthMask(GL_TRUE);
 
-        ptr->set_transform(modelMat);
+        //ptr->set_transform(modelMat);
         ptr->DrawMultiview(glm::mat4(), glm::mat4());
+
+        //ptr->DrawStereo(lark::Object::EYE_LEFT, glm::mat4(), glm::mat4());
+        //ptr->DrawStereo(lark::Object::EYE_RIGHT, glm::mat4(), glm::mat4());
+
 
         util::CheckGlError("WorldPlaneRenderer::Draw()");
     }
 
-    void WorldPlaneRenderer::UpdateForPlane(const HwArSession *session,
-                                            const HwArPlane *plane)
+    void WorldPlaneRenderer::UpdateForPlane(const HwArSession *session, const HwArPlane *plane)
     {
         vertices.clear();
         triangles.clear();
@@ -165,9 +169,13 @@ namespace gWorldAr {
 
         util::Util scopedArPose(session);
         HwArPlane_getCenterPose(session, plane, scopedArPose.GetArPose());
+
         HwArPose_getMatrix(session, scopedArPose.GetArPose(),
                            glm::value_ptr(modelMat));
+
         normalVec = util::GetPlaneNormal(*session, *scopedArPose.GetArPose());
+
+
 
         const float kFeatherLength = 0.2f;
 

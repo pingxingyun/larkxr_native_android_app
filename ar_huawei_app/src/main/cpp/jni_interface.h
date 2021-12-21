@@ -18,9 +18,11 @@
 #define C_ARCORE_HELLOE_AR_JNI_INTERFACE_H_
 
 #include <jni.h>
+#include "Ar_Demo.h"
 /**
  * Helper functions to provide access to Java from C via JNI.
  */
+
 extern "C" {
 
 // Helper function used to access the jni environment on the current thread.
@@ -30,5 +32,6 @@ extern "C" {
 JNIEnv *GetJniEnv();
 
 jclass FindClass(const char *classname);
+
 }  // extern "C"
 #endif

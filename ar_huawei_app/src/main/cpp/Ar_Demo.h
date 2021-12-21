@@ -7,6 +7,7 @@
 
 
 #include <application.h>
+
 #include <rect_texture.h>
 
 #include "huawei_arengine_interface.h"
@@ -19,7 +20,7 @@
 class Ar_Demo : public Application {
 
 public:
-    //Jvm & Activity
+    Ar_Demo *app;
     jobject mActivity;
     JavaVM* mJvm;
     JNIEnv*	Env;
@@ -27,10 +28,11 @@ public:
     ~Ar_Demo();
     std::shared_ptr<RectTexture> rect_render_ = nullptr;
     int nativeTextrureFromMedia;
+    int nativeTextrureFromMediaLeft;
+    int nativeTextrureFromMediaRight;
     //Native window surface
     ANativeWindow* mNativeWindow{};
 
-    void DrawRect();
     //Set Native window surface
     void setSurface(JNIEnv* jni, jobject surface);
 
@@ -64,10 +66,7 @@ public:
     virtual void RequestTrackingInfo() override;
     virtual void OnTrackingFrame(const larkxrTrackingFrame& trackingFrame) override;
 
-    void Init();
     void InitXr();
-
-    bool initEGLSurface();
 
     void OnResume(void* env, void* context, void* activity);
     void OnDisplayGeometryChanged(int displayRotation, int width, int height);
@@ -81,6 +80,12 @@ public:
 
     void OnSurfaceCreated();
 
+    void SetPose();
+
+    void Init(Ar_Demo *pDemo);
+
+    glm::vec3 pose;
+
 private:
     HwArSession *mArSession = nullptr;
     HwArFrame *mArFrame = nullptr;
@@ -90,6 +95,7 @@ private:
     int mHeight = 1;
 
     std::vector<gWorldAr::ColoredAnchor> mColoredAnchors = {};
+
     gWorldAr::WorldRenderManager mWorldRenderManager = gWorldAr::WorldRenderManager();
 };
 

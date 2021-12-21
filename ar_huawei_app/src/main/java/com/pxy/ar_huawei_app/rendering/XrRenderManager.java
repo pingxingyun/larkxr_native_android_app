@@ -49,7 +49,7 @@ public class XrRenderManager implements GLSurfaceView.Renderer{
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-
+        mDisplayRotationManager.updateViewportRotation(width, height);
     }
 
     @Override

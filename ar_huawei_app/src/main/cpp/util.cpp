@@ -23,6 +23,7 @@
 
 #include "jni_interface.h"
 
+class qua;
 namespace gWorldAr {
     namespace util {
         void CheckGlError(const char *operation)
@@ -481,7 +482,8 @@ namespace gWorldAr {
             HwArPose_getMatrix(arSession, pose.GetArPose(), glm::value_ptr(*outModelMat));
         }
 
-        glm::quat GetPlaneNormal(const HwArSession &arSession,
+
+        glm::vec3 GetPlaneNormal(const HwArSession &arSession,
                                  const HwArPose &planePose)
         {
             // 从姿势对象中提取的四个元素的旋转和平移参数，size为8.
@@ -492,10 +494,11 @@ namespace gWorldAr {
                                        planePoseRaw[1], planePoseRaw[2]);
 
             // 获取法线向量，法线定义为局部帧中的正Y位置.
-            return glm::rotate(plane_quaternion,glm::radians(90.0f),glm::vec3(0., 1.f, 0.));
+            glm::vec3 myrotate=plane_quaternion * (glm::vec3(0., 1.f, 0.));
+            return myrotate;
         }
 
-       /* float CalculateDistanceToPlane(const HwArSession &arSession,
+        float CalculateDistanceToPlane(const HwArSession &arSession,
                                        const HwArPose &planePose,
                                        const HwArPose &cameraPose)
         {
@@ -515,6 +518,7 @@ namespace gWorldAr {
                                      cameraPoseRaw[5] - planePosition.y,
                                      cameraPoseRaw[6] - planePosition.z);
             return glm::dot(normal, camera_P_plane);
-        }*/
+        }
+
     }
 }

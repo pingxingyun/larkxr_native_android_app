@@ -9,19 +9,12 @@
 #include <EGL/egl.h>
 #include <android/native_window_jni.h>
 #include "Ar_Demo.h"
-
-
-Ar_Demo *gApp= nullptr;
-
-// use for any deeper, failure-possible init of app, or cxr client.
-void Ar_Demo::Init() {
-}
+#include <util.h>
 
 void Ar_Demo::InitXr(){
     xr_client_ = std::make_shared<lark::XRClient>();
     xr_client_->Init(mJvm);
     xr_client_->RegisterObserver(this);
-
     // 初始化客户端接入凭证
     LOGE("初始化客户端接入凭证");
     InitCertificate();
@@ -40,12 +33,13 @@ void Ar_Demo::InitXr(){
                         Navigation::ShowToast(xr_client_->last_error_message());
                     }
 #endif
-/*    xr_client_->SetServerAddr("222.128.6.137", 8585);
-    xr_client_->EnterAppli("846813152229195776");*/
-    xr_client_->SetServerAddr("192.168.31.15", 8181);
-    xr_client_->EnterAppli("756846918545440768");
+  /*  xr_client_->SetServerAddr("192.168.31.15", 8181);
+    xr_client_->EnterAppli("756846918545440768");*/
+
+    xr_client_->SetServerAddr("192.168.31.10", 8181);
+    xr_client_->EnterAppli("922441960151580672");
     rect_render_ = std::make_shared<RectTexture>();
-    //lark::XRConfig::use_multiview = false;
+    lark::XRConfig::use_multiview = false;
 /*    lark::XRConfig::fps = 72;
     lark::XRConfig::render_width = 1920;
     lark::XRConfig::render_height = 1080;*/
@@ -117,6 +111,9 @@ void Ar_Demo::OnMediaReady(int nativeTexture) {
 
 void Ar_Demo::OnMediaReady(int nativeTextureLeft, int nativeTextureRight) {
     Application::OnMediaReady(nativeTextureLeft, nativeTextureRight);
+    nativeTextrureFromMediaLeft = nativeTextureLeft;
+    nativeTextrureFromMediaRight = nativeTextureRight;
+    rect_render_->SetStereoTexture(nativeTextureLeft, nativeTextureRight);
     LOGE("OnMediaReady+LR");
 }
 
@@ -124,6 +121,10 @@ void Ar_Demo::RequestTrackingInfo() {
     Application::RequestTrackingInfo();
     larkxrTrackingDevicePairFrame frame;
     frame.devicePair.hmdPose.isConnected = true;
+    frame.devicePair.hmdPose.position.x=pose.x;
+    frame.devicePair.hmdPose.position.y=pose.y;
+    frame.devicePair.hmdPose.position.z=pose.z;
+    LOGE("Pose-%f-%f-%f",pose.x,pose.y,pose.z);
 
     xr_client_->SendDevicePair(frame);
 }
@@ -139,17 +140,13 @@ jboolean Ar_Demo::IsRunning() {
 void Ar_Demo::OnResume(void* env, void* context, void* activity) {
     LOGI("WorldArApplication::OnResume()");
     if (mArSession == nullptr) {
-        LOGI("WorldArApplication::0()");
         CHECK(HwArSession_create(env, context, &mArSession) == HWAR_SUCCESS);
         CHECK(mArSession);
-        LOGI("WorldArApplication::1()");
 
         HwArConfig *arConfig = nullptr;
         HwArConfig_create(mArSession, &arConfig);
-        LOGI("WorldArApplication::2()");
 
         CHECK(HwArSession_configure(mArSession, arConfig) == HWAR_SUCCESS);
-        LOGI("WorldArApplication::3()");
 
         HwArConfig_destroy(arConfig);
         HwArFrame_create(mArSession, &mArFrame);
@@ -169,12 +166,13 @@ void Ar_Demo::OnDisplayGeometryChanged(int displayRotation, int width, int heigh
     if (mArSession != nullptr) {
         HwArSession_setDisplayGeometry(mArSession, displayRotation, width, height);
     }
+
 }
 
 void Ar_Demo::OnDrawFrame() {
     LOGI("WorldArApplication::OnDrawFrame()");
     mWorldRenderManager.OnDrawFrame(mArSession, mArFrame, mColoredAnchors, rect_render_);
-//    DrawRect();
+    SetPose();
 }
 
 
@@ -190,12 +188,19 @@ bool Ar_Demo::IsArEngineApkInstalled(JNIEnv *pEnv, jobject pJobject) {
 void Ar_Demo::OnSurfaceCreated() {
     LOGI("WorldArApplication::OnSurfaceCreated()");
     mWorldRenderManager.Initialize();
+    //mWorldRenderManager.Initialize();
     InitXr();
 }
 
-void Ar_Demo::DrawRect() {
-    rect_render_->DrawMultiview(glm::mat4(), glm::mat4());
+void Ar_Demo::SetPose() {
+    
 }
+
+void Ar_Demo::Init(Ar_Demo *pDemo) {
+    app=pDemo;
+}
+
+
 
 
 
