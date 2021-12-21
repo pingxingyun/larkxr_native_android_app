@@ -109,7 +109,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.14.9'
     implementation project(':lib_pxygl')
     implementation project(':lib_xr_common_ui')
-    implementation(name: 'larkxr-kit-3.2.0.1-build-1', ext: 'aar')
+    implementation(name: 'larkxr-kit-3.2.0.2-build-1', ext: 'aar')
     implementation(name: 'lark-core-kit-3.2.0.0-build-1', ext: 'aar')
 
     implementation 'androidx.recyclerview:recyclerview:1.2.0'
