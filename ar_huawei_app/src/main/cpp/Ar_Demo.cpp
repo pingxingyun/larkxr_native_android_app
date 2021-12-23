@@ -121,10 +121,17 @@ void Ar_Demo::RequestTrackingInfo() {
     Application::RequestTrackingInfo();
     larkxrTrackingDevicePairFrame frame;
     frame.devicePair.hmdPose.isConnected = true;
-    frame.devicePair.hmdPose.position.x=pose.x;
-    frame.devicePair.hmdPose.position.y=pose.y;
-    frame.devicePair.hmdPose.position.z=pose.z;
-    LOGE("Pose-%f-%f-%f",pose.x,pose.y,pose.z);
+
+    glm::mat4 pose=mWorldRenderManager.getpose();
+
+    position.x=5.0f;
+    position.y=5.0f;
+    position.z=5.0f;
+    //frame.devicePair.hmdPose.rawPoseMatrix=pose;
+    glm::mat4 rotation=glm::mat4(mDisplayRotation);
+
+    frame.devicePair.hmdPose.rawPoseMatrix=rotation;
+    frame.devicePair.hmdPose.position=position;
 
     xr_client_->SendDevicePair(frame);
 }
@@ -172,7 +179,6 @@ void Ar_Demo::OnDisplayGeometryChanged(int displayRotation, int width, int heigh
 void Ar_Demo::OnDrawFrame() {
     LOGI("WorldArApplication::OnDrawFrame()");
     mWorldRenderManager.OnDrawFrame(mArSession, mArFrame, mColoredAnchors, rect_render_);
-    SetPose();
 }
 
 
@@ -192,15 +198,10 @@ void Ar_Demo::OnSurfaceCreated() {
     InitXr();
 }
 
-void Ar_Demo::SetPose() {
-    
+void Ar_Demo::SetPose(glm::quat pose) {
+
 }
 
 void Ar_Demo::Init(Ar_Demo *pDemo) {
     app=pDemo;
 }
-
-
-
-
-

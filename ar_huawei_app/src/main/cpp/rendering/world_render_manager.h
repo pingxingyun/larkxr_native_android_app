@@ -91,9 +91,11 @@ namespace gWorldAr {
         bool HasDetectedPlanes();
 
         void Initialize();
-        //void Initialize(const Ar_Demo& gApp);
-//        void Initialize(AAssetManager *assetManager);
 
+        glm::mat4 getpose();
+
+        glm::mat4 viewMat;
+        glm::mat4 projectionMat;
     private:
         int32_t mPlaneCount = 0;
 
@@ -112,6 +114,7 @@ namespace gWorldAr {
         WorldObjectRenderer mObjectRenderer = gWorldAr::WorldObjectRenderer();
 
         void RendererPlane(HwArPlane *arPlane, HwArTrackable *arTrackable, glm::vec3 &color);
+
     };
 }
 #endif

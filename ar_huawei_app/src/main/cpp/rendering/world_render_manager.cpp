@@ -51,12 +51,12 @@ namespace gWorldAr {
                                          std::shared_ptr<RectTexture> ptr)
     {
         rect_render_=ptr;
-        glm::mat4 viewMat;
-        glm::mat4 projectionMat;
+
         // If the initialization fails, AR scene rendering is not performed.
         if (!InitializeDraw(arSession, arFrame, &viewMat, &projectionMat)) {
             return;
         }
+
         RenderObject(arSession, arFrame, viewMat, projectionMat, coloredAnchors, ptr);
         RenderPlanes(arSession, viewMat, projectionMat, ptr);
         RenderPointCloud(arSession, arFrame, viewMat, projectionMat, ptr);
@@ -233,6 +233,10 @@ namespace gWorldAr {
     bool WorldRenderManager::HasDetectedPlanes()
     {
         return mPlaneCount > 0;
+    }
+
+    glm::mat4 WorldRenderManager::getpose() {
+        return viewMat;
     }
 
 }

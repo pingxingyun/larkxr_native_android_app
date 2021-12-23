@@ -9,7 +9,6 @@ import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Process;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -474,73 +473,6 @@ public class ListActivity extends Activity {
             }
         });
 
-        serverList.setAdapter(new SpinnerAdapter() {
-            @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(ListActivity.this).inflate(R.layout.spinner_item, null);
-                    TextView textView = convertView.findViewById(R.id.text);
-                    textView.setText("http://" + serverBeanList.get(position).getIp() + ":" + serverBeanList.get(position).getPort());
-                }
-                return convertView;
-            }
-
-            @Override
-            public void registerDataSetObserver(DataSetObserver observer) {
-
-            }
-
-            @Override
-            public void unregisterDataSetObserver(DataSetObserver observer) {
-
-            }
-
-            @Override
-            public int getCount() {
-                return serverBeanList.size();
-            }
-
-            @Override
-            public Object getItem(int position) {
-                return serverBeanList.get(position);
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return position;
-            }
-
-            @Override
-            public boolean hasStableIds() {
-                return false;
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(ListActivity.this).inflate(R.layout.spinner_item, null);
-                    TextView textView = convertView.findViewById(R.id.text);
-                    textView.setText("http://" + serverBeanList.get(position).getIp() + ":" + serverBeanList.get(position).getPort());
-                }
-                return convertView;
-            }
-
-            @Override
-            public int getItemViewType(int position) {
-                return 1;
-            }
-
-            @Override
-            public int getViewTypeCount() {
-                return 1;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-        });
-
         serverList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -560,6 +492,8 @@ public class ListActivity extends Activity {
             SharedPreferences.Editor editor = sp.edit();
             editor.putString(SETTING_SERVER, "");
             editor.apply();
+
+            serverList.setAdapter(null);
 
             toastInner("记录已清除");
         });
@@ -597,6 +531,73 @@ public class ListActivity extends Activity {
             setIp.setVisibility(View.VISIBLE);
             appListAdapter = null;
             rec.setAdapter(null);
+
+            serverList.setAdapter(new SpinnerAdapter() {
+                @Override
+                public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                    if (convertView == null) {
+                        convertView = LayoutInflater.from(ListActivity.this).inflate(R.layout.spinner_item, null);
+                        TextView textView = convertView.findViewById(R.id.text);
+                        textView.setText("http://" + serverBeanList.get(position).getIp() + ":" + serverBeanList.get(position).getPort());
+                    }
+                    return convertView;
+                }
+
+                @Override
+                public void registerDataSetObserver(DataSetObserver observer) {
+
+                }
+
+                @Override
+                public void unregisterDataSetObserver(DataSetObserver observer) {
+
+                }
+
+                @Override
+                public int getCount() {
+                    return serverBeanList.size();
+                }
+
+                @Override
+                public Object getItem(int position) {
+                    return serverBeanList.get(position);
+                }
+
+                @Override
+                public long getItemId(int position) {
+                    return position;
+                }
+
+                @Override
+                public boolean hasStableIds() {
+                    return false;
+                }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    if (convertView == null) {
+                        convertView = LayoutInflater.from(ListActivity.this).inflate(R.layout.spinner_item, null);
+                        TextView textView = convertView.findViewById(R.id.text);
+                        textView.setText("http://" + serverBeanList.get(position).getIp() + ":" + serverBeanList.get(position).getPort());
+                    }
+                    return convertView;
+                }
+
+                @Override
+                public int getItemViewType(int position) {
+                    return 1;
+                }
+
+                @Override
+                public int getViewTypeCount() {
+                    return 1;
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    return false;
+                }
+            });
         });
     }
 

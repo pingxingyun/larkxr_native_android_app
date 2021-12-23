@@ -123,7 +123,7 @@ namespace glm
 		GLM_FUNC_DECL qua<T, Q>& operator=(qua<T, Q> const& q) GLM_DEFAULT;
 
 		template<typename U>
-		GLM_FUNC_DECL qua<T, Q>& operator=(qua<U, Q> const& q);
+		GLM_FUNC_DECL qua<T, Q>& operator=(qua<T, Q> const& q);
 		template<typename U>
 		GLM_FUNC_DECL qua<T, Q>& operator+=(qua<U, Q> const& q);
 		template<typename U>

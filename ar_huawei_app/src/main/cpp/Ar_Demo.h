@@ -11,11 +11,13 @@
 #include <rect_texture.h>
 
 #include "huawei_arengine_interface.h"
+
 #include "rendering/world_background_renderer.h"
 #include "rendering/world_object_renderer.h"
 #include "rendering/world_plane_renderer.h"
 #include "rendering/world_point_cloud_renderer.h"
 #include "rendering/world_render_manager.h"
+
 
 class Ar_Demo : public Application {
 
@@ -24,6 +26,7 @@ public:
     jobject mActivity;
     JavaVM* mJvm;
     JNIEnv*	Env;
+
     Ar_Demo(JavaVM* _vm, jobject act,JNIEnv* _Env);
     ~Ar_Demo();
     std::shared_ptr<RectTexture> rect_render_ = nullptr;
@@ -80,12 +83,11 @@ public:
 
     void OnSurfaceCreated();
 
-    void SetPose();
+    void SetPose(glm::quat pose);
 
     void Init(Ar_Demo *pDemo);
 
-    glm::vec3 pose;
-
+    glm::vec3 position=glm::vec3(0.0f);
 private:
     HwArSession *mArSession = nullptr;
     HwArFrame *mArFrame = nullptr;

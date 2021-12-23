@@ -26,8 +26,10 @@
 #include <rect_texture.h>
 
 namespace gWorldAr {
+
     class WorldPlaneRenderer {
     public:
+
         std::shared_ptr<RectTexture> rect_render_ = nullptr;
 
         WorldPlaneRenderer() = default;

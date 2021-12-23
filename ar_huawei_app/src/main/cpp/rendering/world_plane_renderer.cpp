@@ -114,11 +114,13 @@ namespace gWorldAr {
         glBindTexture(GL_TEXTURE_2D, textureId);
 
         // Write the final mvp matrix for this plane renderer.
+        //编写此平面渲染器的最终mvp矩阵。
         glUniformMatrix4fv(mUniformMvpMat, 1, GL_FALSE,
                            glm::value_ptr(projectionMat * viewMat * modelMat));
 
         glUniformMatrix4fv(mUniformModelMat, 1, GL_FALSE,
                            glm::value_ptr(modelMat));
+
         glUniform3f(mUniformNormalVec, normalVec.x, normalVec.y, normalVec.z);
         glUniform3f(mUniformColor, color.x, color.y, color.z);
 
@@ -126,6 +128,7 @@ namespace gWorldAr {
         glEnableVertexAttribArray(mAttriVertices);
 
         // When the GL vertex attribute is a pointer, the number of vertices is 3.
+        //当GL顶点属性为指针时，顶点数为3。
         glVertexAttribPointer(mAttriVertices, 3, GL_FLOAT, GL_FALSE, 0,
                               vertices.data());
 
@@ -136,11 +139,8 @@ namespace gWorldAr {
         glDepthMask(GL_TRUE);
 
         //ptr->set_transform(modelMat);
-        ptr->DrawMultiview(glm::mat4(), glm::mat4());
-
-        //ptr->DrawStereo(lark::Object::EYE_LEFT, glm::mat4(), glm::mat4());
-        //ptr->DrawStereo(lark::Object::EYE_RIGHT, glm::mat4(), glm::mat4());
-
+        //ptr->DrawMultiview(glm::mat4(), glm::mat4());
+        ptr->DrawMultiview(projectionMat, viewMat);
 
         util::CheckGlError("WorldPlaneRenderer::Draw()");
     }
@@ -175,6 +175,7 @@ namespace gWorldAr {
 
         normalVec = util::GetPlaneNormal(*session, *scopedArPose.GetArPose());
 
+        LOGE("normalVec-%f-%f-%f",normalVec.x,normalVec.y,normalVec.z);
 
 
         const float kFeatherLength = 0.2f;
@@ -215,4 +216,6 @@ namespace gWorldAr {
             triangles.push_back((i + halfVerticesLength + 1) % halfVerticesLength + halfVerticesLength);
         }
     }
+
+
 }

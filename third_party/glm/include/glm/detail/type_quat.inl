@@ -225,7 +225,7 @@ namespace detail
 
 	template<typename T, qualifier Q>
 	template<typename U>
-	GLM_FUNC_QUALIFIER qua<T, Q> & qua<T, Q>::operator=(qua<U, Q> const& q)
+	GLM_FUNC_QUALIFIER qua<T, Q> & qua<T, Q>::operator=(qua<T, Q> const& q)
 	{
 		this->w = static_cast<T>(q.w);
 		this->x = static_cast<T>(q.x);
