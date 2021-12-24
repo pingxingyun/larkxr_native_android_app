@@ -122,16 +122,16 @@ void Ar_Demo::RequestTrackingInfo() {
     larkxrTrackingDevicePairFrame frame;
     frame.devicePair.hmdPose.isConnected = true;
 
-    glm::mat4 pose=mWorldRenderManager.getpose();
+    glm::quat pose=mWorldRenderManager.getpose();
 
     position.x=5.0f;
     position.y=5.0f;
     position.z=5.0f;
-    //frame.devicePair.hmdPose.rawPoseMatrix=pose;
-    glm::mat4 rotation=glm::mat4(mDisplayRotation);
 
-    frame.devicePair.hmdPose.rawPoseMatrix=rotation;
+    LOGE("pose--%f--%f--%f--%f",pose.x,pose.y,pose.z,pose.w);
+
     frame.devicePair.hmdPose.position=position;
+    frame.devicePair.hmdPose.rotation=pose;
 
     xr_client_->SendDevicePair(frame);
 }

@@ -175,8 +175,7 @@ namespace gWorldAr {
 
         normalVec = util::GetPlaneNormal(*session, *scopedArPose.GetArPose());
 
-        LOGE("normalVec-%f-%f-%f",normalVec.x,normalVec.y,normalVec.z);
-
+        poseValue= util::GetArPose(*session, *scopedArPose.GetArPose());
 
         const float kFeatherLength = 0.2f;
 

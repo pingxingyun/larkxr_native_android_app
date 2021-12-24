@@ -114,6 +114,8 @@ namespace gWorldAr {
 
         glm::vec3 GetPlaneNormal(const HwArSession &arSession, const HwArPose &planePose);
 
+        glm::quat GetArPose(const HwArSession &arSession, const HwArPose &planePose);
+
         // 计算从照相机到平面的法线距离，给定平面的y轴应平行于平面的法线.
         // 例如平面的中心位置或命中测试位置
         float CalculateDistanceToPlane(const HwArSession &arSession,

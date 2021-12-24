@@ -498,6 +498,18 @@ namespace gWorldAr {
             return myrotate;
         }
 
+        glm::quat GetArPose(const HwArSession &arSession,
+                                 const HwArPose &planePose)
+        {
+            // 从姿势对象中提取的四个元素的旋转和平移参数，size为8.
+            float planePoseRaw[7] = {0.f};
+            HwArPose_getPoseRaw(&arSession, &planePose, planePoseRaw);
+            // 姿势四要素.
+            glm::quat plane_quaternion(planePoseRaw[3], planePoseRaw[0],
+                                       planePoseRaw[1], planePoseRaw[2]);
+            return plane_quaternion;
+        }
+
         float CalculateDistanceToPlane(const HwArSession &arSession,
                                        const HwArPose &planePose,
                                        const HwArPose &cameraPose)

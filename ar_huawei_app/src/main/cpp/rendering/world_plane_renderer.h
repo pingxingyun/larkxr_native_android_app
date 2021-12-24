@@ -52,6 +52,8 @@ namespace gWorldAr {
 
         glm::quat normalVec = glm::vec3(0.0f);
 
+        glm::quat poseValue;
+
     private:
         void UpdateForPlane(const HwArSession *session, const HwArPlane *plane);
 

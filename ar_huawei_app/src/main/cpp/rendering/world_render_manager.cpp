@@ -235,8 +235,8 @@ namespace gWorldAr {
         return mPlaneCount > 0;
     }
 
-    glm::mat4 WorldRenderManager::getpose() {
-        return viewMat;
+    glm::quat WorldRenderManager::getpose() {
+        return mPlaneRenderer.poseValue;
     }
 
 }

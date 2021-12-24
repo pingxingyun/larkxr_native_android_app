@@ -92,7 +92,7 @@ namespace gWorldAr {
 
         void Initialize();
 
-        glm::mat4 getpose();
+        glm::quat getpose();
 
         glm::mat4 viewMat;
         glm::mat4 projectionMat;
