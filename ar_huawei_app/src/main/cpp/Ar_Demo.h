@@ -17,6 +17,7 @@
 #include "rendering/world_plane_renderer.h"
 #include "rendering/world_point_cloud_renderer.h"
 #include "rendering/world_render_manager.h"
+//#include "shader.h"
 
 
 class Ar_Demo : public Application {
@@ -88,6 +89,9 @@ public:
     void Init(Ar_Demo *pDemo);
 
     glm::vec3 position=glm::vec3(0.0f);
+
+//    Shader arShader;
+
 private:
     HwArSession *mArSession = nullptr;
     HwArFrame *mArFrame = nullptr;

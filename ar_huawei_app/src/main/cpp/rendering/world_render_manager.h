@@ -26,6 +26,7 @@
 #include "rendering/world_object_renderer.h"
 #include "rendering/world_plane_renderer.h"
 #include "rendering/world_point_cloud_renderer.h"
+#include "rendering/world_xr_cloud_renderer.h"
 
 namespace gWorldAr {
     struct ColoredAnchor {
@@ -113,8 +114,14 @@ namespace gWorldAr {
 
         WorldObjectRenderer mObjectRenderer = gWorldAr::WorldObjectRenderer();
 
+        WorldXrCloudRenderer mXrCloudRenderer = gWorldAr::WorldXrCloudRenderer();
+
         void RendererPlane(HwArPlane *arPlane, HwArTrackable *arTrackable, glm::vec3 &color);
 
+        void
+        RenderMixPlanes(HwArSession *arSession, const glm::mat4 &viewMat,
+                        const glm::mat4 &projectionMat,
+                        std::shared_ptr<RectTexture> ptr);
     };
 }
 #endif

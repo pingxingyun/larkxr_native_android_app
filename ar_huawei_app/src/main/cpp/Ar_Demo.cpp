@@ -38,11 +38,21 @@ void Ar_Demo::InitXr(){
 
     xr_client_->SetServerAddr("192.168.31.10", 8181);
     xr_client_->EnterAppli("922441960151580672");
-    rect_render_ = std::make_shared<RectTexture>();
+
+    rect_render_ = std::make_shared<RectTexture>(1);
+
     lark::XRConfig::use_multiview = false;
 /*    lark::XRConfig::fps = 72;
     lark::XRConfig::render_width = 1920;
     lark::XRConfig::render_height = 1080;*/
+/*    arShader.build();
+    arShader.use();
+    arShader.setInt("Texture0", 0);
+
+    arShader.buildCube();
+    arShader.useCube();
+    arShader.setIntCube("Texture0", 0);
+    arShader.setIntCubeName("u_cameraPos");*/
 }
 
 Ar_Demo::Ar_Demo(JavaVM *_vm, jobject act, JNIEnv *_Env) :
@@ -113,6 +123,7 @@ void Ar_Demo::OnMediaReady(int nativeTextureLeft, int nativeTextureRight) {
     Application::OnMediaReady(nativeTextureLeft, nativeTextureRight);
     nativeTextrureFromMediaLeft = nativeTextureLeft;
     nativeTextrureFromMediaRight = nativeTextureRight;
+
     rect_render_->SetStereoTexture(nativeTextureLeft, nativeTextureRight);
     LOGE("OnMediaReady+LR");
 }
@@ -124,9 +135,9 @@ void Ar_Demo::RequestTrackingInfo() {
 
     glm::quat pose=mWorldRenderManager.getpose();
 
-    position.x=5.0f;
-    position.y=5.0f;
-    position.z=5.0f;
+    position.x=.0f;
+    position.y=1.0f;
+    position.z=.0f;
 
     LOGE("pose--%f--%f--%f--%f",pose.x,pose.y,pose.z,pose.w);
 

@@ -59,7 +59,6 @@ namespace gWorldAr {
             LOGE("Could not create program.");
         } else{
             LOGE("create program.");
-
         }
 
         glGenTextures(1, &textureId);

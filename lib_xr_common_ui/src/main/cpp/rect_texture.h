@@ -12,13 +12,18 @@
 class RectTexture : public lark::Object {
 public:
     RectTexture();
+
+    RectTexture(int mix);
+
     ~RectTexture();
 
     void InitGL();
+    void InitMixGL();
 
     // draw
     virtual void Draw(Eye eye, const glm::mat4& projection, const glm::mat4& view);
     virtual void DrawStereo(Eye eye, const glm::mat4& projection, const glm::mat4& view);
+    virtual void DrawMixStereo(const glm::mat4& projection, const glm::mat4& view);
     virtual void DrawMultiview(const glm::mat4& projection, const glm::mat4& view);
 
     inline void SetStereoTexture(int texture_left, int texture_right) {
@@ -35,6 +40,7 @@ public:
         frame_texture_left_ = 0;
         frame_texture_right_ = 0;
     }
+
     inline void set_frame_texture_(int texture) { frame_texture_ = texture; }
     inline void set_multiview_mode(bool multiview) { multiview_mode_ = multiview; }
 private:
@@ -48,5 +54,6 @@ private:
     int frame_texture_left_ = 0;
     int frame_texture_right_ = 0;
     bool multiview_mode_ = true;
+
 };
 #endif // RECT_TEXTURE_INCLUDE

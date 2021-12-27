@@ -1,21 +1,10 @@
-/**
- * Copyright 2020. Huawei Technologies Co., Ltd. All rights reserved.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
+//
+// Created by Hayasi-Yumito on 2021/12/27.
+//
+
+#include "world_xr_cloud_renderer.h"
 
 #include <Ar_Demo.h>
-#include "world_plane_renderer.h"
 
 #include "util.h"
 
@@ -54,9 +43,21 @@ namespace gWorldAr {
             float r = texture2D(texture, v_textureCoords).r;
             gl_FragColor = vec4(color.xyz, r * v_alpha);
         })";
+
+        constexpr char FRAGMENT_MIX_SHADER[] = R"(
+        #version 400 core
+        in vec3 ourColor;
+        in vec2 TexCoord;
+        out vec4 color;
+        uniform sampler2D ourTexture;
+        uniform sampler2D ourTexture1;
+        void main()
+        {
+            color = mix(texture(ourTexture, TexCoord),texture(ourTexture1,TexCoord),0.3);
+        })";
     }
 
-    void WorldPlaneRenderer::InitializePlaneGlContent()
+    void WorldXrCloudRenderer::InitializePlaneGlContent()
     {
         mShaderProgram = util::CreateProgram(VERTEX_SHADER, FRAGMENT_SHADER);
         if (!mShaderProgram) {
@@ -80,7 +81,7 @@ namespace gWorldAr {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        // 从 asset 里面载入图片
+/*        // 从 asset 里面载入图片
         // 实际调用了 java JniInterface 里面的 loadImage 和 loadTexture
         // 先用 loadImage 加载到 Bitmap 然后用 loadTexture 将 Bitmap 绑定到当前纹理 GLUtils.texImage2D(target, 0, bitmap, 0);
         if (!util::LoadPngFromAssetManager(GL_TEXTURE_2D, "trigrid.png")) {
@@ -89,15 +90,14 @@ namespace gWorldAr {
 
         glGenerateMipmap(GL_TEXTURE_2D);
         // 当纹理用完了，通知 opengl 设置为空纹理
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        //util::CheckGlError("WorldPlaneRenderer::InitializeBackGroundGlContent()"
+        glBindTexture(GL_TEXTURE_2D, 0);*/
     }
 
-    void WorldPlaneRenderer::Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat,
+    void WorldXrCloudRenderer::Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat,
                                   const HwArSession *session,
                                   const HwArPlane *plane, const glm::vec3 &color,
-                                  const std::shared_ptr<RectTexture> &ptr) {
+                                  const std::shared_ptr<RectTexture> &ptr)
+    {
         if (!mShaderProgram) {
             LOGE("mShaderProgram is null.");
             return;
@@ -137,20 +137,19 @@ namespace gWorldAr {
         glDepthMask(GL_TRUE);
 
         ptr->DrawMixStereo(projectionMat,viewMat);
-        //ptr->DrawStereo(lark::Object::EYE_LEFT,projectionMat,viewMat);
-        //ptr->DrawStereo(lark::Object::EYE_RIGHT,projectionMat,viewMat);
 
-        util::CheckGlError("WorldPlaneRenderer::Draw()");
+        util::CheckGlError("WorldXrCloudRenderer::Draw()"
+        );
     }
 
-    void WorldPlaneRenderer::UpdateForPlane(const HwArSession *session, const HwArPlane *plane) {
+    void WorldXrCloudRenderer::UpdateForPlane(const HwArSession *session, const HwArPlane *plane) {
         vertices.clear();
         triangles.clear();
 
         int32_t polygonLength = 0;
         HwArPlane_getPolygonSize(session, plane, &polygonLength);
         if (polygonLength == 0) {
-            LOGE("WorldPlaneRenderer::UpdateForPlane, no valid plane polygon is found");
+            LOGE("WorldXrCloudRenderer::UpdateForPlane, no valid plane polygon is found");
             return;
         }
 

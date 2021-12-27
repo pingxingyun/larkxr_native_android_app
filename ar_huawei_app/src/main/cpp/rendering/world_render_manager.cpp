@@ -43,6 +43,7 @@ namespace gWorldAr {
         mBackgroundRenderer.InitializeBackGroundGlContent();
         mPointCloudRenderer.InitializePointCloudGlContent();
         mPlaneRenderer.InitializePlaneGlContent();
+        //mXrCloudRenderer.InitializePlaneGlContent();
         LOGI("WorldRenderManager-----Initialize() end.");
     }
 
@@ -60,6 +61,7 @@ namespace gWorldAr {
         RenderObject(arSession, arFrame, viewMat, projectionMat, coloredAnchors, ptr);
         RenderPlanes(arSession, viewMat, projectionMat, ptr);
         RenderPointCloud(arSession, arFrame, viewMat, projectionMat, ptr);
+        RenderMixPlanes(arSession, viewMat, projectionMat, ptr);
     }
 
     bool WorldRenderManager::InitializeDraw(HwArSession *arSession,
@@ -228,6 +230,57 @@ namespace gWorldAr {
             }
             mPlaneColorMap.insert(std::pair<HwArPlane *, glm::vec3>(arPlane, color));
         }
+    }
+
+    void WorldRenderManager::RenderMixPlanes(HwArSession *arSession, const glm::mat4 &viewMat,
+                                          const glm::mat4 &projectionMat,
+                                          std::shared_ptr<RectTexture> ptr)
+    {
+
+        // Update and render the plane.
+        HwArTrackableList *planeList = nullptr;
+        HwArTrackableList_create(arSession, &planeList);
+        CHECK(planeList != nullptr);
+
+        HwArTrackableType planeTrackedType = HWAR_TRACKABLE_PLANE;
+        HwArSession_getAllTrackables(arSession, planeTrackedType, planeList);
+
+        int32_t planeListSize = 0;
+        HwArTrackableList_getSize(arSession, planeList, &planeListSize);
+        mPlaneCount = planeListSize;
+
+        for (int i = 0; i < planeListSize; ++i) {
+            HwArTrackable *arTrackable = nullptr;
+            HwArTrackableList_acquireItem(arSession, planeList, i, &arTrackable);
+            HwArPlane *arPlane = HwArAsPlane(arTrackable);
+            HwArTrackingState outTrackingState;
+            HwArTrackable_getTrackingState(arSession, arTrackable,
+                                           &outTrackingState);
+
+            HwArPlane *subsumePlane = nullptr;
+            HwArPlane_acquireSubsumedBy(arSession, arPlane, &subsumePlane);
+
+            if (subsumePlane != nullptr) {
+                HwArTrackable_release(HwArAsTrackable(subsumePlane));
+                continue;
+            }
+
+            if (HwArTrackingState::HWAR_TRACKING_STATE_TRACKING != outTrackingState) {
+                continue;
+            }
+
+            HwArTrackingState planeTrackingState;
+            HwArTrackable_getTrackingState(arSession, HwArAsTrackable(arPlane),
+                                           &planeTrackingState);
+            if (planeTrackingState == HWAR_TRACKING_STATE_TRACKING) {
+                glm::vec3 color;
+                RendererPlane(arPlane, arTrackable, color);
+                mXrCloudRenderer.Draw(projectionMat, viewMat, arSession, arPlane, color, ptr);
+            }
+        }
+
+        HwArTrackableList_destroy(planeList);
+        planeList = nullptr;
     }
 
     bool WorldRenderManager::HasDetectedPlanes()

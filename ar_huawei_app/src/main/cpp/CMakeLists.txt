@@ -35,6 +35,7 @@ set(src_files
         ${src_dir}/rendering/world_render_manager.cpp
         ${src_dir}/rendering/world_object_renderer.cpp
         ${src_dir}/rendering/world_plane_renderer.cpp
+        ${src_dir}/rendering/world_xr_cloud_renderer.cpp
         # render and base use.
         ${common_files}
         )
@@ -50,6 +51,7 @@ set(header_files
         ${src_dir}/rendering/world_render_manager.h
         ${src_dir}/rendering/world_object_renderer.h
         ${src_dir}/rendering/world_plane_renderer.h
+        ${src_dir}/rendering/world_xr_cloud_renderer.h
         )
 
 add_definitions(-D_GLM_ENABLE_EXPERIMENTAL)

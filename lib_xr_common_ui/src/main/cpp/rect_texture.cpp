@@ -69,6 +69,7 @@ namespace  {
                                      "    ourColor = aColor;\n"
                                      "    TexCoord = aTexCoord;\n"
                                      "}";
+
     const char * fragmentShaderSource = "#version 300 es\n"
                                         "precision highp float;\n"
                                         "\n"
@@ -82,20 +83,59 @@ namespace  {
                                         "{\n"
                                         "    FragColor = texture(ourTexture, TexCoord);\n"
                                         "}";
+
+    const char * vertex_shader_two ="#version 330 core\n"
+
+                                    "layout (location = 0) in vec3 aPos;//位置变量的属性位置值为0\n"
+                                    "layout (location = 1) in vec3 aColor;\n"
+                                    "layout (location = 2) in vec2 aTexCoord;\n"
+
+                                    "out vec3 ourColor; //向片段着色器输出一个颜色\n"
+                                    "out vec2 TexCoord; //向片段着色器输出一个纹理坐标\n"
+                                    "void main() {\n"
+                                    "gl_Position = vec4(aPos,1.0);\n"
+                                    "ourColor = aColor;\n"
+                                    "TexCoord = aTexCoord;\n"
+                                    "}\n";
+
+    const char* fragment_shader_two = "#version 330 core\n"
+                                      "out vec4 FragColor;\n"
+                                      "in vec3 ourColor;\n"
+                                      "in vec2 TexCoord;\n"
+
+                                      "uniform sampler2D ourTexture;\n"
+                                      "uniform sampler2D texture1;\n"
+                                      "uniform sampler2D texture2;\n"
+                                      "void main() {\n"
+                                      //ourTexture是纹理采样器
+                                      //    FragColor = texture(ourTexture,TexCoord) * vec4(ourColor,1.0);
+                                      //    FragColor = texture(ourTexture,TexCoord) ;
+                                      //    FragColor = texture(texture2,TexCoord) ;
+                                      //混合两个纹理，第三个参数是指第二个纹理占所有纹理的比例
+                                      "FragColor = mix(texture(texture1,TexCoord)* vec4(ourColor,1.0),\n"
+                                      "texture(texture2,TexCoord)* vec4(ourColor,1.0),0.3) ;\n"
+                                      "}\n";
 }
 
 RectTexture::RectTexture() {
     name_ = "RectTexture";
     enable_ = false;
     InitGL();
+    //InitMixGL();
+}
+
+RectTexture::RectTexture(int mix) {
+    name_ = "RectTexture";
+    enable_ = false;
+    InitMixGL();
 }
 
 RectTexture::~RectTexture() {
 }
 
 void RectTexture::InitGL() {
-
     LoadShader("shader/vertex/rect_vertex.glsl", "shader/fragment/rect_fragment.glsl", vertexShaderSource, fragmentShaderSource);
+
     if (has_error_) {
         LOGW("loadShaderFromAsset rect texture has error");
         return;
@@ -122,8 +162,37 @@ void RectTexture::InitGL() {
     enable_ = true;
 }
 
-void
-RectTexture::Draw(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
+void RectTexture::InitMixGL() {
+    LoadShader("shader/vertex/rect_vertex.glsl", "shader/fragment/rect_fragment.glsl", vertex_shader_two, fragment_shader_two);
+
+    if (has_error_) {
+        LOGW("loadShaderFromAsset rect texture has error");
+        return;
+    }
+
+    vao_ = std::make_shared<lark::VertexArrayObject>(true, true);
+    if (!vao_) return;
+    // init texture vao
+    InitVao(verticesTexture, sizeof(verticesTexture), indicesAll, sizeof(indicesAll), vao_.get());
+
+    vao_left_ = std::make_shared<lark::VertexArrayObject>(true, true);
+    if (!vao_left_) return;
+    // init left vao
+    InitVao(verticesLeft, sizeof(verticesLeft), indicesAll, sizeof(indicesAll), vao_left_.get());
+
+    vao_right_ = std::make_shared<lark::VertexArrayObject>(true, true);
+    if (!vao_right_) return;
+    InitVao(verticesRight, sizeof(verticesRight), indicesAll, sizeof(indicesAll), vao_right_.get());
+
+    vao_all_ =std::make_shared<lark::VertexArrayObject>(true, true);
+    if (!vao_all_) return;
+    InitVao(verticesAll, sizeof(verticesAll), indicesAll, sizeof(indicesAll), vao_all_.get());
+
+    enable_ = true;
+}
+
+
+void RectTexture::Draw(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
     Object::Draw(eye, projection, view);
 
 //    LOGV("rect draw frameIndex %d; enable %d; hasError %d", frame_texture_, enable_, has_error_);
@@ -194,8 +263,7 @@ void RectTexture::InitVao(void *vertices, int verticesSize, void *indices, int i
     vao->UnbindArrayBuffer();
 }
 
-void
-RectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
+void RectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
     // LOGV("draw stereo %d %d %d %d %d", frame_texture_left_, frame_texture_right_, multiview_mode_, enable_, has_error_);
 
     if (multiview_mode_) {
@@ -214,6 +282,40 @@ RectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection, cons
     glBindTexture(GL_TEXTURE_2D, eye == EYE_LEFT ? frame_texture_left_ : frame_texture_right_);
     vao->BindVAO();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    shader_->UnUseProgram();
+    vao->UnbindVAO();
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+
+    if (HasGLError()) {
+        LOGD("render cloudtexturehas error. %d", frame_texture_);
+    }
+}
+
+void RectTexture::DrawMixStereo(const glm::mat4 &projection, const glm::mat4 &view) {
+    // LOGV("draw stereo %d %d %d %d %d", frame_texture_left_, frame_texture_right_, multiview_mode_, enable_, has_error_);
+
+    if (multiview_mode_) {
+        LOGE("call draw stereo on multiview mode.");
+        return;
+    }
+    if (!enable_ || has_error_ || !frame_texture_left_ || !frame_texture_right_)
+        return;
+
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+
+    Object::DrawMultiview(projection, view);
+    lark::VertexArrayObject * vao = vao_all_.get();
+    shader_->UseProgram();
+    glBindTexture(GL_TEXTURE_2D,frame_texture_left_);
+    glBindTexture(GL_TEXTURE_2D,frame_texture_right_);
+    vao->BindVAO();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+    //释放
     shader_->UnUseProgram();
     vao->UnbindVAO();
     glBindTexture(GL_TEXTURE_2D, 0);
