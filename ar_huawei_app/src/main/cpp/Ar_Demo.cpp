@@ -39,7 +39,7 @@ void Ar_Demo::InitXr(){
     xr_client_->SetServerAddr("192.168.31.10", 8181);
     xr_client_->EnterAppli("922441960151580672");
 
-    rect_render_ = std::make_shared<RectTexture>(1);
+    rect_render_ = std::make_shared<ArRectTexture>();
 
     lark::XRConfig::use_multiview = false;
 /*    lark::XRConfig::fps = 72;
@@ -170,7 +170,6 @@ void Ar_Demo::OnResume(void* env, void* context, void* activity) {
         HwArFrame_create(mArSession, &mArFrame);
         HwArSession_setDisplayGeometry(mArSession, mDisplayRotation, mWidth, mHeight);
     }
-
     const HwArStatus status = HwArSession_resume(mArSession);
     CHECK(status == HWAR_SUCCESS);
 }
@@ -184,7 +183,6 @@ void Ar_Demo::OnDisplayGeometryChanged(int displayRotation, int width, int heigh
     if (mArSession != nullptr) {
         HwArSession_setDisplayGeometry(mArSession, displayRotation, width, height);
     }
-
 }
 
 void Ar_Demo::OnDrawFrame() {

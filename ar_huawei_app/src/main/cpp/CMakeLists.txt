@@ -35,7 +35,6 @@ set(src_files
         ${src_dir}/rendering/world_render_manager.cpp
         ${src_dir}/rendering/world_object_renderer.cpp
         ${src_dir}/rendering/world_plane_renderer.cpp
-        ${src_dir}/rendering/world_xr_cloud_renderer.cpp
         ${src_dir}/ar_rect_texture.cpp
 
         # render and base use.
@@ -53,7 +52,6 @@ set(header_files
         ${src_dir}/rendering/world_render_manager.h
         ${src_dir}/rendering/world_object_renderer.h
         ${src_dir}/rendering/world_plane_renderer.h
-        ${src_dir}/rendering/world_xr_cloud_renderer.h
         ${src_dir}/ar_rect_texture.h
 
         )

@@ -43,13 +43,12 @@ namespace gWorldAr {
         mBackgroundRenderer.InitializeBackGroundGlContent();
         mPointCloudRenderer.InitializePointCloudGlContent();
         mPlaneRenderer.InitializePlaneGlContent();
-        //mXrCloudRenderer.InitializePlaneGlContent();
         LOGI("WorldRenderManager-----Initialize() end.");
     }
 
     void WorldRenderManager::OnDrawFrame(HwArSession *arSession, HwArFrame *arFrame,
                                          const std::vector<ColoredAnchor> &coloredAnchors,
-                                         std::shared_ptr<RectTexture> ptr)
+                                         std::shared_ptr<ArRectTexture> ptr)
     {
         rect_render_=ptr;
 
@@ -58,10 +57,10 @@ namespace gWorldAr {
             return;
         }
 
-        RenderObject(arSession, arFrame, viewMat, projectionMat, coloredAnchors, ptr);
+        RenderObject(arSession, arFrame, viewMat, projectionMat, coloredAnchors);
         RenderPlanes(arSession, viewMat, projectionMat, ptr);
-        RenderPointCloud(arSession, arFrame, viewMat, projectionMat, ptr);
-        RenderMixPlanes(arSession, viewMat, projectionMat, ptr);
+        RenderPointCloud(arSession, arFrame, viewMat, projectionMat);
+        RenderMixPlanes(viewMat,projectionMat,ptr);
     }
 
     bool WorldRenderManager::InitializeDraw(HwArSession *arSession,
@@ -108,15 +107,14 @@ namespace gWorldAr {
 
     void WorldRenderManager::RenderPointCloud(HwArSession *arSession, HwArFrame *arFrame,
                                               const glm::mat4 &viewMat,
-                                              const glm::mat4 &projectionMat,
-                                              std::shared_ptr<RectTexture> ptr)
+                                              const glm::mat4 &projectionMat)
     {
         // Update and render the point cloud.
         HwArPointCloud *arPointCloud = nullptr;
 
         HwArStatus pointCloudStatus = HwArFrame_acquirePointCloud(arSession, arFrame, &arPointCloud);
         if (pointCloudStatus == HWAR_SUCCESS) {
-            mPointCloudRenderer.Draw(projectionMat * viewMat, arSession, arPointCloud, ptr);
+            mPointCloudRenderer.Draw(projectionMat * viewMat, arSession, arPointCloud);
             HwArPointCloud_release(arPointCloud);
         }
     }
@@ -124,8 +122,7 @@ namespace gWorldAr {
     void WorldRenderManager::RenderObject(HwArSession *arSession, HwArFrame *arFrame,
                                           const glm::mat4 &viewMat,
                                           const glm::mat4 &projectionMat,
-                                          const std::vector<ColoredAnchor> &mColoredAnchors,
-                                          std::shared_ptr<RectTexture> ptr)
+                                          const std::vector<ColoredAnchor> &mColoredAnchors)
     {
         // Obtain the estimated lighting.
         HwArLightEstimate *arLightEstimate = nullptr;
@@ -157,14 +154,14 @@ namespace gWorldAr {
                 // The size of the drawn virtual object is 0.2 times the actual size.
                 modelMat = glm::scale(modelMat, glm::vec3(0.2f, 0.2f, 0.2f));
                 mObjectRenderer.Draw(projectionMat, viewMat, modelMat, lightIntensity,
-                                     coloredAnchor.color, ptr);
+                                     coloredAnchor.color);
             }
         }
     }
 
     void WorldRenderManager::RenderPlanes(HwArSession *arSession, const glm::mat4 &viewMat,
                                           const glm::mat4 &projectionMat,
-                                          std::shared_ptr<RectTexture> ptr)
+                                          std::shared_ptr<ArRectTexture> ptr)
     {
 
         // Update and render the plane.
@@ -232,56 +229,6 @@ namespace gWorldAr {
         }
     }
 
-    void WorldRenderManager::RenderMixPlanes(HwArSession *arSession, const glm::mat4 &viewMat,
-                                          const glm::mat4 &projectionMat,
-                                          std::shared_ptr<RectTexture> ptr)
-    {
-
-        // Update and render the plane.
-        HwArTrackableList *planeList = nullptr;
-        HwArTrackableList_create(arSession, &planeList);
-        CHECK(planeList != nullptr);
-
-        HwArTrackableType planeTrackedType = HWAR_TRACKABLE_PLANE;
-        HwArSession_getAllTrackables(arSession, planeTrackedType, planeList);
-
-        int32_t planeListSize = 0;
-        HwArTrackableList_getSize(arSession, planeList, &planeListSize);
-        mPlaneCount = planeListSize;
-
-        for (int i = 0; i < planeListSize; ++i) {
-            HwArTrackable *arTrackable = nullptr;
-            HwArTrackableList_acquireItem(arSession, planeList, i, &arTrackable);
-            HwArPlane *arPlane = HwArAsPlane(arTrackable);
-            HwArTrackingState outTrackingState;
-            HwArTrackable_getTrackingState(arSession, arTrackable,
-                                           &outTrackingState);
-
-            HwArPlane *subsumePlane = nullptr;
-            HwArPlane_acquireSubsumedBy(arSession, arPlane, &subsumePlane);
-
-            if (subsumePlane != nullptr) {
-                HwArTrackable_release(HwArAsTrackable(subsumePlane));
-                continue;
-            }
-
-            if (HwArTrackingState::HWAR_TRACKING_STATE_TRACKING != outTrackingState) {
-                continue;
-            }
-
-            HwArTrackingState planeTrackingState;
-            HwArTrackable_getTrackingState(arSession, HwArAsTrackable(arPlane),
-                                           &planeTrackingState);
-            if (planeTrackingState == HWAR_TRACKING_STATE_TRACKING) {
-                glm::vec3 color;
-                RendererPlane(arPlane, arTrackable, color);
-                mXrCloudRenderer.Draw(projectionMat, viewMat, arSession, arPlane, color, ptr);
-            }
-        }
-
-        HwArTrackableList_destroy(planeList);
-        planeList = nullptr;
-    }
 
     bool WorldRenderManager::HasDetectedPlanes()
     {
@@ -290,6 +237,16 @@ namespace gWorldAr {
 
     glm::quat WorldRenderManager::getpose() {
         return mPlaneRenderer.poseValue;
+    }
+
+    void WorldRenderManager::RenderMixPlanes(glm::mat4 projectionMat, glm::mat4 viewMat,
+                                             std::shared_ptr<ArRectTexture> ptr) {
+//        ptr->DrawMixMultiview(projectionMat,viewMat);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+        //ptr->DrawStereo(lark::Object::EYE_LEFT,projectionMat,viewMat);
+        //ptr->DrawStereo(lark::Object::EYE_RIGHT,projectionMat,viewMat);
     }
 
 }

@@ -45,8 +45,7 @@ namespace gWorldAr {
         // @param objectColor4 Virtual object color parameter configuration.
         void
         Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat, const glm::mat4 &modelMat,
-             float lightIntensity, const float *objectColor4,
-             std::shared_ptr<RectTexture> ptr) const;
+             float lightIntensity, const float *objectColor4) const;
 
     private:
         float ambient = 0.0f;

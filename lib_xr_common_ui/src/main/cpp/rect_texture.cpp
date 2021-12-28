@@ -124,36 +124,6 @@ void RectTexture::InitGL() {
     enable_ = true;
 }
 
-void RectTexture::InitMixGL() {
-    LoadShader("shader/vertex/rect_vertex.glsl", "shader/fragment/rect_fragment.glsl", vertex_shader_two, fragment_shader_two);
-
-    if (has_error_) {
-        LOGW("loadShaderFromAsset rect texture has error");
-        return;
-    }
-
-    vao_ = std::make_shared<lark::VertexArrayObject>(true, true);
-    if (!vao_) return;
-    // init texture vao
-    InitVao(verticesTexture, sizeof(verticesTexture), indicesAll, sizeof(indicesAll), vao_.get());
-
-    vao_left_ = std::make_shared<lark::VertexArrayObject>(true, true);
-    if (!vao_left_) return;
-    // init left vao
-    InitVao(verticesLeft, sizeof(verticesLeft), indicesAll, sizeof(indicesAll), vao_left_.get());
-
-    vao_right_ = std::make_shared<lark::VertexArrayObject>(true, true);
-    if (!vao_right_) return;
-    InitVao(verticesRight, sizeof(verticesRight), indicesAll, sizeof(indicesAll), vao_right_.get());
-
-    vao_all_ =std::make_shared<lark::VertexArrayObject>(true, true);
-    if (!vao_all_) return;
-    InitVao(verticesAll, sizeof(verticesAll), indicesAll, sizeof(indicesAll), vao_all_.get());
-
-    enable_ = true;
-}
-
-
 void RectTexture::Draw(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
     Object::Draw(eye, projection, view);
 
@@ -192,6 +162,7 @@ void RectTexture::DrawMultiview(const glm::mat4 &projection, const glm::mat4 &vi
     Object::DrawMultiview(projection, view);
     lark::VertexArrayObject * vao = vao_all_.get();
     shader_->UseProgram();
+
     glBindTexture(GL_TEXTURE_2D, frame_texture_);
     vao->BindVAO();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);

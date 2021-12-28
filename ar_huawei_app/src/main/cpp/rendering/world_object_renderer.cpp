@@ -126,8 +126,7 @@ namespace gWorldAr {
 
     void WorldObjectRenderer::Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat,
                                    const glm::mat4 &modelMat,
-                                   float lightIntensity, const float *objectColor4,
-                                   std::shared_ptr<RectTexture> ptr) const
+                                   float lightIntensity, const float *objectColor4) const
     {
         if (!shaderProgram) {
             LOGE("shaderProgram is null.");

@@ -97,7 +97,7 @@ namespace gWorldAr {
     void WorldPlaneRenderer::Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat,
                                   const HwArSession *session,
                                   const HwArPlane *plane, const glm::vec3 &color,
-                                  const std::shared_ptr<RectTexture> &ptr) {
+                                  const std::shared_ptr<ArRectTexture> &ptr) {
         if (!mShaderProgram) {
             LOGE("mShaderProgram is null.");
             return;
@@ -136,7 +136,7 @@ namespace gWorldAr {
         glUseProgram(0);
         glDepthMask(GL_TRUE);
 
-        ptr->DrawMixStereo(projectionMat,viewMat);
+        //ptr->DrawMixMultiview(projectionMat,viewMat);
         //ptr->DrawStereo(lark::Object::EYE_LEFT,projectionMat,viewMat);
         //ptr->DrawStereo(lark::Object::EYE_RIGHT,projectionMat,viewMat);
 

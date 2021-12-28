@@ -40,8 +40,7 @@ namespace gWorldAr {
         // @param mvpMatrix Projection matrix of the point cloud model view.
         // @param arSession Query a point cloud session.
         // @param arPointCloud Point the cloud data to the point cloud for rendering.
-        void Draw(glm::mat4 mvpMatrix, const HwArSession *arSession, const HwArPointCloud *arPointCloud,
-             std::shared_ptr<RectTexture> ptr);
+        void Draw(glm::mat4 mvpMatrix, const HwArSession *arSession, const HwArPointCloud *arPointCloud);
 
     private:
         GLuint mShaderProgram;

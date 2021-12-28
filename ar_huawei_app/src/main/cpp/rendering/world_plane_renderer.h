@@ -30,7 +30,7 @@ namespace gWorldAr {
     class WorldPlaneRenderer {
     public:
 
-        std::shared_ptr<RectTexture> rect_render_ = nullptr;
+        std::shared_ptr<ArRectTexture> rect_render_ = nullptr;
 
         WorldPlaneRenderer() = default;
 
@@ -48,7 +48,7 @@ namespace gWorldAr {
         void
         Draw(const glm::mat4 &projectionMat, const glm::mat4 &viewMat, const HwArSession *session,
              const HwArPlane *plane, const glm::vec3 &color,
-             const std::shared_ptr<RectTexture> &ptr);
+             const std::shared_ptr<ArRectTexture> &ptr);
 
         glm::quat normalVec = glm::vec3(0.0f);
 

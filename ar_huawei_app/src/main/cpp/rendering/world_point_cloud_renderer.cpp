@@ -46,8 +46,7 @@ namespace gWorldAr {
     }
 
     void WorldPointCloudRenderer::Draw(glm::mat4 mvpMatrix, const HwArSession *arSession,
-                                       const HwArPointCloud *arPointCloud,
-                                       std::shared_ptr<RectTexture> ptr)
+                                       const HwArPointCloud *arPointCloud)
     {
         CHECK(mShaderProgram);
         glUseProgram(mShaderProgram);

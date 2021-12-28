@@ -12,8 +12,6 @@ class ArRectTexture : public lark::Object {
 public:
     ArRectTexture();
 
-    ArRectTexture(int mix);
-
     ~ArRectTexture();
 
     void InitGL();
@@ -22,8 +20,8 @@ public:
     // draw
     virtual void Draw(Eye eye, const glm::mat4& projection, const glm::mat4& view);
     virtual void DrawStereo(Eye eye, const glm::mat4& projection, const glm::mat4& view);
-    virtual void DrawMixStereo(const glm::mat4& projection, const glm::mat4& view);
     virtual void DrawMultiview(const glm::mat4& projection, const glm::mat4& view);
+    virtual void DrawMixMultiview(const glm::mat4& projection, const glm::mat4& view);
 
     inline void SetStereoTexture(int texture_left, int texture_right) {
         multiview_mode_ = false;

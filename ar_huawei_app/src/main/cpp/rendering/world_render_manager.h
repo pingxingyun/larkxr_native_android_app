@@ -26,7 +26,6 @@
 #include "rendering/world_object_renderer.h"
 #include "rendering/world_plane_renderer.h"
 #include "rendering/world_point_cloud_renderer.h"
-#include "rendering/world_xr_cloud_renderer.h"
 
 namespace gWorldAr {
     struct ColoredAnchor {
@@ -40,7 +39,7 @@ namespace gWorldAr {
 
         ~WorldRenderManager() = default;
 
-        std::shared_ptr<RectTexture> rect_render_ = nullptr;
+        std::shared_ptr<ArRectTexture> rect_render_ = nullptr;
 
         // Initialize the OpenGL status, including the background, virtual object, point cloud, and plane drawing.
         // @param assetManager Wrapper of the bottom native implementation.
@@ -51,7 +50,7 @@ namespace gWorldAr {
         // @param coloredAnchors Color parameters required for drawing virtual objects.
         void OnDrawFrame(HwArSession *arSession, HwArFrame *arFrame,
                          const std::vector<ColoredAnchor> &coloredAnchors,
-                         std::shared_ptr<RectTexture> ptr);
+                         std::shared_ptr<ArRectTexture> ptr);
 
         // Implement the Draw function of the virtual object module in the rendering manager.
         // @param arSession Implement the session function.
@@ -61,8 +60,7 @@ namespace gWorldAr {
         // @param mColoredAnchors Color parameters required for drawing virtual objects.
         void RenderObject(HwArSession *arSession, HwArFrame *arFrame, const glm::mat4 &viewMat,
                           const glm::mat4 &projectionMat,
-                          const std::vector<ColoredAnchor> &mColoredAnchors,
-                          std::shared_ptr<RectTexture> ptr);
+                          const std::vector<ColoredAnchor> &mColoredAnchors);
 
         // Implement the Draw function of the background module in the rendering manager.
         // @param arSession Implement the session function.
@@ -79,7 +77,7 @@ namespace gWorldAr {
         // @param viewMat Draw the matrix of the point cloud view.
         // @param projectionMat Draw the point cloud view matrix.
         void RenderPointCloud(HwArSession *arSession, HwArFrame *arFrame, const glm::mat4 &viewMat,
-                              const glm::mat4 &projectionMat, std::shared_ptr<RectTexture> ptr);
+                              const glm::mat4 &projectionMat);
 
         // Implement the Draw function of the plane module in the rendering manager.
         // @param arSession Implement the session function.
@@ -87,7 +85,7 @@ namespace gWorldAr {
         // @param projectionMat Draw the plane projection matrix.
         void RenderPlanes(HwArSession *arSession, const glm::mat4 &viewMat,
                           const glm::mat4 &projectionMat,
-                          std::shared_ptr<RectTexture> ptr);
+                          std::shared_ptr<ArRectTexture> ptr);
 
         bool HasDetectedPlanes();
 
@@ -114,14 +112,11 @@ namespace gWorldAr {
 
         WorldObjectRenderer mObjectRenderer = gWorldAr::WorldObjectRenderer();
 
-        WorldXrCloudRenderer mXrCloudRenderer = gWorldAr::WorldXrCloudRenderer();
-
         void RendererPlane(HwArPlane *arPlane, HwArTrackable *arTrackable, glm::vec3 &color);
 
         void
-        RenderMixPlanes(HwArSession *arSession, const glm::mat4 &viewMat,
-                        const glm::mat4 &projectionMat,
-                        std::shared_ptr<RectTexture> ptr);
+        RenderMixPlanes(glm::mat4 projectionMat, glm::mat4 viewMat,
+                        std::shared_ptr<ArRectTexture> ptr);
     };
 }
 #endif
