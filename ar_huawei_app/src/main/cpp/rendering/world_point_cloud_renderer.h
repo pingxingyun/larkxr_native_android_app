@@ -22,7 +22,7 @@
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include <rect_texture.h>
+#include <ar_rect_texture.h>
 
 #include "huawei_arengine_interface.h"
 

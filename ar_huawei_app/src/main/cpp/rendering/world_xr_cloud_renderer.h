@@ -11,7 +11,7 @@
 #include <utils.h>
 
 #include "huawei_arengine_interface.h"
-#include <rect_texture.h>
+#include <ar_rect_texture.h>
 
 namespace gWorldAr {
 

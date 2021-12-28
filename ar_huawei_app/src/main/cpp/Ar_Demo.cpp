@@ -5,7 +5,7 @@
 #include <logger.h>
 #include <utils.h>
 #include <ui/navigation.h>
-#include <rect_texture.h>
+#include <ar_rect_texture.h>
 #include <EGL/egl.h>
 #include <android/native_window_jni.h>
 #include "Ar_Demo.h"

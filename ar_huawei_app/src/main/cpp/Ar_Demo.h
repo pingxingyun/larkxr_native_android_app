@@ -8,7 +8,7 @@
 
 #include <application.h>
 
-#include <rect_texture.h>
+#include <ar_rect_texture.h>
 
 #include "huawei_arengine_interface.h"
 
@@ -30,7 +30,7 @@ public:
 
     Ar_Demo(JavaVM* _vm, jobject act,JNIEnv* _Env);
     ~Ar_Demo();
-    std::shared_ptr<RectTexture> rect_render_ = nullptr;
+    std::shared_ptr<ArRectTexture> rect_render_ = nullptr;
     int nativeTextrureFromMedia;
     int nativeTextrureFromMediaLeft;
     int nativeTextrureFromMediaRight;

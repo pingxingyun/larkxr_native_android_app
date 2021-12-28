@@ -1,6 +1,5 @@
 // 
-// Created by fcx@pingxingyun.com
-// 2020-04-27 19:37
+// Created by Hayasi-Yumito on 2021/12/14.
 //
 #pragma once
 #ifndef RECT_TEXTURE_INCLUDE
@@ -9,17 +8,21 @@
 #include "object.h"
 #include "vertex_array_object.h"
 
-class RectTexture : public lark::Object {
+class ArRectTexture : public lark::Object {
 public:
-    RectTexture();
+    ArRectTexture();
 
-    ~RectTexture();
+    ArRectTexture(int mix);
+
+    ~ArRectTexture();
 
     void InitGL();
+    void InitMixGL();
 
     // draw
     virtual void Draw(Eye eye, const glm::mat4& projection, const glm::mat4& view);
     virtual void DrawStereo(Eye eye, const glm::mat4& projection, const glm::mat4& view);
+    virtual void DrawMixStereo(const glm::mat4& projection, const glm::mat4& view);
     virtual void DrawMultiview(const glm::mat4& projection, const glm::mat4& view);
 
     inline void SetStereoTexture(int texture_left, int texture_right) {

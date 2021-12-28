@@ -1,15 +1,16 @@
 // 
-// Created by fcx@pingxingyun.com
-// 2020-04-27 19:37
+// Created by Hayasi-Yumito on 2021/12/14.
 //
-#include "rect_texture.h"
+#include "ar_rect_texture.h"
 #include "env_context.h"
 #include "log.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <GLES3/gl31.h>
 #include <GLES3/gl3ext.h>
-#define LOG_TAG "rect_texture"
+
+#define LOG_TAG "ar_rect_texture"
+
 namespace  {
     float verticesTexture[] = {
             // 位置              // 颜色           - 纹理坐标 -
@@ -83,19 +84,57 @@ namespace  {
                                         "{\n"
                                         "    FragColor = texture(ourTexture, TexCoord);\n"
                                         "}";
+
+    const char * vertex_shader_two ="#version 330 core\n"
+
+                                    "layout (location = 0) in vec3 aPos;//位置变量的属性位置值为0\n"
+                                    "layout (location = 1) in vec3 aColor;\n"
+                                    "layout (location = 2) in vec2 aTexCoord;\n"
+
+                                    "out vec3 ourColor; //向片段着色器输出一个颜色\n"
+                                    "out vec2 TexCoord; //向片段着色器输出一个纹理坐标\n"
+                                    "void main() {\n"
+                                    "gl_Position = vec4(aPos,1.0);\n"
+                                    "ourColor = aColor;\n"
+                                    "TexCoord = aTexCoord;\n"
+                                    "}\n";
+
+    const char* fragment_shader_two = "#version 330 core\n"
+                                      "out vec4 FragColor;\n"
+                                      "in vec3 ourColor;\n"
+                                      "in vec2 TexCoord;\n"
+
+                                      "uniform sampler2D ourTexture;\n"
+                                      "uniform sampler2D texture1;\n"
+                                      "uniform sampler2D texture2;\n"
+                                      "void main() {\n"
+                                      //ourTexture是纹理采样器
+                                      //    FragColor = texture(ourTexture,TexCoord) * vec4(ourColor,1.0);
+                                      //    FragColor = texture(ourTexture,TexCoord) ;
+                                      //    FragColor = texture(texture2,TexCoord) ;
+                                      //混合两个纹理，第三个参数是指第二个纹理占所有纹理的比例
+                                      "FragColor = mix(texture(texture1,TexCoord)* vec4(ourColor,1.0),\n"
+                                      "texture(texture2,TexCoord)* vec4(ourColor,1.0),0.3) ;\n"
+                                      "}\n";
 }
 
-RectTexture::RectTexture() {
-    name_ = "RectTexture";
+ArRectTexture::ArRectTexture() {
+    name_ = "ArRectTexture";
     enable_ = false;
     InitGL();
     //InitMixGL();
 }
 
-RectTexture::~RectTexture() {
+ArRectTexture::ArRectTexture(int mix) {
+    name_ = "ArRectTexture";
+    enable_ = false;
+    InitMixGL();
 }
 
-void RectTexture::InitGL() {
+ArRectTexture::~ArRectTexture() {
+}
+
+void ArRectTexture::InitGL() {
     LoadShader("shader/vertex/rect_vertex.glsl", "shader/fragment/rect_fragment.glsl", vertexShaderSource, fragmentShaderSource);
 
     if (has_error_) {
@@ -124,7 +163,7 @@ void RectTexture::InitGL() {
     enable_ = true;
 }
 
-void RectTexture::InitMixGL() {
+void ArRectTexture::InitMixGL() {
     LoadShader("shader/vertex/rect_vertex.glsl", "shader/fragment/rect_fragment.glsl", vertex_shader_two, fragment_shader_two);
 
     if (has_error_) {
@@ -154,7 +193,7 @@ void RectTexture::InitMixGL() {
 }
 
 
-void RectTexture::Draw(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
+void ArRectTexture::Draw(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
     Object::Draw(eye, projection, view);
 
 //    LOGV("rect draw frameIndex %d; enable %d; hasError %d", frame_texture_, enable_, has_error_);
@@ -188,7 +227,7 @@ void RectTexture::Draw(lark::Object::Eye eye, const glm::mat4 &projection, const
     }
 }
 
-void RectTexture::DrawMultiview(const glm::mat4 &projection, const glm::mat4 &view) {
+void ArRectTexture::DrawMultiview(const glm::mat4 &projection, const glm::mat4 &view) {
     Object::DrawMultiview(projection, view);
     lark::VertexArrayObject * vao = vao_all_.get();
     shader_->UseProgram();
@@ -204,7 +243,7 @@ void RectTexture::DrawMultiview(const glm::mat4 &projection, const glm::mat4 &vi
     }
 }
 
-void RectTexture::InitVao(void *vertices, int verticesSize, void *indices, int indicesSize,
+void ArRectTexture::InitVao(void *vertices, int verticesSize, void *indices, int indicesSize,
                          lark::VertexArrayObject *vao) {
     vao->BindVAO();
     vao->BindArrayBuffer();
@@ -225,7 +264,7 @@ void RectTexture::InitVao(void *vertices, int verticesSize, void *indices, int i
     vao->UnbindArrayBuffer();
 }
 
-void RectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
+void ArRectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection, const glm::mat4 &view) {
     // LOGV("draw stereo %d %d %d %d %d", frame_texture_left_, frame_texture_right_, multiview_mode_, enable_, has_error_);
 
     if (multiview_mode_) {
@@ -255,4 +294,39 @@ void RectTexture::DrawStereo(lark::Object::Eye eye, const glm::mat4 &projection,
         LOGD("render cloudtexturehas error. %d", frame_texture_);
     }
 }
+
+void ArRectTexture::DrawMixStereo(const glm::mat4 &projection, const glm::mat4 &view) {
+    // LOGV("draw stereo %d %d %d %d %d", frame_texture_left_, frame_texture_right_, multiview_mode_, enable_, has_error_);
+
+    if (multiview_mode_) {
+        LOGE("call draw stereo on multiview mode.");
+        return;
+    }
+    if (!enable_ || has_error_ || !frame_texture_left_ || !frame_texture_right_)
+        return;
+
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+
+    Object::DrawMultiview(projection, view);
+    lark::VertexArrayObject * vao = vao_all_.get();
+    shader_->UseProgram();
+    glBindTexture(GL_TEXTURE_2D,frame_texture_left_);
+    glBindTexture(GL_TEXTURE_2D,frame_texture_right_);
+    vao->BindVAO();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+    //释放
+    shader_->UnUseProgram();
+    vao->UnbindVAO();
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+
+    if (HasGLError()) {
+        LOGD("render cloudtexturehas error. %d", frame_texture_);
+    }
+}
+
 

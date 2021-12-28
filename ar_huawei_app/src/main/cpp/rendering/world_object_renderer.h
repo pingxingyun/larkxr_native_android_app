@@ -19,7 +19,7 @@
 
 #include <GLES2/gl2.h>
 #include <android/asset_manager.h>
-#include <rect_texture.h>
+#include <ar_rect_texture.h>
 #include "huawei_arengine_interface.h"
 
 namespace gWorldAr {
